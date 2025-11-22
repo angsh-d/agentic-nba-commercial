@@ -50,9 +50,9 @@ export function CohortSwitchingChart({
   // Defensive: Return early if no data
   if (!patients?.length || !prescriptionHistory?.length) {
     return (
-      <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
+      <Card className="border border-gray-200 bg-white">
         <CardContent className="p-8 text-center text-gray-500">
-          <p>No prescription data available for cohort analysis</p>
+          <p>No prescription data available</p>
         </CardContent>
       </Card>
     );
@@ -120,7 +120,7 @@ export function CohortSwitchingChart({
   // Defensive: If no timeline data after filtering, show message
   if (!timelineData.length) {
     return (
-      <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
+      <Card className="border border-gray-200 bg-white">
         <CardContent className="p-8 text-center text-gray-500">
           <p>No prescription history found for {productName}</p>
         </CardContent>
@@ -128,13 +128,13 @@ export function CohortSwitchingChart({
     );
   }
   
-  // Define colors for cohorts (cycle if more than defined)
+  // Define greyscale colors for cohorts (Apple aesthetic)
   const cohortColors = [
-    { color: "#3b82f6", name: "blue" },
-    { color: "#ef4444", name: "red" },
-    { color: "#10b981", name: "green" },
-    { color: "#f59e0b", name: "amber" },
-    { color: "#8b5cf6", name: "purple" },
+    { color: "#111827", name: "gray-900" }, // Dark grey
+    { color: "#4b5563", name: "gray-600" }, // Medium grey
+    { color: "#6b7280", name: "gray-500" }, // Light medium grey
+    { color: "#9ca3af", name: "gray-400" }, // Light grey
+    { color: "#d1d5db", name: "gray-300" }, // Very light grey
   ];
 
   // Find key events that fall within the chart timeframe
@@ -186,21 +186,21 @@ export function CohortSwitchingChart({
       : 0;
 
   return (
-    <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
+    <Card className="border border-gray-200 bg-white">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-semibold text-gray-900">
-            {productName} - Cohort Switching Analysis
+            {productName} Cohort Analysis
           </CardTitle>
           <div className="flex items-center gap-2">
-            <TrendingDown className="w-5 h-5 text-red-500" />
-            <span className="text-2xl font-bold text-red-600">
+            <TrendingDown className="w-5 h-5 text-gray-600" />
+            <span className="text-2xl font-semibold text-gray-900">
               -{declinePercent}%
             </span>
           </div>
         </div>
-        <p className="text-sm text-gray-600 mt-2">
-          Patient retention by cohort over time • Events mark key inflection points
+        <p className="text-sm text-gray-500 mt-1">
+          Patient retention by cohort over time
         </p>
       </CardHeader>
       <CardContent className="pt-0">

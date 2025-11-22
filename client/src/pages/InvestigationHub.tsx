@@ -7,10 +7,8 @@ import {
   ArrowLeft, 
   Brain, 
   CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
-  Sparkles,
-  TrendingUp
+  XCircle,
+  ChevronRight
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
@@ -54,33 +52,18 @@ async function triggerInvestigation(hcpId: number) {
   return response.json();
 }
 
-function getVerdictColor(verdict: string) {
+function getVerdictBadge(verdict: string) {
   switch (verdict) {
     case "proven":
     case "likely":
-      return "bg-green-500";
+      return <Badge className="bg-gray-900 text-white text-xs px-2.5 py-0.5">{verdict}</Badge>;
     case "possible":
-      return "bg-yellow-500";
+      return <Badge className="bg-gray-600 text-white text-xs px-2.5 py-0.5">{verdict}</Badge>;
     case "unlikely":
     case "disproven":
-      return "bg-red-500";
+      return <Badge className="bg-gray-300 text-gray-700 text-xs px-2.5 py-0.5">{verdict}</Badge>;
     default:
-      return "bg-gray-500";
-  }
-}
-
-function getVerdictIcon(verdict: string) {
-  switch (verdict) {
-    case "proven":
-    case "likely":
-      return <CheckCircle2 className="w-5 h-5" />;
-    case "possible":
-      return <AlertCircle className="w-5 h-5" />;
-    case "unlikely":
-    case "disproven":
-      return <XCircle className="w-5 h-5" />;
-    default:
-      return null;
+      return <Badge className="bg-gray-200 text-gray-600 text-xs px-2.5 py-0.5">testing</Badge>;
   }
 }
 
@@ -94,16 +77,12 @@ export default function InvestigationHub() {
     mutationFn: () => triggerInvestigation(Number(hcpId)),
     onMutate: () => {
       setIsInvestigating(true);
-      toast.info("Starting Causal Investigation", {
-        description: "AI is generating competing hypotheses...",
-      });
+      toast.info("Starting Investigation");
     },
     onSuccess: (data) => {
       setInvestigationResults(data.investigation);
       setIsInvestigating(false);
-      toast.success("Investigation Complete", {
-        description: `${data.investigation.provenHypotheses.length} hypotheses proven`,
-      });
+      toast.success(`${data.investigation.provenHypotheses.length} hypotheses proven`);
     },
     onError: () => {
       setIsInvestigating(false);
@@ -116,201 +95,168 @@ export default function InvestigationHub() {
   const ruledOut = investigationResults?.ruledOut || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <main className="container mx-auto px-12 py-16 max-w-7xl">
+      <main className="max-w-5xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="mb-12">
           <Link href={`/hcp/${hcpId}`}>
             <Button
               variant="ghost"
-              className="mb-6 -ml-2 text-gray-500 hover:text-gray-900"
+              className="mb-6 -ml-3 text-gray-600 hover:text-gray-900 text-sm"
               data-testid="button-back"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to HCP Details
+              Back
             </Button>
           </Link>
 
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-xl">
-              <Brain className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-semibold text-gray-900 tracking-tight">
-                Causal Investigation Hub
-              </h1>
-              <p className="text-lg text-gray-600 mt-1">
-                Multi-hypothesis autonomous reasoning & evidence discovery
-              </p>
-            </div>
+          <div className="flex items-center gap-3 mb-2">
+            <Brain className="w-6 h-6 text-gray-900" />
+            <h1 className="text-4xl font-semibold text-gray-900 tracking-tight">
+              Causal Investigation
+            </h1>
           </div>
+          <p className="text-base text-gray-600 mt-2">
+            Multi-hypothesis autonomous reasoning with evidence discovery
+          </p>
         </div>
 
-        {/* Investigation Status */}
+        {/* Not Started */}
         {!investigationResults && !isInvestigating && (
-          <Card className="border-2 border-dashed border-blue-200 bg-gradient-to-br from-blue-50/50 to-purple-50/50">
+          <Card className="border border-gray-200 bg-white">
             <CardContent className="p-12 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <Sparkles className="w-10 h-10 text-white" />
-              </div>
+              <Brain className="w-12 h-12 text-gray-400 mx-auto mb-6" />
               <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                Ready to Investigate Root Causes
+                Ready to Investigate
               </h2>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-                Our AI agents will generate multiple competing hypotheses, gather evidence from various data sources,
-                test each hypothesis objectively, and identify the proven causal factors behind switching behavior.
+              <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-sm">
+                Generate competing hypotheses, gather evidence from multiple sources,
+                and identify proven causal factors behind switching behavior.
               </p>
               <Button
-                size="lg"
                 onClick={() => investigateMutation.mutate()}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
                 data-testid="button-start-investigation"
               >
-                <Brain className="w-5 h-5 mr-2" />
-                Start Causal Investigation
+                Start Investigation
+                <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* Investigation in Progress */}
+        {/* In Progress */}
         {isInvestigating && (
-          <div className="space-y-6">
-            <Card className="border-2 border-purple-200">
-              <CardContent className="p-10">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900">
-                      AI Investigation in Progress
-                    </h3>
-                    <p className="text-gray-600">
-                      Generating hypotheses, gathering evidence, and testing causal relationships...
-                    </p>
-                  </div>
+          <Card className="border border-gray-200 bg-white">
+            <CardContent className="p-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Investigation in Progress
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Generating hypotheses and gathering evidence...
+                  </p>
                 </div>
-                <Progress value={66} className="h-2" />
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <Progress value={66} className="h-1.5 bg-gray-100" />
+            </CardContent>
+          </Card>
         )}
 
-        {/* Investigation Results */}
+        {/* Results */}
         {investigationResults && (
           <div className="space-y-8">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-3 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-blue-900">
-                      Total Hypotheses
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-blue-600">
-                      {allHypotheses.length}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">Generated & tested</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+            {/* Summary */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="border border-gray-200 bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Total Hypotheses
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-semibold text-gray-900">
+                    {allHypotheses.length}
+                  </div>
+                </CardContent>
+              </Card>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-green-900">
-                      Proven Hypotheses
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-green-600">
-                      {provenHypotheses.length}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">Strong evidence found</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Card className="border border-gray-200 bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Proven
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-semibold text-gray-900">
+                    {provenHypotheses.length}
+                  </div>
+                </CardContent>
+              </Card>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-red-900">
-                      Ruled Out
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold text-red-600">
-                      {ruledOut.length}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">Insufficient evidence</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Card className="border border-gray-200 bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Ruled Out
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-semibold text-gray-900">
+                    {ruledOut.length}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            {/* All Hypotheses */}
+            {/* Hypotheses List */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-gray-900">Hypotheses Ranked by Evidence</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Hypotheses</h2>
               
               {allHypotheses.map((result: HypothesisResult, index: number) => (
                 <motion.div
                   key={result.hypothesis.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
                 >
-                  <Card className={`border-2 ${result.evidence.finalConfidence >= 70 ? 'border-green-300 bg-gradient-to-br from-green-50/50 to-white' : result.evidence.finalConfidence < 40 ? 'border-red-200 bg-gray-50' : 'border-yellow-200'}`}>
+                  <Card className={`border ${result.evidence.finalConfidence >= 70 ? 'border-gray-900' : 'border-gray-200'} bg-white`}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Badge className={`${getVerdictColor(result.evidence.verdict)} text-white`}>
-                              <div className="flex items-center gap-1">
-                                {getVerdictIcon(result.evidence.verdict)}
-                                <span className="capitalize">{result.evidence.verdict}</span>
-                              </div>
-                            </Badge>
-                            <CardTitle className="text-xl">{result.hypothesis.title}</CardTitle>
+                          <div className="flex items-center gap-2 mb-2">
+                            {getVerdictBadge(result.evidence.verdict)}
+                            <CardTitle className="text-lg font-semibold text-gray-900">
+                              {result.hypothesis.title}
+                            </CardTitle>
                           </div>
-                          <p className="text-gray-600 text-sm">{result.hypothesis.description}</p>
+                          <p className="text-sm text-gray-600">{result.hypothesis.description}</p>
                         </div>
-                        <div className="text-right ml-4">
-                          <div className="text-3xl font-bold text-gray-900">
+                        <div className="text-right ml-6">
+                          <div className="text-3xl font-semibold text-gray-900">
                             {result.evidence.finalConfidence}%
                           </div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wide">
-                            Confidence
+                          <div className="text-xs text-gray-500">
+                            confidence
                           </div>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <Progress value={result.evidence.finalConfidence} className="h-2 mb-6" />
+                      <Progress value={result.evidence.finalConfidence} className="h-1.5 bg-gray-100 mb-6" />
 
                       {/* Causal Chain */}
                       <div className="mb-4">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Causal Chain:</h4>
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Causal Chain</h4>
                         <div className="flex items-center gap-2 flex-wrap">
                           {result.hypothesis.causalChain.map((step, idx) => (
                             <div key={idx} className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs">
+                              <span className="text-sm text-gray-700">
                                 {step}
-                              </Badge>
+                              </span>
                               {idx < result.hypothesis.causalChain.length - 1 && (
                                 <span className="text-gray-400">→</span>
                               )}
@@ -319,37 +265,27 @@ export default function InvestigationHub() {
                         </div>
                       </div>
 
-                      {/* Evidence Found */}
+                      {/* Evidence */}
                       {result.evidence.evidenceFound.length > 0 && (
                         <div>
-                          <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                            Evidence ({result.evidence.evidenceFound.length} findings):
+                          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Evidence ({result.evidence.evidenceFound.length})
                           </h4>
                           <div className="space-y-2">
                             {result.evidence.evidenceFound.map((evidence, idx) => (
                               <div
                                 key={idx}
-                                className={`p-3 rounded-lg text-sm ${
-                                  evidence.supportsHypothesis
-                                    ? 'bg-green-50 border border-green-200'
-                                    : 'bg-red-50 border border-red-200'
-                                }`}
+                                className="p-3 rounded-lg text-sm border border-gray-200 bg-gray-50"
                               >
                                 <div className="flex items-start gap-2">
                                   {evidence.supportsHypothesis ? (
-                                    <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                    <CheckCircle2 className="w-4 h-4 text-gray-900 mt-0.5 flex-shrink-0" />
                                   ) : (
-                                    <XCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                                    <XCircle className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                                   )}
                                   <div className="flex-1">
-                                    <div className="font-medium text-gray-900">{evidence.source}</div>
+                                    <div className="font-medium text-gray-900 text-xs">{evidence.source}</div>
                                     <div className="text-gray-700 mt-1">{evidence.finding}</div>
-                                    <Badge
-                                      variant="outline"
-                                      className="mt-2 text-xs capitalize"
-                                    >
-                                      {evidence.strength} evidence
-                                    </Badge>
                                   </div>
                                 </div>
                               </div>
@@ -357,39 +293,32 @@ export default function InvestigationHub() {
                           </div>
                         </div>
                       )}
-
-                      {/* AI Reasoning */}
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2">AI Analysis:</h4>
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {result.evidence.reasoning}
-                        </p>
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
 
-            {/* Next Steps */}
+            {/* CTA to NBA Strategy */}
             {provenHypotheses.length > 0 && (
-              <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-purple-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-6 h-6 text-blue-600" />
-                    Next Steps: Strategic Intervention
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 mb-4">
-                    With {provenHypotheses.length} proven causal factor{provenHypotheses.length > 1 ? 's' : ''} identified,
-                    our Ensemble NBA Agent can now design targeted intervention strategies.
-                  </p>
-                  <Link href={`/hcp/${hcpId}`}>
-                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
-                      View Strategic Recommendations →
-                    </Button>
-                  </Link>
+              <Card className="border border-gray-900 bg-gray-900 text-white">
+                <CardContent className="p-8">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-1">
+                        View Ensemble NBA Strategies
+                      </h3>
+                      <p className="text-sm text-gray-300">
+                        See AI-generated recommendations based on proven hypotheses
+                      </p>
+                    </div>
+                    <Link href={`/hcp/${hcpId}`}>
+                      <Button variant="secondary" className="bg-white text-gray-900 hover:bg-gray-100">
+                        View Strategies
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             )}
