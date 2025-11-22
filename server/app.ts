@@ -61,6 +61,22 @@ app.use((req, res, next) => {
 export default async function runApp(
   setup: (app: Express, server: Server) => Promise<void>,
 ) {
+  // Initialize database connection and seed if needed
+  const { db } = await import("../drizzle/db");
+  const { sql } = await import("drizzle-orm");
+  const { storage } = await import("./storage");
+  const { seedDatabase } = await import("./seed");
+  
+  await db.execute(sql`SELECT 1`);
+  log("Database connection established");
+  
+  // Check if database needs seeding
+  const hcps = await storage.getAllHcps();
+  if (hcps.length === 0) {
+    log("Database is empty, seeding...");
+    await seedDatabase();
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

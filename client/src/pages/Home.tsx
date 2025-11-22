@@ -25,46 +25,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import heroImage from "@assets/generated_images/minimalist_abstract_white_and_grey_3d_network_data_flow.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchNbas, fetchStats, fetchLatestAnalytics } from "@/lib/api";
+import type { NbaWithHcp } from "@/lib/api";
 
-// Mock Data for "Enrichment Layer" (Phase 1)
-const nextBestActions = [
-  {
-    id: 1,
-    hcp: "Dr. Sarah Smith",
-    specialty: "Oncologist",
-    hospital: "Memorial Sloan Kettering",
-    action: "Schedule Clinical Review",
-    priority: "High",
-    reason: "Increased use of Competitor X in renal cell carcinoma since Q2.",
-    aiInsight: "Dr. Smith's switch likely correlates with new efficacy data for younger patients released last month. Suggest highlighting our Phase 3 long-term survival data.",
-    type: "meeting"
-  },
-  {
-    id: 2,
-    hcp: "Dr. James Wilson",
-    specialty: "Hematologist",
-    hospital: "Mount Sinai",
-    action: "Send Email: Dosing Guidelines",
-    priority: "Medium",
-    reason: "Recent drop in prescriptions for 2nd line therapy.",
-    aiInsight: "Pattern analysis suggests potential confusion regarding the new dosing protocol. A clarification email with the simplified dosing chart has a 85% predicted success rate.",
-    type: "email"
-  },
-  {
-    id: 3,
-    hcp: "Dr. Emily Chen",
-    specialty: "Oncologist",
-    hospital: "NY Presbyterian",
-    action: "Invite to Symposium",
-    priority: "Low",
-    reason: "High engagement with recent webinar content.",
-    aiInsight: "Dr. Chen is showing high interest in immunotherapy combinations. The upcoming symposium aligns perfectly with her recent research publications.",
-    type: "event"
-  }
-];
-
-// Mock Data for "Agent Copilot" (Phase 2)
 const copilotSuggestions = [
   {
     title: "Territory Plan Generated",
@@ -81,6 +46,21 @@ const copilotSuggestions = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState("actions");
   const [planOpen, setPlanOpen] = useState(false);
+
+  const { data: nbas = [], isLoading: nbasLoading } = useQuery({
+    queryKey: ["nbas"],
+    queryFn: fetchNbas,
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["stats"],
+    queryFn: fetchStats,
+  });
+
+  const { data: analytics } = useQuery({
+    queryKey: ["analytics"],
+    queryFn: fetchLatestAnalytics,
+  });
 
   return (
     <div className="min-h-screen bg-gray-50/50 font-sans text-gray-900 selection:bg-gray-200">
@@ -141,10 +121,10 @@ export default function Home() {
           {/* Stats Overview - Bento Grid Style */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
             {[
-              { label: "Active HCPs", value: "1,248", trend: "+2.4%", icon: Users, sub: "vs last month" },
-              { label: "Switching Risks", value: "14", trend: "-12%", icon: Activity, alert: true, sub: "requires attention" },
-              { label: "Actions Completed", value: "86%", trend: "+5.1%", icon: CheckCircle, sub: "completion rate" },
-              { label: "Agent Accuracy", value: "94.2%", trend: "+1.2%", icon: Brain, sub: "model confidence" }
+              { label: "Active HCPs", value: stats?.activeHcps?.toString() || "0", trend: "+2.4%", icon: Users, sub: "vs last month" },
+              { label: "Switching Risks", value: stats?.switchingRisks?.toString() || "0", trend: "-12%", icon: Activity, alert: true, sub: "requires attention" },
+              { label: "Actions Completed", value: stats?.actionsCompleted ? `${Math.round((stats.actionsCompleted / stats.totalActions) * 100)}%` : "0%", trend: "+5.1%", icon: Activity, sub: "completion rate" },
+              { label: "Agent Accuracy", value: `${stats?.agentAccuracy || 0}%`, trend: "+1.2%", icon: Brain, sub: "model confidence" }
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -188,72 +168,101 @@ export default function Home() {
               </div>
 
               <div className="space-y-6">
-                {nextBestActions.map((item) => (
-                  <motion.div 
-                    key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                    className="group"
-                  >
-                    <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 rounded-[24px] overflow-hidden bg-white group-hover:scale-[1.005]">
-                      <div className="flex flex-col md:flex-row">
-                        <div className="flex-1 p-8">
-                          <div className="flex justify-between items-start mb-6">
-                            <div className="flex items-center gap-5">
-                              <Avatar className="h-14 w-14 border border-black/5 bg-[#F5F5F7] shadow-sm">
-                                <AvatarFallback className="text-[#1d1d1f] font-semibold text-base">{item.hcp.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <h3 className="text-[19px] font-semibold text-[#1d1d1f] flex items-center gap-3 mb-1">
-                                  {item.hcp}
-                                  {item.priority === 'High' && (
-                                    <span className="flex h-2 w-2 relative">
-                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                {nbasLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+                  </div>
+                ) : nbas.length === 0 ? (
+                  <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] rounded-[24px] p-12 text-center">
+                    <p className="text-[#86868b]">No actions available at the moment.</p>
+                  </Card>
+                ) : (
+                  nbas.map((item) => {
+                    const daysSinceVisit = item.hcp.lastVisitDate 
+                      ? Math.floor((Date.now() - new Date(item.hcp.lastVisitDate).getTime()) / (1000 * 60 * 60 * 24))
+                      : null;
+                    
+                    return (
+                      <motion.div 
+                        key={item.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        className="group"
+                        data-testid={`card-nba-${item.id}`}
+                      >
+                        <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 rounded-[24px] overflow-hidden bg-white group-hover:scale-[1.005]">
+                          <div className="flex flex-col md:flex-row">
+                            <div className="flex-1 p-8">
+                              <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-5">
+                                  <Avatar className="h-14 w-14 border border-black/5 bg-[#F5F5F7] shadow-sm">
+                                    <AvatarFallback className="text-[#1d1d1f] font-semibold text-base">
+                                      {item.hcp.name.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <h3 className="text-[19px] font-semibold text-[#1d1d1f] flex items-center gap-3 mb-1" data-testid={`text-hcp-name-${item.id}`}>
+                                      {item.hcp.name}
+                                      {item.priority === 'High' && (
+                                        <span className="flex h-2 w-2 relative">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                        </span>
+                                      )}
+                                    </h3>
+                                    <p className="text-[15px] text-[#86868b] font-normal">{item.hcp.specialty} • {item.hcp.hospital}</p>
+                                  </div>
+                                </div>
+                                <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider border border-black/5 text-[#86868b] bg-[#F5F5F7]">
+                                  {item.actionType}
+                                </Badge>
+                              </div>
+
+                              {/* AI Reasoning Layer - Apple Style */}
+                              <div className="bg-[#F5F5F7]/50 rounded-2xl p-6 mb-6 backdrop-blur-sm">
+                                <div className="flex items-start gap-4">
+                                  <div className="bg-white p-2 rounded-xl shadow-sm shrink-0">
+                                    <Sparkles className="h-4 w-4 text-[#1d1d1f]" />
+                                  </div>
+                                  <div className="space-y-2 pt-1">
+                                    <p className="text-[15px] font-semibold text-[#1d1d1f]" data-testid={`text-action-${item.id}`}>
+                                      {item.action}
+                                    </p>
+                                    <p className="text-[15px] text-[#86868b] leading-relaxed font-normal" data-testid={`text-insight-${item.id}`}>
+                                      {item.aiInsight}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-2">
+                                <div className="flex items-center gap-6 text-[13px] text-[#86868b] font-medium">
+                                  <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg">
+                                    <Activity className="h-3.5 w-3.5" /> Switch Risk Detected
+                                  </span>
+                                  {daysSinceVisit !== null && (
+                                    <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg">
+                                      <Calendar className="h-3.5 w-3.5" /> Last Visit: {daysSinceVisit} days ago
                                     </span>
                                   )}
-                                </h3>
-                                <p className="text-[15px] text-[#86868b] font-normal">{item.specialty} • {item.hospital}</p>
-                              </div>
-                            </div>
-                            <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider border border-black/5 text-[#86868b] bg-[#F5F5F7]">
-                              {item.type}
-                            </Badge>
-                          </div>
-
-                          {/* AI Reasoning Layer - Apple Style */}
-                          <div className="bg-[#F5F5F7]/50 rounded-2xl p-6 mb-6 backdrop-blur-sm">
-                            <div className="flex items-start gap-4">
-                              <div className="bg-white p-2 rounded-xl shadow-sm shrink-0">
-                                <Sparkles className="h-4 w-4 text-[#1d1d1f]" />
-                              </div>
-                              <div className="space-y-2 pt-1">
-                                <p className="text-[15px] font-semibold text-[#1d1d1f]">
-                                  {item.action}
-                                </p>
-                                <p className="text-[15px] text-[#86868b] leading-relaxed font-normal">
-                                  {item.aiInsight}
-                                </p>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  className="text-[#1d1d1f] hover:bg-[#F5F5F7] font-medium text-[14px] rounded-full px-5 h-10 group-hover:translate-x-1 transition-all"
+                                  data-testid={`button-action-${item.id}`}
+                                >
+                                  Take Action <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
                               </div>
                             </div>
                           </div>
-
-                          <div className="flex items-center justify-between pt-2">
-                            <div className="flex items-center gap-6 text-[13px] text-[#86868b] font-medium">
-                              <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg"><Activity className="h-3.5 w-3.5" /> Switch Risk Detected</span>
-                              <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg"><Calendar className="h-3.5 w-3.5" /> Last Visit: 14 days ago</span>
-                            </div>
-                            <Button variant="ghost" className="text-[#1d1d1f] hover:bg-[#F5F5F7] font-medium text-[14px] rounded-full px-5 h-10 group-hover:translate-x-1 transition-all">
-                              Take Action <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
+                        </Card>
+                      </motion.div>
+                    );
+                  })
+                )}
               </div>
             </div>
 
@@ -326,10 +335,10 @@ export default function Home() {
                 <CardContent className="px-8 pb-8">
                   <div className="space-y-6">
                     {[
-                      { label: "Clinical Efficacy", value: 45, color: "bg-[#1d1d1f]" },
-                      { label: "Patient Access", value: 30, color: "bg-gray-500" },
-                      { label: "Side Effect Profile", value: 15, color: "bg-gray-300" },
-                      { label: "Competitor Pricing", value: 10, color: "bg-gray-100" }
+                      { label: "Clinical Efficacy", value: analytics?.clinicalEfficacy || 45, color: "bg-[#1d1d1f]" },
+                      { label: "Patient Access", value: analytics?.patientAccess || 30, color: "bg-gray-500" },
+                      { label: "Side Effect Profile", value: analytics?.sideEffects || 15, color: "bg-gray-300" },
+                      { label: "Competitor Pricing", value: analytics?.competitorPricing || 10, color: "bg-gray-100" }
                     ].map((item, i) => (
                       <div key={i}>
                         <div className="flex justify-between text-[13px] font-medium mb-2">
