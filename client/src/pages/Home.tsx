@@ -133,35 +133,36 @@ export default function Home() {
         </section>
 
         {/* Dashboard Content */}
-        <div className="container mx-auto px-6 py-12 max-w-7xl">
+        <div className="container mx-auto px-6 py-16 max-w-[1400px]">
           
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          {/* Stats Overview - Bento Grid Style */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
             {[
-              { label: "Active HCPs", value: "1,248", trend: "+2.4%", icon: Users },
-              { label: "Switching Risks", value: "14", trend: "-12%", icon: Activity, alert: true },
-              { label: "Actions Completed", value: "86%", trend: "+5.1%", icon: CheckCircle },
-              { label: "Agent Accuracy", value: "94.2%", trend: "+1.2%", icon: Brain }
+              { label: "Active HCPs", value: "1,248", trend: "+2.4%", icon: Users, sub: "vs last month" },
+              { label: "Switching Risks", value: "14", trend: "-12%", icon: Activity, alert: true, sub: "requires attention" },
+              { label: "Actions Completed", value: "86%", trend: "+5.1%", icon: CheckCircle, sub: "completion rate" },
+              { label: "Agent Accuracy", value: "94.2%", trend: "+1.2%", icon: Brain, sub: "model confidence" }
             ].map((stat, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: 0.2 + (i * 0.1), duration: 0.5 }}
               >
-                <Card className="border-none shadow-sm bg-white hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className={`p-2 rounded-xl ${stat.alert ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-900'}`}>
-                        <stat.icon className="h-5 w-5" />
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-shadow duration-500 rounded-[24px] overflow-hidden h-full">
+                  <CardContent className="p-8 flex flex-col justify-between h-full">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className={`p-2.5 rounded-2xl ${stat.alert ? 'bg-red-50 text-red-500' : 'bg-[#F5F5F7] text-black'}`}>
+                        <stat.icon className="h-5 w-5 stroke-[1.5px]" />
                       </div>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${stat.trend.startsWith('+') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                      <span className={`text-[13px] font-semibold px-3 py-1 rounded-full ${stat.trend.startsWith('+') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                         {stat.trend}
                       </span>
                     </div>
-                    <div className="space-y-1">
-                      <h3 className="text-3xl font-bold tracking-tight text-gray-900">{stat.value}</h3>
-                      <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+                    <div>
+                      <h3 className="text-[42px] font-semibold tracking-tighter text-[#1d1d1f] mb-1">{stat.value}</h3>
+                      <p className="text-[15px] font-medium text-[#86868b]">{stat.label}</p>
+                      <p className="text-[13px] text-gray-400 mt-1 font-normal">{stat.sub}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -169,66 +170,67 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
             {/* Main Feed: Next Best Actions (Phase 1) */}
-            <div className="lg:col-span-2 space-y-8">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-semibold tracking-tight text-gray-900">Next Best Actions</h2>
+            <div className="lg:col-span-8 space-y-8">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-[28px] font-semibold tracking-tight text-[#1d1d1f]">Next Best Actions</h2>
                 <Tabs defaultValue="actions" className="w-auto">
-                  <TabsList className="bg-gray-100 rounded-full p-1 h-9">
-                    <TabsTrigger value="actions" className="rounded-full text-xs px-4 h-7 data-[state=active]:bg-white data-[state=active]:shadow-sm">Priority</TabsTrigger>
-                    <TabsTrigger value="all" className="rounded-full text-xs px-4 h-7 data-[state=active]:bg-white data-[state=active]:shadow-sm">All HCPs</TabsTrigger>
+                  <TabsList className="bg-[#F5F5F7] rounded-full p-1 h-10">
+                    <TabsTrigger value="actions" className="rounded-full text-[13px] font-medium px-5 h-8 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all">Priority</TabsTrigger>
+                    <TabsTrigger value="all" className="rounded-full text-[13px] font-medium px-5 h-8 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm transition-all">All HCPs</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {nextBestActions.map((item) => (
                   <motion.div 
                     key={item.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
                     className="group"
                   >
-                    <Card className="border border-gray-200 shadow-none hover:shadow-lg transition-all duration-300 rounded-2xl overflow-hidden bg-white">
+                    <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 rounded-[24px] overflow-hidden bg-white group-hover:scale-[1.005]">
                       <div className="flex flex-col md:flex-row">
-                        {/* Left Status Strip */}
-                        <div className={`w-full md:w-1.5 ${
-                          item.priority === 'High' ? 'bg-gray-900' : 
-                          item.priority === 'Medium' ? 'bg-gray-400' : 'bg-gray-200'
-                        }`} />
-                        
-                        <div className="flex-1 p-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-4">
-                              <Avatar className="h-12 w-12 border border-gray-100 bg-gray-50">
-                                <AvatarFallback className="text-gray-700 font-semibold text-sm">{item.hcp.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        <div className="flex-1 p-8">
+                          <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-5">
+                              <Avatar className="h-14 w-14 border border-black/5 bg-[#F5F5F7] shadow-sm">
+                                <AvatarFallback className="text-[#1d1d1f] font-semibold text-base">{item.hcp.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                               </Avatar>
                               <div>
-                                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                <h3 className="text-[19px] font-semibold text-[#1d1d1f] flex items-center gap-3 mb-1">
                                   {item.hcp}
-                                  {item.priority === 'High' && <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />}
+                                  {item.priority === 'High' && (
+                                    <span className="flex h-2 w-2 relative">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                    </span>
+                                  )}
                                 </h3>
-                                <p className="text-sm text-gray-500">{item.specialty} • {item.hospital}</p>
+                                <p className="text-[15px] text-[#86868b] font-normal">{item.specialty} • {item.hospital}</p>
                               </div>
                             </div>
-                            <Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider border-gray-200 text-gray-600 bg-gray-50">
+                            <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider border border-black/5 text-[#86868b] bg-[#F5F5F7]">
                               {item.type}
                             </Badge>
                           </div>
 
-                          {/* AI Reasoning Layer */}
-                          <div className="bg-gray-50/80 rounded-xl p-4 mb-4 border border-gray-100 group-hover:border-gray-200 transition-colors">
-                            <div className="flex items-start gap-3">
-                              <Sparkles className="h-4 w-4 text-gray-400 mt-1 shrink-0" />
-                              <div className="space-y-2">
-                                <p className="text-sm font-medium text-gray-900">
-                                  Recommended: <span className="text-gray-700">{item.action}</span>
+                          {/* AI Reasoning Layer - Apple Style */}
+                          <div className="bg-[#F5F5F7]/50 rounded-2xl p-6 mb-6 backdrop-blur-sm">
+                            <div className="flex items-start gap-4">
+                              <div className="bg-white p-2 rounded-xl shadow-sm shrink-0">
+                                <Sparkles className="h-4 w-4 text-[#1d1d1f]" />
+                              </div>
+                              <div className="space-y-2 pt-1">
+                                <p className="text-[15px] font-semibold text-[#1d1d1f]">
+                                  {item.action}
                                 </p>
-                                <p className="text-sm text-gray-500 leading-relaxed">
-                                  <span className="font-semibold text-gray-700">Reasoning: </span>
+                                <p className="text-[15px] text-[#86868b] leading-relaxed font-normal">
                                   {item.aiInsight}
                                 </p>
                               </div>
@@ -236,11 +238,11 @@ export default function Home() {
                           </div>
 
                           <div className="flex items-center justify-between pt-2">
-                            <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
-                              <span className="flex items-center gap-1"><Activity className="h-3 w-3" /> Switch Risk Detected</span>
-                              <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> Last Visit: 14 days ago</span>
+                            <div className="flex items-center gap-6 text-[13px] text-[#86868b] font-medium">
+                              <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg"><Activity className="h-3.5 w-3.5" /> Switch Risk Detected</span>
+                              <span className="flex items-center gap-2 bg-[#F5F5F7] px-3 py-1.5 rounded-lg"><Calendar className="h-3.5 w-3.5" /> Last Visit: 14 days ago</span>
                             </div>
-                            <Button variant="ghost" className="text-gray-900 hover:bg-gray-100 font-medium text-sm group-hover:translate-x-1 transition-transform">
+                            <Button variant="ghost" className="text-[#1d1d1f] hover:bg-[#F5F5F7] font-medium text-[14px] rounded-full px-5 h-10 group-hover:translate-x-1 transition-all">
                               Take Action <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                           </div>
@@ -253,89 +255,98 @@ export default function Home() {
             </div>
 
             {/* Sidebar: Agent Copilot (Phase 2) & Analytics */}
-            <div className="space-y-8">
+            <div className="lg:col-span-4 space-y-8">
               
-              {/* Agent Copilot Card */}
-              <Card className="bg-gray-900 text-white border-none shadow-xl rounded-2xl overflow-hidden relative">
-                 <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                 <div className="absolute bottom-0 left-0 p-24 bg-gray-800/20 rounded-full blur-3xl -ml-12 -mb-12 pointer-events-none" />
+              {/* Agent Copilot Card - iOS/macOS Widget Style */}
+              <Card className="bg-black text-white border-none shadow-2xl rounded-[32px] overflow-hidden relative h-[500px] flex flex-col">
+                 {/* Abstract Background Mesh */}
+                 <div className="absolute top-0 right-0 p-40 bg-[#2997ff]/20 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none" />
+                 <div className="absolute bottom-0 left-0 p-32 bg-[#af52de]/20 rounded-full blur-[100px] -ml-16 -mb-16 pointer-events-none" />
                  
-                 <CardHeader className="pb-2 relative z-10">
-                   <div className="flex items-center justify-between mb-2">
-                     <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                       <Brain className="h-5 w-5 text-white" />
+                 <CardHeader className="pb-4 relative z-10 pt-8 px-8">
+                   <div className="flex items-center justify-between mb-6">
+                     <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-inner">
+                            <Brain className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-[19px] font-semibold tracking-tight">Agent Copilot</CardTitle>
+                            <CardDescription className="text-gray-400 text-[13px]">Active Orchestration</CardDescription>
+                        </div>
                      </div>
-                     <Badge className="bg-white/10 hover:bg-white/20 text-white border-none rounded-full text-[10px] uppercase tracking-wider">Active</Badge>
+                     <div className="h-2 w-2 rounded-full bg-[#30d158] shadow-[0_0_10px_#30d158]" />
                    </div>
-                   <CardTitle className="text-xl font-light">Agent Copilot</CardTitle>
-                   <CardDescription className="text-gray-400">Orchestrating territory plans</CardDescription>
                  </CardHeader>
 
-                 <CardContent className="relative z-10">
-                   <div className="space-y-4 mt-4">
+                 <CardContent className="relative z-10 px-8 flex-1 overflow-y-auto no-scrollbar">
+                   <div className="space-y-4">
                      {copilotSuggestions.map((suggestion, i) => (
-                       <div key={i} className="bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
-                         <h4 className="text-sm font-medium text-white mb-1">{suggestion.title}</h4>
-                         <p className="text-xs text-gray-400 mb-3 leading-relaxed">{suggestion.description}</p>
-                         <button className="text-xs font-semibold text-white flex items-center hover:underline">
-                           {suggestion.action} <ChevronRight className="h-3 w-3 ml-1" />
-                         </button>
-                       </div>
+                       <motion.div 
+                        key={i} 
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 + (i * 0.1) }}
+                        className="bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-[20px] p-5 transition-all cursor-pointer border border-white/5 group"
+                       >
+                         <h4 className="text-[15px] font-semibold text-white mb-2 group-hover:text-[#2997ff] transition-colors">{suggestion.title}</h4>
+                         <p className="text-[13px] text-gray-400 mb-4 leading-relaxed font-normal">{suggestion.description}</p>
+                         <div className="flex items-center text-[13px] font-medium text-white/80 group-hover:text-white">
+                           {suggestion.action} <ChevronRight className="h-3 w-3 ml-auto opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                         </div>
+                       </motion.div>
                      ))}
                    </div>
                  </CardContent>
 
-                 <CardFooter className="relative z-10 border-t border-white/10 pt-4">
-                   <div className="flex w-full items-center gap-2 bg-white/10 rounded-full px-4 py-2">
+                 <CardFooter className="relative z-10 border-t border-white/10 p-6 bg-black/20 backdrop-blur-xl mt-auto">
+                   <div className="flex w-full items-center gap-3 bg-white/10 rounded-full px-5 py-3 border border-white/5 focus-within:bg-white/15 transition-colors">
                      <MessageSquare className="h-4 w-4 text-gray-400" />
                      <input 
                        type="text" 
                        placeholder="Ask Copilot..." 
-                       className="bg-transparent border-none text-sm text-white placeholder:text-gray-500 focus:outline-none w-full"
+                       className="bg-transparent border-none text-[14px] text-white placeholder:text-gray-500 focus:outline-none w-full font-normal"
                      />
-                     <div className="h-6 w-6 rounded-full bg-white flex items-center justify-center shrink-0 cursor-pointer hover:scale-105 transition-transform">
-                       <ArrowRight className="h-3 w-3 text-gray-900" />
-                     </div>
+                     <button className="h-7 w-7 rounded-full bg-white flex items-center justify-center shrink-0 cursor-pointer hover:scale-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                       <ArrowRight className="h-3.5 w-3.5 text-black" />
+                     </button>
                    </div>
                  </CardFooter>
               </Card>
 
               {/* Root Cause Analytics (Phase 3 Mockup) */}
-              <Card className="border-none shadow-sm bg-white rounded-2xl overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900">Switching Root Causes</CardTitle>
-                  <CardDescription>AI-diagnosed factors for Q3</CardDescription>
+              <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[32px] overflow-hidden">
+                <CardHeader className="px-8 pt-8 pb-4">
+                  <CardTitle className="text-[19px] font-semibold text-[#1d1d1f] tracking-tight">Switching Root Causes</CardTitle>
+                  <CardDescription className="text-[13px]">AI-diagnosed factors for Q3</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="px-8 pb-8">
+                  <div className="space-y-6">
                     {[
-                      { label: "Clinical Efficacy", value: 45, color: "bg-gray-900" },
-                      { label: "Patient Access", value: 30, color: "bg-gray-600" },
-                      { label: "Side Effect Profile", value: 15, color: "bg-gray-400" },
-                      { label: "Competitor Pricing", value: 10, color: "bg-gray-200" }
+                      { label: "Clinical Efficacy", value: 45, color: "bg-[#1d1d1f]" },
+                      { label: "Patient Access", value: 30, color: "bg-gray-500" },
+                      { label: "Side Effect Profile", value: 15, color: "bg-gray-300" },
+                      { label: "Competitor Pricing", value: 10, color: "bg-gray-100" }
                     ].map((item, i) => (
                       <div key={i}>
-                        <div className="flex justify-between text-xs font-medium mb-1">
-                          <span className="text-gray-700">{item.label}</span>
-                          <span className="text-gray-500">{item.value}%</span>
+                        <div className="flex justify-between text-[13px] font-medium mb-2">
+                          <span className="text-[#1d1d1f]">{item.label}</span>
+                          <span className="text-[#86868b]">{item.value}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 w-full bg-[#F5F5F7] rounded-full overflow-hidden">
                           <motion.div 
                             initial={{ width: 0 }}
                             whileInView={{ width: `${item.value}%` }}
-                            transition={{ duration: 1, delay: 0.5 }}
-                            className={`h-full ${item.color}`} 
+                            transition={{ duration: 1.2, delay: 0.5, ease: "circOut" }}
+                            className={`h-full rounded-full ${item.color}`} 
                           />
                         </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-                <CardFooter className="pt-2">
-                   <Button variant="outline" className="w-full rounded-full text-xs h-8 border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                  <Button variant="outline" className="w-full rounded-full text-[13px] font-medium h-11 mt-8 border-gray-200 text-[#1d1d1f] hover:bg-[#F5F5F7] hover:border-transparent transition-all">
                      View Full Analysis
                    </Button>
-                </CardFooter>
+                </CardContent>
               </Card>
 
             </div>
