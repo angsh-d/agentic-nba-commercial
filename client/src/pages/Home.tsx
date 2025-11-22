@@ -70,65 +70,22 @@ export default function Home() {
 
   const autoGenerateMutation = useMutation({
     mutationFn: autoGenerateAiNbas,
-    onMutate: () => {
-      // Reset session and start polling for latest session
-      setActiveSessionId(null);
-      
-      // Poll for the latest session every 500ms to catch it as soon as it's created
-      let attempts = 0;
-      pollIntervalRef.current = setInterval(async () => {
-        attempts++;
-        try {
-          const latestSession = await fetchLatestAgentSession();
-          if (latestSession && !activeSessionId) {
-            console.log("Detected new session via polling:", latestSession.id);
-            setActiveSessionId(latestSession.id);
-            if (pollIntervalRef.current) {
-              clearInterval(pollIntervalRef.current);
-              pollIntervalRef.current = null;
-            }
-          }
-        } catch (err) {
-          // Session doesn't exist yet, keep polling
-        }
-        
-        // Stop polling after 60 seconds
-        if (attempts > 120) {
-          if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
-          }
-        }
-      }, 500);
-    },
     onSuccess: (data) => {
-      // Stop polling
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = null;
-      }
-      
       queryClient.invalidateQueries({ queryKey: ["nbas"] });
       
       console.log("Auto-generate response:", data);
       
-      // Fallback: if polling didn't catch it, set from response
-      if (data.sessions && data.sessions.length > 0 && !activeSessionId) {
-        console.log("Setting active session ID from response:", data.sessions[0].sessionId);
+      // Set session ID to show completion panel
+      if (data.sessions && data.sessions.length > 0) {
+        console.log("Setting active session ID:", data.sessions[0].sessionId);
         setActiveSessionId(data.sessions[0].sessionId);
       }
       
       toast.success(data.message, {
-        description: `Successfully generated ${data.generated} AI-powered Next Best Actions`,
+        description: `Successfully generated ${data.generated} AI-powered Next Best Actions with full reasoning traces`,
       });
     },
     onError: (error) => {
-      // Stop polling on error
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = null;
-      }
-      
       setActiveSessionId(null);
       toast.error("Failed to generate AI NBAs", {
         description: error instanceof Error ? error.message : "Unknown error occurred",

@@ -115,14 +115,13 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
     }
   }, [events]);
 
-  const showWaitingState = !sessionId;
-
-  if (showWaitingState && !isConnected && events.length === 0) {
+  if (!sessionId) {
     return (
       <div className="bg-[#1d1d1f]/40 backdrop-blur-xl border border-white/10 rounded-[24px] p-8">
         <div className="text-center text-[#86868b]">
           <Loader2 className="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
-          <p className="text-sm">Initializing agent session...</p>
+          <p className="text-sm font-medium mb-2">Agents are generating reasoning...</p>
+          <p className="text-xs opacity-70">Planner → Analyst → Synthesizer → Reflector (~60-90 seconds)</p>
         </div>
       </div>
     );
