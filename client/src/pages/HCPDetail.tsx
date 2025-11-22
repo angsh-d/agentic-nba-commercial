@@ -69,6 +69,12 @@ function calculateAccountAge(createdAt: string) {
   return diffMonths;
 }
 
+async function fetchPrescriptionHistory(hcpId: string) {
+  const response = await fetch(`/api/prescription-history/${hcpId}`);
+  if (!response.ok) throw new Error("Failed to fetch prescription history");
+  return response.json();
+}
+
 export default function HCPDetail() {
   const [, params] = useRoute("/hcp/:id");
   const hcpId = params?.id;
@@ -78,6 +84,12 @@ export default function HCPDetail() {
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
     queryFn: () => fetchHCP(hcpId!),
+    enabled: !!hcpId,
+  });
+
+  const { data: prescriptionHistory = [] } = useQuery({
+    queryKey: ["prescription-history", hcpId],
+    queryFn: () => fetchPrescriptionHistory(hcpId!),
     enabled: !!hcpId,
   });
 
@@ -192,48 +204,129 @@ export default function HCPDetail() {
             </div>
           </CardHeader>
 
-          <CardContent>
-            <div className="grid grid-cols-3 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-              <div>
-                <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">
-                  Engagement Level
+          {hasSwitchRisk && (
+            <CardContent className="border-t border-gray-200">
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Risk Factors</h4>
+                <div className="space-y-3">
+                  {hcp.switchRiskReasons?.map((reason: string, idx: number) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />
+                      <p className="text-base text-gray-700 leading-relaxed">{reason}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="text-xl font-semibold text-gray-900">
+              </div>
+            </CardContent>
+          )}
+          
+          <CardContent className="border-t border-gray-200">
+            <div className="grid grid-cols-4 gap-6">
+              <div className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-semibold">
+                  Engagement
+                </div>
+                <div className="text-2xl font-bold text-gray-900">
                   {getEngagementLabel(hcp.engagementLevel)}
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-2">
-                  {hasSwitchRisk ? (
-                    <>
-                      <TrendingDown className="w-5 h-5 text-red-500" />
-                      Our Rx Trend
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="w-5 h-5 text-green-500" />
-                      Rx Performance
-                    </>
-                  )}
-                </div>
-                <div className={`text-xl font-semibold ${hasSwitchRisk ? 'text-red-600' : 'text-green-600'}`}>
-                  {hasSwitchRisk 
-                    ? (hcp.switchRiskReasons?.find((r: string) => r.includes('decline'))?.match(/-?\d+%/)?.[0] || 'Declining')
-                    : 'Stable'
-                  }
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">
+              <div className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-semibold">
                   Account Age
                 </div>
-                <div className="text-xl font-semibold text-gray-900">
-                  {accountAge} {accountAge === 1 ? 'month' : 'months'}
+                <div className="text-2xl font-bold text-gray-900">
+                  {accountAge}m
+                </div>
+              </div>
+              <div className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-semibold">
+                  Last Contact
+                </div>
+                <div className="text-2xl font-bold text-gray-900">
+                  {Math.floor((Date.now() - new Date(hcp.lastVisitDate).getTime()) / (1000 * 60 * 60 * 24))}d
+                </div>
+              </div>
+              <div className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="text-xs text-gray-500 uppercase tracking-widest mb-2 font-semibold">
+                  Territory
+                </div>
+                <div className="text-base font-bold text-gray-900">
+                  {hcp.territory.split(' ')[0]}
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Prescription History Trends */}
+        {prescriptionHistory.length > 0 && (
+          <Card className="mb-8 border-gray-200 bg-white/80 backdrop-blur-sm shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl">Prescription Trends</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Our Product */}
+                {prescriptionHistory.filter((p: any) => p.isOurProduct === 1).length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-base font-semibold text-gray-900">Our Product (Onco-Pro)</h4>
+                      <div className="flex items-center gap-2">
+                        <TrendingDown className="w-4 h-4 text-red-500" />
+                        <span className="text-sm font-medium text-red-600">
+                          {hcp.switchRiskReasons?.find((r: string) => r.includes('decline'))?.match(/-?\d+%/)?.[0] || 'Declining'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      {prescriptionHistory
+                        .filter((p: any) => p.isOurProduct === 1)
+                        .sort((a: any, b: any) => a.month.localeCompare(b.month))
+                        .map((p: any, idx: number) => (
+                          <div key={idx} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                              {new Date(p.month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            </div>
+                            <div className="text-3xl font-bold text-blue-600">{p.prescriptionCount}</div>
+                            <div className="text-xs text-gray-500 mt-1">prescriptions</div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Competitor Products */}
+                {prescriptionHistory.filter((p: any) => p.isOurProduct === 0).length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-base font-semibold text-gray-900">Competitor Products</h4>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-orange-500" />
+                        <span className="text-sm font-medium text-orange-600">
+                          {hcp.switchRiskReasons?.find((r: string) => r.includes('competitor'))?.match(/\+?\d+%/)?.[0] || 'Increasing'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      {prescriptionHistory
+                        .filter((p: any) => p.isOurProduct === 0)
+                        .sort((a: any, b: any) => a.month.localeCompare(b.month))
+                        .map((p: any, idx: number) => (
+                          <div key={idx} className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                              {new Date(p.month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                            </div>
+                            <div className="text-3xl font-bold text-orange-600">{p.prescriptionCount}</div>
+                            <div className="text-xs text-gray-500 mt-1">prescriptions</div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Generate NBA Button - Only show for HCPs with risk */}
         {!activeSessionId && hcp.switchRiskScore > 0 && (
