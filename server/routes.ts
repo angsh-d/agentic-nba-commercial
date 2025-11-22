@@ -5,6 +5,7 @@ import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwit
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
 import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery } from "./aiService";
+import { agentOrchestrator } from "./agentOrchestrator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // HCP routes
@@ -295,40 +296,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Autonomous Agent - Generate NBAs for all high-risk HCPs
+  // Autonomous Agent - Generate NBAs for all high-risk HCPs with visible reasoning
   app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
     try {
       const highRiskHcps = await storage.getHighRiskHcps(50);
       const generated = [];
 
-      for (const hcp of highRiskHcps.slice(0, 10)) {  // Limit to top 10 for performance
-        const history = await storage.getPrescriptionHistory(hcp.id);
-        const events = await storage.getSwitchingEventsByStatus("active");
-        const switchingEvent = events.find(e => e.hcpId === hcp.id);
-
+      for (const hcp of highRiskHcps.slice(0, 5)) {  // Limit to top 5 for demo
         try {
-          const aiNba = await generateIntelligentNBA(hcp, history, switchingEvent);
-          
-          // Check if NBA already exists
-          const existingNbas = await storage.getNbasByTerritory(hcp.territory);
-          const hasRecentNba = existingNbas.some(n => 
-            n.hcpId === hcp.id && 
-            n.status === "pending" &&
-            new Date(n.generatedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000 // Last 24 hours
-          );
-
-          if (!hasRecentNba) {
-            const createdNba = await storage.createNba({
-              hcpId: hcp.id,
-              action: aiNba.action,
-              actionType: aiNba.actionType,
-              priority: aiNba.priority,
-              reason: aiNba.reason,
-              aiInsight: aiNba.aiInsight,
-              status: "pending",
-            });
-            generated.push(createdNba);
-          }
+          // Use agent orchestrator for full reasoning visibility
+          const result = await agentOrchestrator.executeNBAGenerationLoop(hcp.id);
+          generated.push({
+            hcpId: hcp.id,
+            nbaId: result.nba.nbaId,
+            sessionId: result.sessionId,
+            confidence: result.reflection.confidenceScore,
+          });
         } catch (error) {
           console.error(`Failed to generate NBA for HCP ${hcp.id}:`, error);
         }
@@ -337,12 +320,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true, 
         generated: generated.length,
-        message: `Generated ${generated.length} AI-powered NBAs for high-risk HCPs` 
+        sessions: generated,
+        message: `Generated ${generated.length} AI-powered NBAs with full reasoning traces` 
       });
     } catch (error) {
       console.error("Auto NBA generation error:", error);
       res.status(500).json({ error: "Failed to auto-generate NBAs" });
     }
+  });
+
+  // Agent Session endpoints
+  app.get("/api/agent/sessions", async (_req, res) => {
+    try {
+      const sessions = await storage.getRecentAgentSessions(20);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Failed to fetch agent sessions:", error);
+      res.status(500).json({ error: "Failed to fetch sessions" });
+    }
+  });
+
+  app.get("/api/agent/sessions/:id", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const details = await agentOrchestrator.getSessionDetails(sessionId);
+      res.json(details);
+    } catch (error) {
+      console.error("Failed to fetch session details:", error);
+      res.status(500).json({ error: "Failed to fetch session details" });
+    }
+  });
+
+  // Server-Sent Events stream for real-time reasoning
+  app.get("/api/agent/stream/:sessionId", async (req, res) => {
+    const sessionId = parseInt(req.params.sessionId);
+    
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+
+    // Send initial connection event
+    res.write(`data: ${JSON.stringify({ type: 'connected', sessionId })}\n\n`);
+
+    // Create scoped handlers that only respond to this session
+    const thoughtHandler = (data: any) => {
+      if (data.sessionId === sessionId && !res.writableEnded) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: 'thought', ...data })}\n\n`);
+        } catch (err) {
+          cleanup();
+        }
+      }
+    };
+
+    const actionHandler = (data: any) => {
+      if (data.sessionId === sessionId && !res.writableEnded) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: 'action', ...data })}\n\n`);
+        } catch (err) {
+          cleanup();
+        }
+      }
+    };
+
+    const phaseHandler = (data: any) => {
+      if (data.sessionId === sessionId && !res.writableEnded) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: 'phase', ...data })}\n\n`);
+        } catch (err) {
+          cleanup();
+        }
+      }
+    };
+
+    const completedHandler = (data: any) => {
+      if (data.sessionId === sessionId && !res.writableEnded) {
+        try {
+          res.write(`data: ${JSON.stringify({ type: 'completed', ...data })}\n\n`);
+        } catch (err) {
+          // Ignore errors on completed
+        } finally {
+          cleanup();
+        }
+      }
+    };
+
+    // Centralized cleanup function
+    const cleanup = () => {
+      agentOrchestrator.removeListener('thought:created', thoughtHandler);
+      agentOrchestrator.removeListener('action:executed', actionHandler);
+      agentOrchestrator.removeListener('phase:changed', phaseHandler);
+      agentOrchestrator.removeListener('session:completed', completedHandler);
+      if (!res.writableEnded) {
+        res.end();
+      }
+    };
+
+    // Register listeners
+    agentOrchestrator.on('thought:created', thoughtHandler);
+    agentOrchestrator.on('action:executed', actionHandler);
+    agentOrchestrator.on('phase:changed', phaseHandler);
+    agentOrchestrator.on('session:completed', completedHandler);
+
+    // Clean up on client disconnect or server error
+    req.on('close', cleanup);
+    req.on('error', cleanup);
+    res.on('error', cleanup);
   });
 
   const httpServer = createServer(app);

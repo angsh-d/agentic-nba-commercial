@@ -141,3 +141,88 @@ export const insertSwitchingEventSchema = createInsertSchema(switchingEvents).om
 export const selectSwitchingEventSchema = createSelectSchema(switchingEvents);
 export type InsertSwitchingEvent = z.infer<typeof insertSwitchingEventSchema>;
 export type SwitchingEvent = typeof switchingEvents.$inferSelect;
+
+// Agent Sessions - Track multi-agent reasoning sessions
+export const agentSessions = pgTable("agent_sessions", {
+  id: serial("id").primaryKey(),
+  goalDescription: text("goal_description").notNull(), // High-level goal
+  goalType: text("goal_type").notNull(), // "nba_generation", "territory_planning", "switching_analysis"
+  status: text("status").notNull().default("running"), // running, completed, failed
+  currentPhase: text("current_phase"), // Current agent phase
+  contextData: jsonb("context_data").$type<Record<string, any>>(), // Session context
+  finalOutcome: text("final_outcome"), // Result summary
+  confidenceScore: integer("confidence_score"), // 0-100
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertAgentSessionSchema = createInsertSchema(agentSessions).omit({ 
+  id: true, 
+  startedAt: true 
+});
+export const selectAgentSessionSchema = createSelectSchema(agentSessions);
+export type InsertAgentSession = z.infer<typeof insertAgentSessionSchema>;
+export type AgentSession = typeof agentSessions.$inferSelect;
+
+// Agent Thoughts - Chain-of-thought reasoning traces
+export const agentThoughts = pgTable("agent_thoughts", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => agentSessions.id),
+  agentType: text("agent_type").notNull(), // "planner", "analyst", "synthesizer", "reflector"
+  thoughtType: text("thought_type").notNull(), // "observation", "reasoning", "action", "critique"
+  content: text("content").notNull(), // The actual thought/reasoning
+  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional context
+  sequenceNumber: integer("sequence_number").notNull(), // Order in the session
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const insertAgentThoughtSchema = createInsertSchema(agentThoughts).omit({ 
+  id: true, 
+  timestamp: true 
+});
+export const selectAgentThoughtSchema = createSelectSchema(agentThoughts);
+export type InsertAgentThought = z.infer<typeof insertAgentThoughtSchema>;
+export type AgentThought = typeof agentThoughts.$inferSelect;
+
+// Agent Actions - Concrete actions taken by agents
+export const agentActions = pgTable("agent_actions", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => agentSessions.id),
+  agentType: text("agent_type").notNull(),
+  actionType: text("action_type").notNull(), // "query_data", "generate_nba", "create_plan", "analyze_pattern"
+  actionDescription: text("action_description").notNull(),
+  actionParams: jsonb("action_params").$type<Record<string, any>>(),
+  result: jsonb("result").$type<Record<string, any>>(),
+  success: integer("success").notNull().default(1), // 1 = success, 0 = failure
+  errorMessage: text("error_message"),
+  executedAt: timestamp("executed_at").defaultNow().notNull(),
+});
+
+export const insertAgentActionSchema = createInsertSchema(agentActions).omit({ 
+  id: true, 
+  executedAt: true 
+});
+export const selectAgentActionSchema = createSelectSchema(agentActions);
+export type InsertAgentAction = z.infer<typeof insertAgentActionSchema>;
+export type AgentAction = typeof agentActions.$inferSelect;
+
+// Agent Feedback - Self-reflection and learning
+export const agentFeedback = pgTable("agent_feedback", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => agentSessions.id),
+  feedbackType: text("feedback_type").notNull(), // "self_critique", "outcome_evaluation", "lesson_learned"
+  agentType: text("agent_type").notNull(),
+  critique: text("critique").notNull(), // What went well/poorly
+  improvementSuggestion: text("improvement_suggestion"), // How to improve
+  confidenceDelta: integer("confidence_delta"), // Change in confidence (-100 to +100)
+  lessonsLearned: jsonb("lessons_learned").$type<string[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAgentFeedbackSchema = createInsertSchema(agentFeedback).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectAgentFeedbackSchema = createSelectSchema(agentFeedback);
+export type InsertAgentFeedback = z.infer<typeof insertAgentFeedbackSchema>;
+export type AgentFeedback = typeof agentFeedback.$inferSelect;

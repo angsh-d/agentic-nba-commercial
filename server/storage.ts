@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -34,6 +34,24 @@ export interface IStorage {
   
   // High-risk HCPs
   getHighRiskHcps(minScore?: number): Promise<Hcp[]>;
+  
+  // Agent Session operations
+  createAgentSession(session: InsertAgentSession): Promise<AgentSession>;
+  getAgentSession(id: number): Promise<AgentSession | undefined>;
+  updateAgentSession(id: number, updates: Partial<AgentSession>): Promise<void>;
+  getRecentAgentSessions(limit?: number): Promise<AgentSession[]>;
+  
+  // Agent Thought operations
+  createAgentThought(thought: InsertAgentThought): Promise<AgentThought>;
+  getSessionThoughts(sessionId: number): Promise<AgentThought[]>;
+  
+  // Agent Action operations
+  createAgentAction(action: InsertAgentAction): Promise<AgentAction>;
+  getSessionActions(sessionId: number): Promise<AgentAction[]>;
+  
+  // Agent Feedback operations
+  createAgentFeedback(feedback: InsertAgentFeedback): Promise<AgentFeedback>;
+  getSessionFeedback(sessionId: number): Promise<AgentFeedback[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -181,6 +199,71 @@ export class DatabaseStorage implements IStorage {
       .from(hcps)
       .where(sql`${hcps.switchRiskScore} >= ${minScore}`)
       .orderBy(desc(hcps.switchRiskScore));
+  }
+  
+  // Agent Session operations
+  async createAgentSession(insertSession: InsertAgentSession): Promise<AgentSession> {
+    const results = await db.insert(agentSessions).values(insertSession).returning();
+    return results[0];
+  }
+  
+  async getAgentSession(id: number): Promise<AgentSession | undefined> {
+    const results = await db.select().from(agentSessions).where(eq(agentSessions.id, id));
+    return results[0];
+  }
+  
+  async updateAgentSession(id: number, updates: Partial<AgentSession>): Promise<void> {
+    await db.update(agentSessions).set(updates).where(eq(agentSessions.id, id));
+  }
+  
+  async getRecentAgentSessions(limit: number = 10): Promise<AgentSession[]> {
+    return await db
+      .select()
+      .from(agentSessions)
+      .orderBy(desc(agentSessions.startedAt))
+      .limit(limit);
+  }
+  
+  // Agent Thought operations
+  async createAgentThought(insertThought: InsertAgentThought): Promise<AgentThought> {
+    const results = await db.insert(agentThoughts).values(insertThought).returning();
+    return results[0];
+  }
+  
+  async getSessionThoughts(sessionId: number): Promise<AgentThought[]> {
+    return await db
+      .select()
+      .from(agentThoughts)
+      .where(eq(agentThoughts.sessionId, sessionId))
+      .orderBy(agentThoughts.sequenceNumber);
+  }
+  
+  // Agent Action operations
+  async createAgentAction(insertAction: InsertAgentAction): Promise<AgentAction> {
+    const results = await db.insert(agentActions).values(insertAction).returning();
+    return results[0];
+  }
+  
+  async getSessionActions(sessionId: number): Promise<AgentAction[]> {
+    return await db
+      .select()
+      .from(agentActions)
+      .where(eq(agentActions.sessionId, sessionId))
+      .orderBy(desc(agentActions.executedAt));
+  }
+  
+  // Agent Feedback operations
+  async createAgentFeedback(insertFeedback: InsertAgentFeedback): Promise<AgentFeedback> {
+    const results = await db.insert(agentFeedback).values(insertFeedback).returning();
+    return results[0];
+  }
+  
+  async getSessionFeedback(sessionId: number): Promise<AgentFeedback[]> {
+    return await db
+      .select()
+      .from(agentFeedback)
+      .where(eq(agentFeedback.sessionId, sessionId))
+      .orderBy(desc(agentFeedback.createdAt));
   }
 }
 
