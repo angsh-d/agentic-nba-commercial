@@ -210,8 +210,8 @@ export default function HCPDetail() {
           </CardContent>
         </Card>
 
-        {/* Generate NBA Button */}
-        {!activeSessionId && (
+        {/* Generate NBA Button - Only show for HCPs with risk */}
+        {!activeSessionId && hcp.riskScore > 0 && (
           <div className="mb-8 flex justify-center">
             <Button
               size="lg"
@@ -232,6 +232,23 @@ export default function HCPDetail() {
                 </>
               )}
             </Button>
+          </div>
+        )}
+        
+        {/* Low Risk Message */}
+        {!activeSessionId && hcp.riskScore === 0 && (
+          <div className="mb-8">
+            <Card className="border-green-200 bg-green-50">
+              <CardContent className="p-8 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500 mb-4">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Action Required</h3>
+                <p className="text-base text-gray-600">
+                  This provider has stable prescription patterns with no switching risk detected.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         )}
 

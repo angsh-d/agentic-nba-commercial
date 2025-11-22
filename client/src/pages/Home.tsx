@@ -16,6 +16,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 interface HCP {
   id: number;
@@ -64,10 +65,17 @@ function getTrendIcon(trend: string | undefined | null) {
 }
 
 export default function Home() {
+  const [filterMode, setFilterMode] = useState<"all" | "risk">("all");
+  
   const { data: hcps = [], isLoading } = useQuery({
     queryKey: ["hcps"],
     queryFn: fetchHCPs,
   });
+
+  // Filter HCPs based on toggle
+  const filteredHcps = filterMode === "risk" 
+    ? hcps.filter(hcp => hcp.switchRiskScore > 0)
+    : hcps;
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -176,13 +184,39 @@ export default function Home() {
       <section className="relative bg-white text-black py-32">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* Section Header */}
-          <div className="text-center mb-24">
+          <div className="text-center mb-16">
             <h2 className="text-5xl md:text-6xl font-semibold tracking-tight mb-6 leading-[1.1]">
               Your Territory
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light mb-12">
               Select a healthcare provider to unlock AI-powered insights and intelligent recommendations.
             </p>
+            
+            {/* Apple-style Segmented Control */}
+            <div className="inline-flex items-center bg-gray-100 rounded-full p-1.5 gap-1">
+              <button
+                onClick={() => setFilterMode("all")}
+                className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  filterMode === "all"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                data-testid="filter-all"
+              >
+                All HCPs
+              </button>
+              <button
+                onClick={() => setFilterMode("risk")}
+                className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  filterMode === "risk"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                data-testid="filter-risk"
+              >
+                Switch Risk
+              </button>
+            </div>
           </div>
 
           {/* HCP Grid */}
@@ -193,9 +227,17 @@ export default function Home() {
                 <p className="text-base text-gray-600 font-light">Loading providers...</p>
               </div>
             </div>
+          ) : filteredHcps.length === 0 ? (
+            <div className="flex items-center justify-center h-96">
+              <div className="text-center">
+                <AlertTriangle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-xl font-medium text-gray-900 mb-2">No HCPs with Switch Risk</p>
+                <p className="text-base text-gray-600 font-light">All providers have stable prescription patterns</p>
+              </div>
+            </div>
           ) : (
             <div className="grid gap-8">
-              {hcps.map((hcp, index) => {
+              {filteredHcps.map((hcp, index) => {
                 const risk = getRiskLevel(hcp.switchRiskTier, hcp.switchRiskScore);
                 const accountAge = calculateAccountAge(hcp.createdAt);
                 return (
@@ -277,11 +319,18 @@ export default function Home() {
                             </div>
                           </div>
 
-                          {/* Action Button */}
-                          <div className="flex items-center justify-end text-base font-medium text-gray-500 group-hover:text-black transition-colors">
-                            <span className="tracking-tight">Analyze & Generate NBAs</span>
-                            <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
-                          </div>
+                          {/* Action Button - Only show for HCPs with risk */}
+                          {hcp.switchRiskScore > 0 ? (
+                            <div className="flex items-center justify-end text-base font-medium text-gray-500 group-hover:text-black transition-colors">
+                              <span className="tracking-tight">Analyze & Generate NBAs</span>
+                              <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end text-base font-medium text-gray-400">
+                              <span className="tracking-tight">View Profile</span>
+                              <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     </Link>
