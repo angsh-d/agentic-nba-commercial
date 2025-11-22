@@ -106,12 +106,18 @@ export class AgentOrchestrator extends EventEmitter {
     const goal = `Generate optimal Next Best Action for HCP ${hcpId} with full reasoning trace`;
     
     // Use existing session if provided, otherwise create new one
-    const session = existingSessionId 
-      ? await storage.getAgentSession(existingSessionId)
-      : await this.startSession(goal, "nba_generation", { hcpId });
-    
-    if (!session) {
-      throw new Error(`Session ${existingSessionId} not found`);
+    let session;
+    if (existingSessionId) {
+      session = await storage.getAgentSession(existingSessionId);
+      if (!session) {
+        throw new Error(`Session ${existingSessionId} not found`);
+      }
+      // Set instance variables so logging works correctly
+      this.sessionId = session.id;
+      this.thoughtSequence = 0;
+      this.emit("session:started", { sessionId: session.id, goal: session.goalDescription });
+    } else {
+      session = await this.startSession(goal, "nba_generation", { hcpId });
     }
     
     try {
