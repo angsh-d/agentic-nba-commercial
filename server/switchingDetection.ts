@@ -1,6 +1,7 @@
 import { db } from "../drizzle/db";
 import { hcps, prescriptionHistory, switchingEvents } from "@shared/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
+import { analyzeSwitchingWithAI } from "./aiService";
 
 export interface SwitchingDetectionResult {
   hcpId: number;
@@ -172,6 +173,29 @@ export async function runSwitchingDetectionForAllHCPs(): Promise<void> {
         .limit(1);
 
       if (existingEvent.length === 0) {
+        // Get AI-powered analysis
+        const history = await db
+          .select()
+          .from(prescriptionHistory)
+          .where(eq(prescriptionHistory.hcpId, hcp.id))
+          .orderBy(desc(prescriptionHistory.month));
+
+        let aiAnalysisText = generateAIAnalysis(hcp.name, detection);
+        let aiRootCauses = detection.riskReasons;
+
+        try {
+          const aiAnalysis = await analyzeSwitchingWithAI(
+            hcp,
+            detection.switchDetails.fromProduct,
+            detection.switchDetails.toProduct,
+            history
+          );
+          aiAnalysisText = aiAnalysis.analysis;
+          aiRootCauses = aiAnalysis.rootCauses;
+        } catch (error) {
+          console.error("AI analysis failed, using fallback:", error);
+        }
+
         await db.insert(switchingEvents).values({
           hcpId: hcp.id,
           fromProduct: detection.switchDetails.fromProduct,
@@ -179,8 +203,8 @@ export async function runSwitchingDetectionForAllHCPs(): Promise<void> {
           confidenceScore: detection.switchDetails.confidenceScore,
           switchType: detection.switchDetails.switchType,
           impactLevel: detection.switchDetails.impactLevel,
-          rootCauses: detection.riskReasons,
-          aiAnalysis: generateAIAnalysis(hcp.name, detection),
+          rootCauses: aiRootCauses,
+          aiAnalysis: aiAnalysisText,
           status: "active",
         });
       }

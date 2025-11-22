@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema, insertPrescriptionHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
+import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery } from "./aiService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // HCP routes
@@ -227,6 +228,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       res.status(500).json({ error: "Failed to create prescription history" });
+    }
+  });
+
+  // AI-Powered endpoints
+  app.post("/api/ai/generate-nba/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const hcp = await storage.getHcp(hcpId);
+      if (!hcp) {
+        return res.status(404).json({ error: "HCP not found" });
+      }
+
+      const history = await storage.getPrescriptionHistory(hcpId);
+      const events = await storage.getSwitchingEventsByStatus("active");
+      const switchingEvent = events.find(e => e.hcpId === hcpId);
+
+      const aiNba = await generateIntelligentNBA(hcp, history, switchingEvent);
+
+      // Optionally auto-create the NBA
+      const createdNba = await storage.createNba({
+        hcpId,
+        action: aiNba.action,
+        actionType: aiNba.actionType,
+        priority: aiNba.priority,
+        reason: aiNba.reason,
+        aiInsight: aiNba.aiInsight,
+        status: "pending",
+      });
+
+      res.json({ nba: createdNba, aiDetails: aiNba });
+    } catch (error) {
+      console.error("AI NBA generation error:", error);
+      res.status(500).json({ error: "Failed to generate AI-powered NBA" });
+    }
+  });
+
+  app.post("/api/ai/territory-plan/:territory", async (req, res) => {
+    try {
+      const { territory } = req.params;
+      const hcps = await storage.getAllHcps();
+      const territoryHcps = hcps.filter(h => h.territory === territory);
+      const nbas = await storage.getNbasByTerritory(territory);
+
+      const aiPlan = await generateTerritoryPlanWithAI(
+        territory,
+        territoryHcps,
+        nbas.length
+      );
+
+      res.json(aiPlan);
+    } catch (error) {
+      console.error("AI territory planning error:", error);
+      res.status(500).json({ error: "Failed to generate AI territory plan" });
+    }
+  });
+
+  app.post("/api/ai/copilot", async (req, res) => {
+    try {
+      const { query, context } = req.body;
+      const response = await processCopilotQuery(query, context);
+      res.json({ response });
+    } catch (error) {
+      console.error("Copilot query error:", error);
+      res.status(500).json({ error: "Failed to process copilot query" });
+    }
+  });
+
+  // Autonomous Agent - Generate NBAs for all high-risk HCPs
+  app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
+    try {
+      const highRiskHcps = await storage.getHighRiskHcps(50);
+      const generated = [];
+
+      for (const hcp of highRiskHcps.slice(0, 10)) {  // Limit to top 10 for performance
+        const history = await storage.getPrescriptionHistory(hcp.id);
+        const events = await storage.getSwitchingEventsByStatus("active");
+        const switchingEvent = events.find(e => e.hcpId === hcp.id);
+
+        try {
+          const aiNba = await generateIntelligentNBA(hcp, history, switchingEvent);
+          
+          // Check if NBA already exists
+          const existingNbas = await storage.getNbasByTerritory(hcp.territory);
+          const hasRecentNba = existingNbas.some(n => 
+            n.hcpId === hcp.id && 
+            n.status === "pending" &&
+            new Date(n.generatedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000 // Last 24 hours
+          );
+
+          if (!hasRecentNba) {
+            const createdNba = await storage.createNba({
+              hcpId: hcp.id,
+              action: aiNba.action,
+              actionType: aiNba.actionType,
+              priority: aiNba.priority,
+              reason: aiNba.reason,
+              aiInsight: aiNba.aiInsight,
+              status: "pending",
+            });
+            generated.push(createdNba);
+          }
+        } catch (error) {
+          console.error(`Failed to generate NBA for HCP ${hcp.id}:`, error);
+        }
+      }
+
+      res.json({ 
+        success: true, 
+        generated: generated.length,
+        message: `Generated ${generated.length} AI-powered NBAs for high-risk HCPs` 
+      });
+    } catch (error) {
+      console.error("Auto NBA generation error:", error);
+      res.status(500).json({ error: "Failed to auto-generate NBAs" });
     }
   });
 

@@ -74,3 +74,38 @@ export async function updateSwitchingEventStatus(id: number, status: string): Pr
   });
   if (!response.ok) throw new Error("Failed to update event status");
 }
+
+export async function generateAiNba(hcpId: number): Promise<{ nba: Nba; aiDetails: any }> {
+  const response = await fetch(`${API_BASE}/api/ai/generate-nba/${hcpId}`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error("Failed to generate AI NBA");
+  return response.json();
+}
+
+export async function autoGenerateAiNbas(): Promise<{ success: boolean; generated: number; message: string }> {
+  const response = await fetch(`${API_BASE}/api/ai/auto-generate-nbas`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error("Failed to auto-generate AI NBAs");
+  return response.json();
+}
+
+export async function generateTerritoryPlanWithAi(territory: string): Promise<any> {
+  const response = await fetch(`${API_BASE}/api/ai/territory-plan/${encodeURIComponent(territory)}`, {
+    method: "POST",
+  });
+  if (!response.ok) throw new Error("Failed to generate AI territory plan");
+  return response.json();
+}
+
+export async function queryCopilot(query: string, context: any): Promise<string> {
+  const response = await fetch(`${API_BASE}/api/ai/copilot`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, context }),
+  });
+  if (!response.ok) throw new Error("Failed to process copilot query");
+  const data = await response.json();
+  return data.response;
+}

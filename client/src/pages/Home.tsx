@@ -27,9 +27,10 @@ import {
 import { motion } from "framer-motion";
 import heroImage from "@assets/generated_images/minimalist_abstract_white_and_grey_3d_network_data_flow.png";
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchNbas, fetchStats, fetchLatestAnalytics } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchNbas, fetchStats, fetchLatestAnalytics, autoGenerateAiNbas } from "@/lib/api";
 import type { NbaWithHcp } from "@/lib/api";
+import { toast } from "sonner";
 
 const copilotSuggestions = [
   {
@@ -47,6 +48,7 @@ const copilotSuggestions = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState("actions");
   const [planOpen, setPlanOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: nbas = [], isLoading: nbasLoading } = useQuery({
     queryKey: ["nbas"],
@@ -61,6 +63,21 @@ export default function Home() {
   const { data: analytics } = useQuery({
     queryKey: ["analytics"],
     queryFn: fetchLatestAnalytics,
+  });
+
+  const autoGenerateMutation = useMutation({
+    mutationFn: autoGenerateAiNbas,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["nbas"] });
+      toast.success(data.message, {
+        description: `Successfully generated ${data.generated} AI-powered Next Best Actions`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to generate AI NBAs", {
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    },
   });
 
   return (
@@ -121,6 +138,95 @@ export default function Home() {
           
           {/* Switching Alerts - Critical Priority */}
           <SwitchingAlerts />
+
+          {/* AI Agent Control Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="mb-16"
+          >
+            <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-gradient-to-br from-white to-gray-50/50 rounded-[24px] overflow-hidden">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-50 to-blue-50">
+                      <Brain className="h-6 w-6 text-purple-600 stroke-[1.5px]" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-[22px] font-semibold tracking-tight text-[#1d1d1f]">
+                        Autonomous AI Agent
+                      </CardTitle>
+                      <CardDescription className="text-[14px] text-[#86868b] mt-1">
+                        GPT-5-mini powered contextual reasoning engine
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200 px-3 py-1 rounded-full font-semibold text-[11px]">
+                    ACTIVE
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-5 rounded-2xl bg-white border border-gray-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="h-4 w-4 text-purple-600" />
+                      <p className="text-[13px] font-semibold text-[#86868b]">AI Reasoning</p>
+                    </div>
+                    <p className="text-[15px] text-[#1d1d1f] font-medium">
+                      Analyzes prescription patterns, HCP behavior, and territory dynamics to generate intelligent NBAs
+                    </p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-white border border-gray-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-blue-600" />
+                      <p className="text-[13px] font-semibold text-[#86868b]">Auto-Detection</p>
+                    </div>
+                    <p className="text-[15px] text-[#1d1d1f] font-medium">
+                      Real-time monitoring of switching events with automatic risk scoring and prioritization
+                    </p>
+                  </div>
+                  <div className="p-5 rounded-2xl bg-white border border-gray-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <p className="text-[13px] font-semibold text-[#86868b]">Adaptive Learning</p>
+                    </div>
+                    <p className="text-[15px] text-[#1d1d1f] font-medium">
+                      Continuously improves recommendations based on action outcomes and territory performance
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                    <p className="text-[13px] text-[#86868b]">
+                      Agent ready to generate NBAs for high-risk HCPs
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => autoGenerateMutation.mutate()}
+                    disabled={autoGenerateMutation.isPending}
+                    className="rounded-full h-11 px-8 text-[15px] font-medium bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-200/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    data-testid="button-auto-generate-nbas"
+                  >
+                    {autoGenerateMutation.isPending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate AI NBAs
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
           
           {/* Stats Overview - Bento Grid Style */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
