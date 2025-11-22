@@ -1,10 +1,14 @@
-# Commercial Agentic AI Platform
+# Prescient - AI Prescription Intelligence Platform
 
 ## Overview
 
-This is an AI-powered commercial intelligence platform for pharmaceutical sales representatives, focused on detecting prescription switching patterns in oncology Healthcare Providers (HCPs) and delivering contextual Next Best Actions (NBAs). The platform uses Azure OpenAI to analyze HCP behavior, predict switching risks, and generate intelligent action recommendations through autonomous agent orchestration.
+Prescient is an AI-powered prescription intelligence platform for pharmaceutical sales representatives, focused on detecting prescription switching patterns in oncology Healthcare Providers (HCPs) and delivering contextual Next Best Actions (NBAs). The platform uses Azure OpenAI to analyze HCP behavior, predict switching risks, and generate intelligent action recommendations through autonomous agent orchestration.
 
 The core value proposition is helping field representatives identify when HCPs are switching from the company's products to competitors, understand why this is happening, and receive AI-generated strategic recommendations to prevent or reverse these switches.
+
+## Design Philosophy
+
+Apple-inspired minimalism: greyscale palette with generous whitespace, clean typography (system-ui), uncluttered layouts focused on content over decoration. Single blue accent color for primary actions. No colorful gradients or excessive visual ornamentation.
 
 ## User Preferences
 

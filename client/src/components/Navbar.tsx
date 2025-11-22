@@ -6,42 +6,34 @@ import saamaLogo from "@assets/image_1763828618655.png";
 
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/70 backdrop-blur-xl border-b border-black/5 shadow-sm h-[72px] flex items-center justify-between px-12 transition-all duration-300 support-[backdrop-filter]:bg-white/50">
-      {/* Left Section */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center justify-center">
-            <img src={saamaLogo} alt="Saama" className="h-8 w-auto object-contain" />
-          </div>
-          <div className="h-7 w-[1px] bg-gray-200 mx-2" />
-          <div className="flex items-baseline gap-2">
-            <span className="text-[18px] font-normal text-gray-500 tracking-tight">Commercial Agentic AI</span>
-          </div>
+    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-gray-200 h-16 flex items-center justify-between px-6 transition-all duration-300 support-[backdrop-filter]:bg-white/60">
+      {/* Left Section - Logo & Brand */}
+      <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3">
+          <img src={saamaLogo} alt="Saama" className="h-6 w-auto object-contain opacity-90" />
+          <div className="h-5 w-px bg-gray-300" />
+          <span className="text-[17px] font-semibold text-gray-900 tracking-tight">Prescient</span>
         </div>
       </div>
 
       {/* Center Section - Search */}
-      <div className="flex-1 max-w-2xl mx-12">
+      <div className="flex-1 max-w-xl mx-8">
         <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-gray-600 transition-colors" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[15px] w-[15px] text-gray-400 transition-colors" />
           <Input 
-            className="w-full rounded-xl border-transparent bg-black/5 pl-11 pr-4 h-10 text-[14px] font-medium placeholder:text-gray-500 focus-visible:ring-0 focus-visible:bg-black/10 transition-all shadow-none"
-            placeholder="Search HCPs, territories, or insights..." 
+            className="w-full rounded-lg border-gray-300 bg-gray-50 pl-10 pr-4 h-9 text-[14px] placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-400 focus-visible:border-gray-400 focus-visible:bg-white transition-all"
+            placeholder="Search HCPs..." 
           />
         </div>
       </div>
 
-      {/* Right Section */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900 hover:bg-black/5 rounded-full h-9 w-9 transition-colors">
-          <Bell className="h-[18px] w-[18px]" />
-        </Button>
-        <div className="flex items-center gap-2.5 pl-2.5 cursor-pointer hover:bg-black/5 rounded-full pr-3 py-1.5 transition-colors duration-200">
-          <Avatar className="h-8 w-8 border border-black/10 shadow-sm">
+      {/* Right Section - User */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 cursor-pointer group">
+          <Avatar className="h-7 w-7">
             <AvatarFallback className="bg-gray-900 text-white text-[11px] font-medium">AD</AvatarFallback>
           </Avatar>
-          <span className="text-[14px] font-medium text-gray-700 hidden md:block tracking-tight">Angshuman Deb</span>
-          <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+          <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Angshuman Deb</span>
         </div>
       </div>
     </nav>
