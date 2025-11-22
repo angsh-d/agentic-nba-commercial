@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Brain, Lightbulb, Target, Eye, CheckCircle2, Loader2 } from "lucide-react";
+import { Brain, Lightbulb, Target, Eye, Sparkles, TrendingUp } from "lucide-react";
 
 interface ThoughtEvent {
   type: 'thought';
@@ -40,18 +40,42 @@ interface AgentReasoningPanelProps {
   onClose?: () => void;
 }
 
-const agentIcons = {
-  planner: Target,
-  analyst: Eye,
-  synthesizer: Lightbulb,
-  reflector: Brain,
-};
-
-const agentColors = {
-  planner: "#60A5FA",
-  analyst: "#34D399", 
-  synthesizer: "#FBBF24",
-  reflector: "#A78BFA",
+const agentConfig = {
+  planner: {
+    icon: Target,
+    color: "#0A84FF",
+    gradient: "from-blue-500 to-blue-600",
+    name: "Strategic Planner",
+    emoji: "🎯"
+  },
+  analyst: {
+    icon: Eye,
+    color: "#30D158", 
+    gradient: "from-green-500 to-emerald-600",
+    name: "Evidence Analyst",
+    emoji: "👁️"
+  },
+  synthesizer: {
+    icon: Lightbulb,
+    color: "#FFD60A",
+    gradient: "from-yellow-500 to-amber-600",
+    name: "Action Synthesizer",
+    emoji: "💡"
+  },
+  reflector: {
+    icon: Brain,
+    color: "#BF5AF2",
+    gradient: "from-purple-500 to-violet-600",
+    name: "Self-Reflector",
+    emoji: "🧠"
+  },
+  orchestrator: {
+    icon: Sparkles,
+    color: "#86868b",
+    gradient: "from-gray-500 to-gray-600",
+    name: "Orchestrator",
+    emoji: "⚡"
+  }
 };
 
 export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelProps) {
@@ -62,7 +86,7 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
   const eventSourceRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch completed session data on mount and poll for updates
+  // Fetch and poll for session updates
   useEffect(() => {
     if (!sessionId) {
       setEvents([]);
@@ -78,23 +102,15 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
         if (response.ok) {
           const session = await response.json();
           
-          console.log("Fetched session data:", {
-            sessionId,
-            thoughtCount: (session.session?.thoughts || session.thoughts || []).length,
-            actionCount: (session.session?.actions || session.actions || []).length,
-          });
-          
-          // Convert session data to events format
           const historyEvents: ReasoningEvent[] = [];
           
-          // Add thoughts
           if (session.session?.thoughts || session.thoughts) {
             const thoughts = session.session?.thoughts || session.thoughts;
             thoughts.forEach((thought: any) => {
               historyEvents.push({
                 type: 'thought',
                 sessionId: session.session?.id || session.id,
-                agent: thought.agentType,  // Database field is agentType
+                agent: thought.agentType,
                 thoughtType: thought.thoughtType,
                 content: thought.content,
                 timestamp: thought.timestamp,
@@ -102,23 +118,21 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
             });
           }
           
-          // Add actions
           if (session.session?.actions || session.actions) {
             const actions = session.session?.actions || session.actions;
             actions.forEach((action: any) => {
               historyEvents.push({
                 type: 'action',
                 sessionId: session.session?.id || session.id,
-                agent: action.agentType,  // Database field is agentType
+                agent: action.agentType,
                 actionType: action.actionType,
-                description: action.actionDescription,  // Database field is actionDescription
-                metadata: action.actionParams,  // Database field is actionParams
-                timestamp: action.executedAt,  // Database field is executedAt
+                description: action.actionDescription,
+                metadata: action.actionParams,
+                timestamp: action.executedAt,
               });
             });
           }
           
-          // Sort by timestamp
           historyEvents.sort((a, b) => {
             const aTime = 'timestamp' in a ? new Date(a.timestamp).getTime() : 0;
             const bTime = 'timestamp' in b ? new Date(b.timestamp).getTime() : 0;
@@ -136,13 +150,9 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
       }
     };
 
-    // Initial fetch
     fetchSessionHistory();
     
-    // Poll every 2 seconds for updates while session is in progress
     const pollInterval = setInterval(() => {
-      const sessionData = events.find(e => 'sessionId' in e);
-      // Keep polling if we haven't seen a completed event yet
       if (!events.some(e => e.type === 'completed')) {
         fetchSessionHistory();
       }
@@ -150,54 +160,6 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
 
     return () => {
       clearInterval(pollInterval);
-    };
-  }, [sessionId]);
-
-  // Set up SSE stream for live updates
-  useEffect(() => {
-    if (!sessionId) {
-      setIsConnected(false);
-      return;
-    }
-
-    const eventSource = new EventSource(`/api/agent/stream/${sessionId}`);
-    eventSourceRef.current = eventSource;
-
-    eventSource.onopen = () => {
-      setIsConnected(true);
-      console.log("Agent reasoning stream connected");
-    };
-
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'connected') {
-          console.log("Stream connected for session:", data.sessionId);
-        } else if (data.type === 'phase') {
-          setCurrentPhase(data.phase);
-          setEvents(prev => [...prev, data]);
-        } else if (data.type === 'thought' || data.type === 'action') {
-          setEvents(prev => [...prev, data]);
-        } else if (data.type === 'completed') {
-          setEvents(prev => [...prev, data]);
-          setCurrentPhase("Completed");
-        }
-      } catch (err) {
-        console.error("Failed to parse SSE event:", err);
-      }
-    };
-
-    eventSource.onerror = (error) => {
-      console.error("SSE connection error:", error);
-      setIsConnected(false);
-      eventSource.close();
-      eventSourceRef.current = null;
-    };
-
-    return () => {
-      eventSource.close();
-      eventSourceRef.current = null;
     };
   }, [sessionId]);
 
@@ -209,58 +171,78 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
 
   if (!sessionId) {
     return (
-      <div className="bg-[#1d1d1f]/40 backdrop-blur-xl border border-white/10 rounded-[24px] p-8">
-        <div className="text-center text-[#86868b]">
-          <Loader2 className="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
-          <p className="text-sm font-medium mb-2">Agents are generating reasoning...</p>
-          <p className="text-xs opacity-70">Planner → Analyst → Synthesizer → Reflector (~60-90 seconds)</p>
+      <div className="relative overflow-hidden rounded-[32px] bg-white/95 dark:bg-black/95 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-2xl p-12">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5" />
+        <div className="relative text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mb-6 animate-pulse">
+            <Sparkles className="w-10 h-10 text-white" />
+          </div>
+          <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
+            AI Agents Generating...
+          </h3>
+          <p className="text-base text-gray-500 dark:text-gray-400">
+            Strategic Planner → Evidence Analyst → Action Synthesizer → Self-Reflector
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#1d1d1f]/40 backdrop-blur-xl border border-white/10 rounded-[24px] overflow-hidden">
+    <div className="relative overflow-hidden rounded-[32px] bg-white/95 dark:bg-black/95 backdrop-blur-3xl border border-black/5 dark:border-white/10 shadow-2xl">
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
+      
       {/* Header */}
-      <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Brain className="w-5 h-5 text-white" />
-            {isConnected && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+      <div className="relative px-8 py-6 border-b border-black/5 dark:border-white/10 backdrop-blur-xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              {isConnected && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-black animate-pulse" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Agent Reasoning
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Session #{sessionId} • Live AI Thinking
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{currentPhase}</span>
+            </div>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 flex items-center justify-center text-gray-600 dark:text-gray-400"
+                data-testid="button-close-reasoning"
+              >
+                ✕
+              </button>
             )}
           </div>
-          <div>
-            <h3 className="text-white font-medium">Agent Reasoning</h3>
-            <p className="text-xs text-[#86868b]">Session {sessionId}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="px-3 py-1 bg-white/5 rounded-full">
-            <span className="text-xs text-[#86868b]">{currentPhase}</span>
-          </div>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="text-[#86868b] hover:text-white transition-colors"
-              data-testid="button-close-reasoning"
-            >
-              ✕
-            </button>
-          )}
         </div>
       </div>
 
-      {/* Events Stream */}
+      {/* Events Timeline */}
       <div 
         ref={scrollRef}
-        className="h-[500px] overflow-y-auto p-6 space-y-4"
+        className="relative h-[600px] overflow-y-auto p-8 space-y-6"
       >
         {isLoadingHistory && events.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-[#86868b] animate-spin mx-auto mb-2" />
-              <p className="text-sm text-[#86868b]">Loading reasoning history...</p>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mb-4 animate-pulse">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <p className="text-lg font-medium text-gray-900 dark:text-white">Loading reasoning...</p>
             </div>
           </div>
         )}
@@ -268,75 +250,116 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
         {!isLoadingHistory && events.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Loader2 className="w-8 h-8 text-[#86868b] animate-spin mx-auto mb-2" />
-              <p className="text-sm text-[#86868b]">Agents are thinking...</p>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mb-4 animate-pulse">
+                <Brain className="w-8 h-8 text-white animate-pulse" />
+              </div>
+              <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">AI Agents Thinking...</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Analyzing patterns and generating insights</p>
             </div>
           </div>
         )}
 
         {events.map((event, idx) => (
-          <div key={idx} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div key={idx} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             {event.type === 'phase' && (
-              <div className="flex items-center gap-2 text-xs text-[#86868b] uppercase tracking-wider mb-2">
-                <div className="h-px bg-white/10 flex-1" />
-                <span>{event.phase}</span>
-                <div className="h-px bg-white/10 flex-1" />
+              <div className="flex items-center gap-4 text-sm text-gray-400 dark:text-gray-600 uppercase tracking-widest font-medium my-8">
+                <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent flex-1" />
+                <span className="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800">{event.phase}</span>
+                <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent flex-1" />
               </div>
             )}
 
-            {event.type === 'thought' && (
-              <div className="bg-white/5 rounded-[16px] p-4 border border-white/5">
-                <div className="flex items-start gap-3">
-                  {(() => {
-                    const Icon = agentIcons[event.agent as keyof typeof agentIcons] || Brain;
-                    const color = agentColors[event.agent as keyof typeof agentColors] || "#86868b";
-                    return (
-                      <div 
-                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: `${color}20` }}
-                      >
-                        <Icon className="w-4 h-4" style={{ color }} />
+            {event.type === 'thought' && (() => {
+              const config = agentConfig[event.agent as keyof typeof agentConfig] || agentConfig.orchestrator;
+              return (
+                <div className="group relative">
+                  {/* Connector line */}
+                  {idx > 0 && (
+                    <div className="absolute left-6 -top-6 w-0.5 h-6 bg-gradient-to-b from-gray-200 dark:from-gray-800 to-transparent" />
+                  )}
+                  
+                  <div className="relative rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-black/5 dark:border-white/5 p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
+                    {/* Gradient accent */}
+                    <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${config.gradient} rounded-t-3xl opacity-60`} />
+                    
+                    <div className="flex items-start gap-4">
+                      {/* Agent Avatar */}
+                      <div className="relative flex-shrink-0">
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg ring-4 ring-white/50 dark:ring-black/50`}>
+                          <span className="text-2xl">{config.emoji}</span>
+                        </div>
+                        {/* Pulse effect */}
+                        <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${config.gradient} opacity-20 blur-xl group-hover:opacity-40 transition-opacity`} />
                       </div>
-                    );
-                  })()}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-white capitalize">{event.agent}</span>
-                      <span className="text-xs text-[#86868b]">{event.thoughtType}</span>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {config.name}
+                          </h4>
+                          <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400 capitalize">
+                            {event.thoughtType}
+                          </span>
+                        </div>
+                        <p className="text-base leading-relaxed text-gray-700 dark:text-gray-300">
+                          {event.content}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-sm text-[#F5F5F7] leading-relaxed">{event.content}</p>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
-            {event.type === 'action' && (
-              <div className="bg-blue-500/10 rounded-[16px] p-4 border border-blue-500/20">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium text-white capitalize">{event.agent}</span>
-                      <span className="text-xs text-blue-400">{event.actionType}</span>
-                    </div>
-                    <p className="text-sm text-[#F5F5F7]">{event.description}</p>
-                    {event.metadata && Object.keys(event.metadata).length > 0 && (
-                      <div className="mt-2 text-xs text-[#86868b] font-mono">
-                        {JSON.stringify(event.metadata, null, 2)}
+            {event.type === 'action' && (() => {
+              const config = agentConfig[event.agent as keyof typeof agentConfig] || agentConfig.orchestrator;
+              return (
+                <div className="relative">
+                  <div className="rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 backdrop-blur-xl border border-blue-200/50 dark:border-blue-800/30 p-6 shadow-lg">
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${config.gradient} flex items-center justify-center shadow-lg`}>
+                        <TrendingUp className="w-6 h-6 text-white" />
                       </div>
-                    )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-white capitalize">
+                            {config.name}
+                          </h4>
+                          <span className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-xs font-medium text-blue-700 dark:text-blue-300">
+                            {event.actionType}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{event.description}</p>
+                        {event.metadata && event.metadata.confidence && (
+                          <div className="mt-4 flex items-center gap-3">
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-green-500 to-emerald-600 transition-all duration-1000"
+                                style={{ width: `${event.metadata.confidence}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {event.metadata.confidence}% confidence
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {event.type === 'completed' && (
-              <div className="bg-green-500/10 rounded-[16px] p-4 border border-green-500/20">
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span className="font-medium">Agent reasoning completed</span>
+              <div className="rounded-3xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200/50 dark:border-green-800/30 p-6 shadow-lg">
+                <div className="flex items-center gap-3 text-green-700 dark:text-green-400">
+                  <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold">Reasoning Complete</p>
+                    <p className="text-sm opacity-75">All agents have finished their analysis</p>
+                  </div>
                 </div>
               </div>
             )}
