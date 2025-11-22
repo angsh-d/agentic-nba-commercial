@@ -90,7 +90,7 @@ Generate the single most impactful Next Best Action. Return ONLY valid JSON with
         { role: "user", content: userPrompt },
       ],
       // temperature: GPT-5-mini only supports default (1) // 0.7,
-      max_completion_tokens: 800,
+      max_completion_tokens: 2000,  // GPT-5-mini uses extensive reasoning tokens
       response_format: { type: "json_object" },
     });
 
@@ -147,7 +147,7 @@ Provide a comprehensive analysis. Return ONLY valid JSON:
         { role: "user", content: userPrompt },
       ],
       // temperature: GPT-5-mini only supports default (1) // 0.6,
-      max_completion_tokens: 600,
+      max_completion_tokens: 1500,  // GPT-5-mini uses extensive reasoning tokens
       response_format: { type: "json_object" },
     });
 
@@ -202,7 +202,7 @@ Generate an optimized plan. Return ONLY valid JSON:
         { role: "user", content: userPrompt },
       ],
       // temperature: GPT-5-mini only supports default (1) // 0.7,
-      max_completion_tokens: 500,
+      max_completion_tokens: 1500,  // GPT-5-mini uses extensive reasoning tokens
       response_format: { type: "json_object" },
     });
 
@@ -235,7 +235,7 @@ export async function processCopilotQuery(query: string, context: any): Promise<
         { role: "user", content: `Context: ${JSON.stringify(context)}\n\nQuery: ${query}` },
       ],
       // temperature: GPT-5-mini only supports default (1) // 0.8,
-      max_completion_tokens: 300,
+      max_completion_tokens: 1000,  // GPT-5-mini uses extensive reasoning tokens
     });
 
     return response.choices[0]?.message?.content || "I apologize, I couldn't process that query.";

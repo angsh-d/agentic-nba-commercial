@@ -114,3 +114,10 @@ export async function queryCopilot(query: string, context: any): Promise<string>
   const data = await response.json();
   return data.response;
 }
+
+export async function fetchLatestAgentSession(): Promise<{ id: number; status: string } | null> {
+  const response = await fetch(`${API_BASE}/api/agent/sessions/latest`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error("Failed to fetch latest session");
+  return response.json();
+}

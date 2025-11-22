@@ -96,9 +96,11 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
       }
     };
 
-    eventSource.onerror = () => {
-      console.error("SSE connection error");
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
       setIsConnected(false);
+      eventSource.close();
+      eventSourceRef.current = null;
     };
 
     return () => {
@@ -113,12 +115,14 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
     }
   }, [events]);
 
-  if (!sessionId) {
+  const showWaitingState = !sessionId;
+
+  if (showWaitingState && !isConnected && events.length === 0) {
     return (
       <div className="bg-[#1d1d1f]/40 backdrop-blur-xl border border-white/10 rounded-[24px] p-8">
         <div className="text-center text-[#86868b]">
-          <Brain className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p className="text-sm">Click "Generate AI NBAs" to see agent reasoning in real-time</p>
+          <Loader2 className="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+          <p className="text-sm">Initializing agent session...</p>
         </div>
       </div>
     );

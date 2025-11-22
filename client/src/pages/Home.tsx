@@ -27,9 +27,9 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import heroImage from "@assets/generated_images/minimalist_abstract_white_and_grey_3d_network_data_flow.png";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchNbas, fetchStats, fetchLatestAnalytics, autoGenerateAiNbas } from "@/lib/api";
+import { fetchNbas, fetchStats, fetchLatestAnalytics, autoGenerateAiNbas, fetchLatestAgentSession } from "@/lib/api";
 import type { NbaWithHcp } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -50,6 +50,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("actions");
   const [planOpen, setPlanOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
 
   const { data: nbas = [], isLoading: nbasLoading } = useQuery({
@@ -70,14 +71,50 @@ export default function Home() {
   const autoGenerateMutation = useMutation({
     mutationFn: autoGenerateAiNbas,
     onMutate: () => {
-      // Reset session when starting new generation
+      // Reset session and start polling for latest session
       setActiveSessionId(null);
+      
+      // Poll for the latest session every 500ms to catch it as soon as it's created
+      let attempts = 0;
+      pollIntervalRef.current = setInterval(async () => {
+        attempts++;
+        try {
+          const latestSession = await fetchLatestAgentSession();
+          if (latestSession && !activeSessionId) {
+            console.log("Detected new session via polling:", latestSession.id);
+            setActiveSessionId(latestSession.id);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+          }
+        } catch (err) {
+          // Session doesn't exist yet, keep polling
+        }
+        
+        // Stop polling after 60 seconds
+        if (attempts > 120) {
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
+        }
+      }, 500);
     },
     onSuccess: (data) => {
+      // Stop polling
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["nbas"] });
       
-      // Set the first session ID for real-time reasoning display
-      if (data.sessions && data.sessions.length > 0) {
+      console.log("Auto-generate response:", data);
+      
+      // Fallback: if polling didn't catch it, set from response
+      if (data.sessions && data.sessions.length > 0 && !activeSessionId) {
+        console.log("Setting active session ID from response:", data.sessions[0].sessionId);
         setActiveSessionId(data.sessions[0].sessionId);
       }
       
@@ -86,6 +123,13 @@ export default function Home() {
       });
     },
     onError: (error) => {
+      // Stop polling on error
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+      
+      setActiveSessionId(null);
       toast.error("Failed to generate AI NBAs", {
         description: error instanceof Error ? error.message : "Unknown error occurred",
       });
@@ -160,8 +204,14 @@ export default function Home() {
               className="mb-16"
             >
               <AgentReasoningPanel 
-                sessionId={activeSessionId} 
-                onClose={() => setActiveSessionId(null)}
+                sessionId={activeSessionId}
+                onClose={() => {
+                  setActiveSessionId(null);
+                  if (autoGenerateMutation.isPending) {
+                    // Don't allow closing while generation is in progress
+                    return;
+                  }
+                }}
               />
             </motion.div>
           )}

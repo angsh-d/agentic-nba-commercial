@@ -375,6 +375,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get the latest/most recent agent session (for polling)
+  app.get("/api/agent/sessions/latest", async (_req, res) => {
+    try {
+      const sessions = await storage.getRecentAgentSessions(1);
+      if (sessions.length === 0) {
+        res.status(404).json({ error: "No sessions found" });
+        return;
+      }
+      res.json(sessions[0]);
+    } catch (error) {
+      console.error("Failed to fetch latest session:", error);
+      res.status(500).json({ error: "Failed to fetch latest session" });
+    }
+  });
+
   app.get("/api/agent/sessions/:id", async (req, res) => {
     try {
       const sessionId = parseInt(req.params.id);
