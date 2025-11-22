@@ -53,14 +53,34 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navbar />
       
+      {/* Hero Section */}
+      <section className="relative bg-white border-b border-gray-200">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30" />
+        <div className="relative container mx-auto px-6 py-16 max-w-7xl">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 border border-gray-200 mb-6">
+              <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Agentic AI Platform
+              </span>
+            </div>
+            <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight">
+              Territory Intelligence
+            </h1>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              AI-powered prescription switching detection and contextual Next Best Actions for your territory
+            </p>
+          </div>
+        </div>
+      </section>
+      
       <main className="container mx-auto px-6 py-12 max-w-7xl">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-semibold text-gray-900 mb-3">
-            Territory Overview
-          </h1>
-          <p className="text-lg text-gray-600">
-            Select an HCP to analyze prescription switching risk and generate Next Best Actions
+        {/* Section Header */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+            Healthcare Providers
+          </h2>
+          <p className="text-base text-gray-600">
+            Select an HCP to analyze switching risk and generate intelligent recommendations
           </p>
         </div>
 
