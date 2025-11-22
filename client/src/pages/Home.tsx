@@ -65,7 +65,7 @@ function getTrendIcon(trend: string | undefined | null) {
 }
 
 export default function Home() {
-  const [filterMode, setFilterMode] = useState<"all" | "risk">("all");
+  const [filterMode, setFilterMode] = useState<"all" | "risk">("risk");
   
   const { data: hcps = [], isLoading } = useQuery({
     queryKey: ["hcps"],
@@ -195,17 +195,6 @@ export default function Home() {
             {/* Apple-style Segmented Control */}
             <div className="inline-flex items-center bg-gray-100 rounded-full p-1.5 gap-1">
               <button
-                onClick={() => setFilterMode("all")}
-                className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  filterMode === "all"
-                    ? "bg-white text-gray-900 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-                data-testid="filter-all"
-              >
-                All HCPs
-              </button>
-              <button
                 onClick={() => setFilterMode("risk")}
                 className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                   filterMode === "risk"
@@ -215,6 +204,17 @@ export default function Home() {
                 data-testid="filter-risk"
               >
                 Switch Risk
+              </button>
+              <button
+                onClick={() => setFilterMode("all")}
+                className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                  filterMode === "all"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                data-testid="filter-all"
+              >
+                All HCPs
               </button>
             </div>
           </div>
