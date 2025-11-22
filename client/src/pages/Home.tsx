@@ -158,14 +158,14 @@ export default function Home() {
       </section>
 
       {/* Territory Section - Apple Style */}
-      <section className="relative bg-gray-50 text-black py-24">
+      <section className="relative bg-white text-black py-32">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* Section Header */}
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-semibold tracking-tight mb-4">
+          <div className="text-center mb-24">
+            <h2 className="text-5xl md:text-6xl font-semibold tracking-tight mb-6 leading-[1.1]">
               Your Territory
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-light">
               Select a healthcare provider to unlock AI-powered insights and intelligent recommendations.
             </p>
           </div>
@@ -175,11 +175,11 @@ export default function Home() {
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <div className="w-16 h-16 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Loading providers...</p>
+                <p className="text-base text-gray-600 font-light">Loading providers...</p>
               </div>
             </div>
           ) : (
-            <div className="grid gap-6">
+            <div className="grid gap-8">
               {hcps.map((hcp, index) => {
                 const risk = getRiskLevel(hcp.riskScore);
                 return (
@@ -191,39 +191,39 @@ export default function Home() {
                   >
                     <Link href={`/hcp/${hcp.id}`}>
                       <Card 
-                        className="group cursor-pointer transition-all duration-500 hover:shadow-2xl hover:scale-[1.01] border-gray-200 bg-white overflow-hidden"
+                        className="group cursor-pointer transition-all duration-500 hover:shadow-xl hover:scale-[1.005] border border-gray-200 bg-white overflow-hidden rounded-[32px]"
                         data-testid={`card-hcp-${hcp.id}`}
                       >
-                        <CardContent className="p-8">
-                          <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-start gap-6 flex-1">
+                        <CardContent className="p-10">
+                          <div className="flex items-start justify-between mb-8">
+                            <div className="flex items-start gap-8 flex-1">
                               {/* Avatar */}
-                              <Avatar className="w-20 h-20 border-2 border-gray-100">
-                                <AvatarFallback className="text-xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                              <Avatar className="w-24 h-24 border-0 shadow-lg">
+                                <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                   {hcp.name.split(' ').map(n => n[0]).join('')}
                                 </AvatarFallback>
                               </Avatar>
 
                               {/* Info */}
                               <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-3">
-                                  <h3 className="text-3xl font-semibold text-gray-900">
+                                <div className="flex items-center gap-4 mb-4">
+                                  <h3 className="text-4xl font-semibold text-gray-900 tracking-tight">
                                     {hcp.name}
                                   </h3>
                                   <Badge 
-                                    className={`${risk.bgColor} ${risk.textColor} border-0 px-3 py-1.5`}
+                                    className={`${risk.bgColor} ${risk.textColor} border-0 px-4 py-2 text-sm font-semibold rounded-full`}
                                     data-testid={`badge-risk-${hcp.id}`}
                                   >
                                     {risk.label}
                                   </Badge>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-base text-gray-600">
-                                  <span className="flex items-center gap-2">
-                                    <Activity className="w-5 h-5" />
+                                <div className="flex flex-wrap items-center gap-x-10 gap-y-3 text-base text-gray-600 font-light">
+                                  <span className="flex items-center gap-2.5">
+                                    <Activity className="w-5 h-5 text-gray-400" />
                                     {hcp.specialty}
                                   </span>
-                                  <span className="flex items-center gap-2">
-                                    <MapPin className="w-5 h-5" />
+                                  <span className="flex items-center gap-2.5">
+                                    <MapPin className="w-5 h-5 text-gray-400" />
                                     {hcp.institution}, {hcp.location}
                                   </span>
                                 </div>
@@ -232,48 +232,48 @@ export default function Home() {
 
                             {/* Risk Score */}
                             <div className="text-right">
-                              <div className="text-5xl font-bold text-gray-900 mb-1">
+                              <div className="text-6xl font-bold text-gray-900 mb-2 leading-none">
                                 {hcp.riskScore}
                               </div>
-                              <div className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                              <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">
                                 Switch Risk
                               </div>
                             </div>
                           </div>
 
                           {/* Insights Grid */}
-                          <div className="grid grid-cols-3 gap-6 p-6 bg-gray-50 rounded-3xl mb-6">
+                          <div className="grid grid-cols-3 gap-8 p-8 bg-gray-50 rounded-[28px] mb-6">
                             <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">
+                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
                                 Engagement
                               </div>
-                              <div className="text-lg font-semibold text-gray-900">
+                              <div className="text-xl font-semibold text-gray-900">
                                 {hcp.engagement || "N/A"}
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold flex items-center gap-2">
+                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold flex items-center gap-2">
                                 Rx Trend
                                 {getTrendIcon(hcp.prescriptionTrend)}
                               </div>
-                              <div className="text-lg font-semibold text-gray-900">
+                              <div className="text-xl font-semibold text-gray-900">
                                 {hcp.prescriptionTrend || "Stable"}
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">
+                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
                                 Account Age
                               </div>
-                              <div className="text-lg font-semibold text-gray-900">
+                              <div className="text-xl font-semibold text-gray-900">
                                 {hcp.accountAge ?? 0} months
                               </div>
                             </div>
                           </div>
 
                           {/* Action Button */}
-                          <div className="flex items-center justify-end text-base font-semibold text-gray-600 group-hover:text-black transition-colors">
-                            <span>Analyze & Generate NBAs</span>
-                            <ChevronRight className="w-6 h-6 ml-1 group-hover:translate-x-2 transition-transform duration-300" />
+                          <div className="flex items-center justify-end text-base font-medium text-gray-500 group-hover:text-black transition-colors">
+                            <span className="tracking-tight">Analyze & Generate NBAs</span>
+                            <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
                           </div>
                         </CardContent>
                       </Card>
