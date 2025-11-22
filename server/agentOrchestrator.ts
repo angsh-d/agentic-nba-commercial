@@ -278,43 +278,75 @@ You must respond ONLY with valid JSON in exactly this format:
    */
   private async evidenceAnalyst(context: any) {
     await this.logThought("analyst", "observation", 
-      `Gathering evidence about prescription patterns and risk factors for HCP ${context.hcpId}`);
+      `Gathering evidence about prescription patterns, patient cohorts, and clinical events for HCP ${context.hcpId}`);
     
     const hcp = await storage.getHcp(context.hcpId);
     if (!hcp) throw new Error("HCP not found");
     
     const history = await storage.getPrescriptionHistory(context.hcpId);
+    const patients = await storage.getPatientsByHcp(context.hcpId);
+    const clinicalEvents = await storage.getClinicalEventsByHcp(context.hcpId);
     const allHcps = await storage.getAllHcps();
     
-    await this.logAction("analyst", "analyze_pattern", "Analyzed prescription trends and peer comparison", {
+    // Cohort analysis
+    const cohortBreakdown = patients.reduce((acc: any, p) => {
+      acc[p.cohort] = (acc[p.cohort] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const switchedPatients = patients.filter(p => p.switchedDate);
+    const cvRiskPatients = patients.filter(p => p.hasCardiovascularRisk === 1);
+    
+    await this.logAction("analyst", "analyze_pattern", "Analyzed prescription trends, patient cohorts, and clinical events", {
       trendsIdentified: true,
       peerCount: allHcps.length,
+      patientCount: patients.length,
+      clinicalEventsCount: clinicalEvents.length,
+      cohorts: Object.keys(cohortBreakdown),
     });
     
-    const prompt = `You are an Evidence Analysis Agent performing deep data analysis.
+    const prompt = `You are an Evidence Analysis Agent performing deep causal data analysis.
 
 HCP PROFILE:
 - Name: ${hcp.name}
 - Specialty: ${hcp.specialty}
+- Hospital: ${hcp.hospital}
 - Risk Score: ${hcp.switchRiskScore}/100
 - Engagement: ${hcp.engagementLevel}
 
-PRESCRIPTION DATA (${history.length} months):
-${history.slice(0, 6).map(h => `- ${h.month}: ${h.productName} (${h.prescriptionCount} prescriptions)`).join('\n')}
+PRESCRIPTION TIMELINE (${history.length} months):
+${history.slice(0, 10).map(h => `- ${h.month}: ${h.productName} (${h.prescriptionCount} Rx) ${h.cohort ? `[Cohort: ${h.cohort}]` : ''}`).join('\n')}
+
+PATIENT COHORT ANALYSIS:
+- Total Patients: ${patients.length}
+- Cohort Breakdown: ${Object.entries(cohortBreakdown).map(([cohort, count]) => `${cohort}: ${count}`).join(', ')}
+- Switched Patients: ${switchedPatients.length} (${Math.round(switchedPatients.length / patients.length * 100)}%)
+- CV-Risk Patients: ${cvRiskPatients.length}
+${patients.slice(0, 5).map(p => `  • ${p.patientCode}: Age ${p.age}, ${p.cancerType}, ${p.cohort} cohort, ${p.switchedDate ? `Switched to ${p.switchedToDrug} on ${p.switchedDate.toISOString().split('T')[0]}` : 'Stable on ' + p.currentDrug}`).join('\n')}
+
+CLINICAL EVENTS (Potential Causal Factors):
+${clinicalEvents.map(e => `- ${e.eventDate.toISOString().split('T')[0]}: [${e.eventType.toUpperCase()}] ${e.eventTitle}
+  ${e.eventDescription.substring(0, 150)}${e.eventDescription.length > 150 ? '...' : ''}
+  Impact: ${e.impact} | Related Drug: ${e.relatedDrug || 'N/A'}`).join('\n\n')}
 
 PEER COMPARISON:
 - Territory ${hcp.territory} has ${allHcps.filter(h => h.territory === hcp.territory).length} HCPs
 - Average risk score in territory: ${Math.round(allHcps.filter(h => h.territory === hcp.territory).reduce((sum, h) => sum + (h.switchRiskScore || 0), 0) / allHcps.filter(h => h.territory === hcp.territory).length)}
 
-TASK: Analyze evidence and form hypotheses about HCP behavior.
+TASK: Perform CAUSAL ANALYSIS:
+1. Identify temporal correlations between clinical events and switching patterns
+2. Segment patients by cohort and analyze switching behavior per cohort
+3. Hypothesize causal relationships (e.g., "Did ASCO conference trigger young RCC patient switches?")
+4. Identify distinct switching patterns across different patient populations
+5. Extract evidence-based insights about HCP decision-making drivers
 
 OUTPUT (JSON):
 {
-  "thought": "My analysis of the evidence...",
-  "keyFindings": ["Finding 1", "Finding 2", "Finding 3"],
-  "hypotheses": ["Hypothesis 1", "Hypothesis 2"],
-  "riskFactors": ["Factor 1", "Factor 2"],
-  "opportunities": ["Opportunity 1", "Opportunity 2"]
+  "thought": "My causal analysis connecting events to switching patterns...",
+  "keyFindings": ["Finding 1 with timeline correlation", "Finding 2 about cohort patterns", "Finding 3"],
+  "hypotheses": ["Causal hypothesis 1 (event → behavior)", "Cohort-specific hypothesis 2"],
+  "riskFactors": ["Factor 1 with evidence", "Factor 2"],
+  "opportunities": ["Opportunity 1 based on causality", "Opportunity 2"]
 }`;
     
     const response = await azureOpenAI.chat.completions.create({
@@ -348,24 +380,34 @@ OUTPUT (JSON):
     const { plan, evidence, hcpId } = context;
     const hcp = await storage.getHcp(hcpId);
     
-    const prompt = `You are an Action Synthesis Agent creating actionable recommendations.
+    const prompt = `You are an Action Synthesis Agent creating actionable recommendations based on causal analysis.
 
 STRATEGIC PLAN:
 ${JSON.stringify(plan, null, 2)}
 
-EVIDENCE:
+EVIDENCE & CAUSAL ANALYSIS:
 ${JSON.stringify(evidence, null, 2)}
 
-TASK: Generate the single best Next Best Action with detailed reasoning.
+TASK: Generate the single best Next Best Action with layered narrative explaining causal factors.
+
+Your "aiInsight" field should be a NARRATIVE that:
+1. Explains distinct switching patterns across different patient cohorts
+2. Connects clinical events (conferences, adverse events) to behavioral changes
+3. Demonstrates evidence-based, strategic HCP decision-making
+4. Provides specific dates, percentages, and temporal correlations
+5. Shows how multiple causal factors drive different cohort behaviors
+
+Example narrative structure:
+"Dr. [Name]'s switching behavior reveals two distinct, evidence-driven patterns: First, following [EVENT] on [DATE], all patients in [COHORT A] systematically switched to [COMPETITOR], representing a [X]% shift driven by [CAUSAL FACTOR]. Second, after experiencing [EVENT CLUSTER] in [TIMEFRAME], [COHORT B] patients selectively migrated due to [SAFETY/EFFICACY CONCERN]. Notably, [COHORT C] patients remain on our drug, indicating strategic, not categorical switching."
 
 OUTPUT (JSON):
 {
-  "thought": "Why this is the optimal action...",
+  "thought": "Why this is the optimal action based on causal patterns...",
   "action": "Specific action to take",
   "actionType": "meeting|email|call|event",
   "priority": "High|Medium|Low",
-  "reason": "Business justification",
-  "aiInsight": "Deep AI analysis and expected outcomes",
+  "reason": "Business justification with cohort-specific focus",
+  "aiInsight": "LAYERED NARRATIVE explaining causal factors, cohort patterns, temporal correlations, and strategic HCP behavior with specific dates and statistics",
   "confidenceScore": 85,
   "expectedOutcome": "What we expect to achieve",
   "timeframe": "When to execute"

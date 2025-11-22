@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AgentReasoningPanel } from "@/components/AgentReasoningPanel";
+import { EventTimeline } from "@/components/EventTimeline";
 import {
   ArrowLeft,
   Sparkles,
@@ -70,6 +71,18 @@ async function fetchNBAResults(hcpId: string): Promise<NBAResults> {
   return response.json();
 }
 
+async function fetchPatients(hcpId: string) {
+  const response = await fetch(`/api/hcps/${hcpId}/patients`);
+  if (!response.ok) throw new Error("Failed to fetch patients");
+  return response.json();
+}
+
+async function fetchClinicalEvents(hcpId: string) {
+  const response = await fetch(`/api/hcps/${hcpId}/events`);
+  if (!response.ok) throw new Error("Failed to fetch clinical events");
+  return response.json();
+}
+
 function getRiskBadge(tier: string, score: number) {
   if (tier === "critical" || score >= 70)
     return { label: "Critical Risk", className: "bg-red-500 text-white" };
@@ -94,6 +107,18 @@ export default function HCPDetail() {
   const { data: prescriptionHistory = [] } = useQuery({
     queryKey: ["prescription-history", hcpId],
     queryFn: () => fetchPrescriptionHistory(hcpId!),
+    enabled: !!hcpId,
+  });
+
+  const { data: patients = [] } = useQuery({
+    queryKey: ["patients", hcpId],
+    queryFn: () => fetchPatients(hcpId!),
+    enabled: !!hcpId,
+  });
+
+  const { data: clinicalEvents = [] } = useQuery({
+    queryKey: ["clinical-events", hcpId],
+    queryFn: () => fetchClinicalEvents(hcpId!),
     enabled: !!hcpId,
   });
 
@@ -289,6 +314,16 @@ export default function HCPDetail() {
             </Card>
           )}
         </div>
+
+        {/* Event Timeline & Causal Analysis */}
+        {(clinicalEvents.length > 0 || patients.length > 0) && (
+          <div className="mb-16">
+            <h2 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight">
+              Causal Analysis Timeline
+            </h2>
+            <EventTimeline events={clinicalEvents} patients={patients} />
+          </div>
+        )}
 
         {/* Prescription Trends */}
         {prescriptionHistory.length > 0 && (
