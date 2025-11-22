@@ -22,12 +22,14 @@ interface HCP {
   id: number;
   name: string;
   specialty: string;
-  institution: string;
-  location: string;
-  riskScore: number;
-  engagement: string;
-  prescriptionTrend: string;
-  accountAge: number;
+  hospital: string;
+  territory: string;
+  switchRiskScore: number;
+  switchRiskTier: string;
+  switchRiskReasons?: string[];
+  engagementLevel: string;
+  lastVisitDate: string;
+  createdAt: string;
 }
 
 async function fetchHCP(id: string): Promise<HCP> {
@@ -46,10 +48,25 @@ async function generateNBA(hcpId: number) {
   return response.json();
 }
 
-function getRiskLevel(score: number) {
-  if (score >= 70) return { label: "High Risk", color: "bg-red-500", textColor: "text-red-700", bgColor: "bg-red-50" };
-  if (score >= 40) return { label: "Medium Risk", color: "bg-yellow-500", textColor: "text-yellow-700", bgColor: "bg-yellow-50" };
+function getRiskLevel(tier: string, score: number) {
+  if (tier === "critical" || score >= 70) return { label: "High Risk", color: "bg-red-500", textColor: "text-red-700", bgColor: "bg-red-50" };
+  if (tier === "medium" || score >= 40) return { label: "Medium Risk", color: "bg-yellow-500", textColor: "text-yellow-700", bgColor: "bg-yellow-50" };
   return { label: "Low Risk", color: "bg-green-500", textColor: "text-green-700", bgColor: "bg-green-50" };
+}
+
+function getEngagementLabel(level: string) {
+  if (level === "high") return "High";
+  if (level === "medium") return "Medium";
+  if (level === "low") return "Low";
+  return "Not Set";
+}
+
+function calculateAccountAge(createdAt: string) {
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - created.getTime());
+  const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
+  return diffMonths;
 }
 
 export default function HCPDetail() {
@@ -107,7 +124,9 @@ export default function HCPDetail() {
     );
   }
 
-  const risk = getRiskLevel(hcp.riskScore);
+  const risk = getRiskLevel(hcp.switchRiskTier, hcp.switchRiskScore);
+  const accountAge = calculateAccountAge(hcp.createdAt);
+  const hasSwitchRisk = hcp.switchRiskScore > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -133,7 +152,7 @@ export default function HCPDetail() {
               <div className="flex items-start gap-6">
                 <Avatar className="w-24 h-24 border-4 border-gray-200">
                   <AvatarFallback className="text-2xl font-semibold bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                    {hcp.name.split(' ').map(n => n[0]).join('')}
+                    {hcp.name.split(' ').map((n: string) => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
 
@@ -156,7 +175,7 @@ export default function HCPDetail() {
                     </span>
                     <span className="flex items-center gap-2">
                       <MapPin className="w-5 h-5" />
-                      {hcp.institution}, {hcp.location}
+                      {hcp.hospital}, {hcp.territory}
                     </span>
                   </div>
                 </div>
@@ -164,7 +183,7 @@ export default function HCPDetail() {
 
               <div className="text-right">
                 <div className="text-5xl font-bold text-gray-900 mb-2">
-                  {hcp.riskScore}
+                  {hcp.switchRiskScore}
                 </div>
                 <div className="text-sm text-gray-500 uppercase tracking-wide">
                   Switch Risk Score
@@ -180,22 +199,28 @@ export default function HCPDetail() {
                   Engagement Level
                 </div>
                 <div className="text-xl font-semibold text-gray-900">
-                  {hcp.engagement}
+                  {getEngagementLabel(hcp.engagementLevel)}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-2">
-                  Prescription Trend
-                  {hcp.prescriptionTrend.includes("Decreasing") ? (
-                    <TrendingDown className="w-5 h-5 text-red-500" />
-                  ) : hcp.prescriptionTrend.includes("Increasing") ? (
-                    <TrendingUp className="w-5 h-5 text-green-500" />
+                  {hasSwitchRisk ? (
+                    <>
+                      <TrendingDown className="w-5 h-5 text-red-500" />
+                      Our Rx Trend
+                    </>
                   ) : (
-                    <Activity className="w-5 h-5 text-gray-400" />
+                    <>
+                      <TrendingUp className="w-5 h-5 text-green-500" />
+                      Rx Performance
+                    </>
                   )}
                 </div>
-                <div className="text-xl font-semibold text-gray-900">
-                  {hcp.prescriptionTrend}
+                <div className={`text-xl font-semibold ${hasSwitchRisk ? 'text-red-600' : 'text-green-600'}`}>
+                  {hasSwitchRisk 
+                    ? (hcp.switchRiskReasons?.find((r: string) => r.includes('decline'))?.match(/-?\d+%/)?.[0] || 'Declining')
+                    : 'Stable'
+                  }
                 </div>
               </div>
               <div>
@@ -203,7 +228,7 @@ export default function HCPDetail() {
                   Account Age
                 </div>
                 <div className="text-xl font-semibold text-gray-900">
-                  {hcp.accountAge} months
+                  {accountAge} {accountAge === 1 ? 'month' : 'months'}
                 </div>
               </div>
             </div>
@@ -211,7 +236,7 @@ export default function HCPDetail() {
         </Card>
 
         {/* Generate NBA Button - Only show for HCPs with risk */}
-        {!activeSessionId && hcp.riskScore > 0 && (
+        {!activeSessionId && hcp.switchRiskScore > 0 && (
           <div className="mb-8 flex justify-center">
             <Button
               size="lg"
@@ -236,7 +261,7 @@ export default function HCPDetail() {
         )}
         
         {/* Low Risk Message */}
-        {!activeSessionId && hcp.riskScore === 0 && (
+        {!activeSessionId && hcp.switchRiskScore === 0 && (
           <div className="mb-8">
             <Card className="border-green-200 bg-green-50">
               <CardContent className="p-8 text-center">
