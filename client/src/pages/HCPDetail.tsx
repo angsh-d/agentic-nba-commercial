@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AgentReasoningPanel } from "@/components/AgentReasoningPanel";
 import { EventTimeline } from "@/components/EventTimeline";
+import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
+import { EnsembleNBAPanel } from "@/components/EnsembleNBAPanel";
 import {
   ArrowLeft,
   Sparkles,
@@ -373,83 +375,18 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Prescription Trends */}
-        {prescriptionHistory.length > 0 && (
+        {/* Cohort-Segmented Switching Analysis */}
+        {prescriptionHistory.length > 0 && patients.length > 0 && (
           <div className="mb-16">
             <h2 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight">
-              Prescription Trends
+              Cohort-Segmented Switching Analysis
             </h2>
-            <div className="grid grid-cols-2 gap-8">
-              {/* Our Product */}
-              {prescriptionHistory.filter((p: any) => p.isOurProduct === 1).length > 0 && (
-                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
-                  <CardContent className="p-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold text-gray-900">Our Product</h3>
-                      <div className="flex items-center gap-2">
-                        <TrendingDown className="w-5 h-5 text-red-500" />
-                        <span className="text-lg font-semibold text-red-600">
-                          {hcp.switchRiskReasons?.find((r: string) => r.includes("decline"))?.match(/-?\d+%/)?.[0] || "Declining"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      {prescriptionHistory
-                        .filter((p: any) => p.isOurProduct === 1)
-                        .sort((a: any, b: any) => a.month.localeCompare(b.month))
-                        .map((p: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-                            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-                              {new Date(p.month + "-01").toLocaleDateString("en-US", {
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                            <span className="text-2xl font-bold text-blue-600">
-                              {p.prescriptionCount}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Competitor Products */}
-              {prescriptionHistory.filter((p: any) => p.isOurProduct === 0).length > 0 && (
-                <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg overflow-hidden">
-                  <CardContent className="p-8">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-semibold text-gray-900">Competitors</h3>
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-orange-500" />
-                        <span className="text-lg font-semibold text-orange-600">
-                          {hcp.switchRiskReasons?.find((r: string) => r.includes("competitor"))?.match(/\+?\d+%/)?.[0] || "Increasing"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      {prescriptionHistory
-                        .filter((p: any) => p.isOurProduct === 0)
-                        .sort((a: any, b: any) => a.month.localeCompare(b.month))
-                        .map((p: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-4 bg-orange-50 rounded-xl">
-                            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-                              {new Date(p.month + "-01").toLocaleDateString("en-US", {
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                            <span className="text-2xl font-bold text-orange-600">
-                              {p.prescriptionCount}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+            <CohortSwitchingChart
+              patients={patients}
+              clinicalEvents={clinicalEvents}
+              prescriptionHistory={prescriptionHistory}
+              productName="Onco-Pro"
+            />
           </div>
         )}
 
@@ -471,47 +408,10 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Next Best Action - Phase 1 Primary Output */}
+        {/* Ensemble NBA Strategy - Multi-Source Recommendations */}
         {nbaResults?.nba && (
           <div className="mb-16">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-8 tracking-tight">
-              Recommended Next Best Action
-            </h2>
-            <Card className="border-0 bg-gradient-to-br from-indigo-50 to-purple-50 backdrop-blur-xl shadow-2xl">
-              <CardContent className="p-12">
-                <div className="space-y-8">
-                  {/* Action Header */}
-                  <div className="flex items-start gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl flex-shrink-0">
-                      <Target className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <Badge className="mb-4 bg-indigo-600 text-white px-4 py-1 text-sm font-semibold uppercase tracking-wide">
-                        {nbaResults.nba.priority} Priority • {nbaResults.nba.actionType}
-                      </Badge>
-                      <h3 className="text-3xl font-semibold text-gray-900 mb-4 leading-tight">
-                        {nbaResults.nba.action}
-                      </h3>
-                      <p className="text-lg text-gray-700 leading-relaxed">
-                        {nbaResults.nba.reason}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* AI Insight */}
-                  {nbaResults.nba.aiInsight && (
-                    <div className="p-6 bg-white/60 rounded-2xl border border-indigo-100">
-                      <h4 className="text-sm font-semibold text-indigo-900 uppercase tracking-wide mb-3">
-                        AI Insight
-                      </h4>
-                      <p className="text-base text-gray-700 leading-relaxed">
-                        {nbaResults.nba.aiInsight}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <EnsembleNBAPanel nba={nbaResults.nba} />
           </div>
         )}
 

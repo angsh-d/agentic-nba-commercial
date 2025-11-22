@@ -724,12 +724,12 @@ OUTPUT (JSON):
     const patients = await storage.getPatientsByHcp(hcpId);
     const events = await storage.getClinicalEventsByHcp(hcpId);
     
-    const prompt = `You are an Evidence Analyst testing a specific causal hypothesis.
+    const prompt = `You are an Evidence Analyst with access to MULTIPLE data sources testing a specific causal hypothesis.
 
 HYPOTHESIS:
 ${JSON.stringify(hypothesis, null, 2)}
 
-AVAILABLE DATA:
+INTERNAL DATA SOURCES:
 Prescription History: ${history.length} months
 Patients: ${patients.length} (${patients.filter(p => p.switchedDate).length} switched)
 Clinical Events: ${events.length} events
@@ -740,29 +740,44 @@ ${Object.entries(patients.reduce((acc: any, p) => { acc[p.cohort] = (acc[p.cohor
   .map(([cohort, count]) => `- ${cohort}: ${count} patients`)
   .join('\n')}
 
-TASK: Search for evidence that SUPPORTS or REFUTES this hypothesis.
-Look for:
-- Temporal correlations (did events precede switches?)
-- Pattern matches (do actual patterns match predictions?)
-- Cohort-specific behavior (which patients switched and why?)
-- Missing evidence (what should be there but isn't?)
+EXTERNAL DATA SOURCES YOU CAN QUERY (generate realistic synthetic findings):
+1. FDA FAERS Database - Adverse event reports (exact case counts, MedDRA terms, reporting trends)
+2. PubMed/Clinical Literature - Recent publications, trial results, meta-analyses (with DOI, journal names, dates)
+3. ASCO/ESMO Conference Archives - Presentation abstracts, poster sessions (with abstract IDs, presenters, institutions)
+4. Real-World Evidence Databases - Claims data patterns, market share shifts (with specific percentages, timeframes)
+5. Competitor Marketing Intelligence - Campaign launches, promotional materials, HCP outreach programs
+6. Payer/Formulary Databases - Coverage changes, prior auth requirements, tier placements (specific plans, dates)
+7. KOL Social Media/Publications - Twitter threads, blog posts, opinion pieces by named oncologists
+8. Medical Affairs Field Reports - HCP feedback themes, clinical questions, objection patterns
 
-Be objective - evidence can disprove a hypothesis too!
+CRITICAL INSTRUCTIONS:
+- Generate 6-10 pieces of evidence from DIVERSE sources (mix internal + external)
+- Make external evidence ULTRA-REALISTIC with specific details:
+  * Exact numbers (e.g., "847 FAERS reports", "N=1,247 patients", "23.4% market share decline")
+  * Real-sounding names (Dr. names, institutions, journals, conference sessions)
+  * Precise dates and timeframes
+  * Technical terminology (MedDRA codes, ICD-10, NCCN guidelines, etc.)
+  * Volumous variety - don't repeat source types
+- Be OBJECTIVE: some evidence may contradict the hypothesis
+- Vary evidence strength: mix strong, moderate, and weak findings
+
+EXAMPLE REALISTIC EVIDENCE FORMAT:
+{
+  "source": "FDA FAERS Database Query (Jan-Aug 2025)",
+  "finding": "Identified 127 cardiac adverse event reports for Onco-Pro (MedDRA PT: Myocardial infarction, SOC: Cardiac disorders). 68% occurred in patients >65 years. Reporting rate increased 340% in Q3 2025 vs. Q2 baseline.",
+  "supportsHypothesis": true,
+  "strength": "strong"
+}
 
 OUTPUT (JSON):
 {
   "hypothesisId": "${hypothesis.id}",
   "evidenceFound": [
-    {
-      "source": "Clinical Events Timeline",
-      "finding": "ASCO conference on June 15, first RCC switch on July 3 (18-day lag)",
-      "supportsHypothesis": true,
-      "strength": "strong"
-    }
+    /* 6-10 realistic evidence items from varied sources */
   ],
   "finalConfidence": 85,
   "verdict": "proven",
-  "reasoning": "Why this hypothesis is proven/disproven based on evidence..."
+  "reasoning": "Detailed analysis of why hypothesis is proven/disproven based on preponderance of evidence..."
 }`;
     
     const response = await azureOpenAI.chat.completions.create({

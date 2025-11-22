@@ -279,38 +279,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post("/api/ai/generate-nba/:hcpId", async (req, res) => {
-    try {
-      const hcpId = parseInt(req.params.hcpId);
-      const hcp = await storage.getHcp(hcpId);
-      if (!hcp) {
-        return res.status(404).json({ error: "HCP not found" });
-      }
-
-      const history = await storage.getPrescriptionHistory(hcpId);
-      const events = await storage.getSwitchingEventsByStatus("active");
-      const switchingEvent = events.find(e => e.hcpId === hcpId);
-
-      const aiNba = await generateIntelligentNBA(hcp, history, switchingEvent);
-
-      // Optionally auto-create the NBA
-      const createdNba = await storage.createNba({
-        hcpId,
-        action: aiNba.action,
-        actionType: aiNba.actionType,
-        priority: aiNba.priority,
-        reason: aiNba.reason,
-        aiInsight: aiNba.aiInsight,
-        status: "pending",
-      });
-
-      res.json({ nba: createdNba, aiDetails: aiNba });
-    } catch (error) {
-      console.error("AI NBA generation error:", error);
-      res.status(500).json({ error: "Failed to generate AI-powered NBA" });
-    }
-  });
-
   app.post("/api/ai/territory-plan/:territory", async (req, res) => {
     try {
       const { territory } = req.params;
