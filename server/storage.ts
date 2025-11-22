@@ -28,6 +28,14 @@ export interface IStorage {
   createPrescriptionHistory(history: InsertPrescriptionHistory): Promise<PrescriptionHistory>;
   getPrescriptionHistory(hcpId: number): Promise<PrescriptionHistory[]>;
   
+  // Patient operations
+  createPatient(patient: InsertPatient): Promise<Patient>;
+  getPatientsByHcp(hcpId: number): Promise<Patient[]>;
+  
+  // Clinical Event operations
+  createClinicalEvent(event: InsertClinicalEvent): Promise<ClinicalEvent>;
+  getClinicalEventsByHcp(hcpId: number): Promise<ClinicalEvent[]>;
+  
   // Switching Events operations
   getAllSwitchingEvents(): Promise<(SwitchingEvent & { hcp: Hcp })[]>;
   getSwitchingEventsByStatus(status: string): Promise<(SwitchingEvent & { hcp: Hcp })[]>;
@@ -165,6 +173,34 @@ export class DatabaseStorage implements IStorage {
       .from(prescriptionHistory)
       .where(eq(prescriptionHistory.hcpId, hcpId))
       .orderBy(desc(prescriptionHistory.month));
+  }
+  
+  // Patient operations
+  async createPatient(insertPatient: InsertPatient): Promise<Patient> {
+    const results = await db.insert(patients).values(insertPatient).returning();
+    return results[0];
+  }
+  
+  async getPatientsByHcp(hcpId: number): Promise<Patient[]> {
+    return await db
+      .select()
+      .from(patients)
+      .where(eq(patients.hcpId, hcpId))
+      .orderBy(desc(patients.createdAt));
+  }
+  
+  // Clinical Event operations
+  async createClinicalEvent(insertEvent: InsertClinicalEvent): Promise<ClinicalEvent> {
+    const results = await db.insert(clinicalEvents).values(insertEvent).returning();
+    return results[0];
+  }
+  
+  async getClinicalEventsByHcp(hcpId: number): Promise<ClinicalEvent[]> {
+    return await db
+      .select()
+      .from(clinicalEvents)
+      .where(eq(clinicalEvents.hcpId, hcpId))
+      .orderBy(desc(clinicalEvents.eventDate));
   }
   
   // Switching Events operations
