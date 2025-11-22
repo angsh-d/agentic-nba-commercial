@@ -80,12 +80,13 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
           const historyEvents: ReasoningEvent[] = [];
           
           // Add thoughts
-          if (session.thoughts) {
-            session.thoughts.forEach((thought: any) => {
+          if (session.session?.thoughts || session.thoughts) {
+            const thoughts = session.session?.thoughts || session.thoughts;
+            thoughts.forEach((thought: any) => {
               historyEvents.push({
                 type: 'thought',
-                sessionId: session.id,
-                agent: thought.agent,
+                sessionId: session.session?.id || session.id,
+                agent: thought.agentType,  // Database field is agentType
                 thoughtType: thought.thoughtType,
                 content: thought.content,
                 timestamp: thought.timestamp,
@@ -94,16 +95,17 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
           }
           
           // Add actions
-          if (session.actions) {
-            session.actions.forEach((action: any) => {
+          if (session.session?.actions || session.actions) {
+            const actions = session.session?.actions || session.actions;
+            actions.forEach((action: any) => {
               historyEvents.push({
                 type: 'action',
-                sessionId: session.id,
-                agent: action.agent,
+                sessionId: session.session?.id || session.id,
+                agent: action.agentType,  // Database field is agentType
                 actionType: action.actionType,
-                description: action.description,
-                metadata: action.metadata,
-                timestamp: action.timestamp,
+                description: action.actionDescription,  // Database field is actionDescription
+                metadata: action.actionParams,  // Database field is actionParams
+                timestamp: action.executedAt,  // Database field is executedAt
               });
             });
           }
@@ -116,7 +118,8 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
           });
           
           setEvents(historyEvents);
-          setCurrentPhase(session.status === 'completed' ? 'Completed' : session.status);
+          const sessionData = session.session || session;
+          setCurrentPhase(sessionData.status === 'completed' ? 'Completed' : sessionData.currentPhase || sessionData.status);
         }
       } catch (error) {
         console.error("Failed to load session history:", error);
