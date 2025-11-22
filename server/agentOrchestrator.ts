@@ -53,6 +53,36 @@ const ReflectionSchema = z.object({
   overallAssessment: z.string(),
 });
 
+// Multi-Hypothesis Causal Discovery Schema
+const HypothesisSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  causalChain: z.array(z.string()), // e.g., ["ASCO conference", "Efficacy data", "RCC patient switching"]
+  predictedPatterns: z.array(z.string()), // What we'd expect to see if true
+  dataSourcesNeeded: z.array(z.string()), // Where to find evidence
+  initialConfidence: z.number().min(0).max(100),
+});
+
+const HypothesisGenerationSchema = z.object({
+  thought: z.string(),
+  hypotheses: z.array(HypothesisSchema),
+  rationale: z.string(),
+});
+
+const EvidenceScoreSchema = z.object({
+  hypothesisId: z.string(),
+  evidenceFound: z.array(z.object({
+    source: z.string(),
+    finding: z.string(),
+    supportsHypothesis: z.boolean(),
+    strength: z.enum(["weak", "moderate", "strong"]),
+  })),
+  finalConfidence: z.number().min(0).max(100),
+  verdict: z.enum(["proven", "likely", "possible", "unlikely", "disproven"]),
+  reasoning: z.string(),
+});
+
 /**
  * Agent Orchestrator - Coordinates multi-agent reasoning loops with ReAct pattern
  * Implements: Planning, Analysis, Synthesis, Reflection
@@ -527,6 +557,233 @@ OUTPUT (JSON):
     }
     
     return reflection;
+  }
+  
+  /**
+   * CAUSAL DISCOVERY AGENT - Multi-Hypothesis Investigation
+   * Generates competing hypotheses, gathers evidence, and identifies root causes
+   */
+  async executeCausalInvestigation(hcpId: number) {
+    const goal = `Investigate root causes of switching behavior for HCP ${hcpId} using multi-hypothesis reasoning`;
+    const session = await this.startSession(goal, "causal_investigation", { hcpId });
+    
+    try {
+      await this.logPhase("Hypothesis Generation");
+      
+      // Step 1: Generate multiple competing hypotheses
+      const hypotheses = await this.generateHypotheses(hcpId);
+      await this.logAction("causal_discovery", "generate_hypotheses", 
+        `Generated ${hypotheses.hypotheses.length} competing hypotheses`, 
+        { hcpId }, 
+        { count: hypotheses.hypotheses.length }
+      );
+      
+      await this.logPhase("Evidence Gathering");
+      
+      // Step 2: Fan out - test each hypothesis in parallel
+      const evidenceScores = await Promise.all(
+        hypotheses.hypotheses.map(h => this.gatherEvidenceForHypothesis(h, hcpId))
+      );
+      
+      await this.logPhase("Hypothesis Evaluation");
+      
+      // Step 3: Score and rank hypotheses
+      const rankedHypotheses = evidenceScores
+        .map((score, idx) => ({
+          hypothesis: hypotheses.hypotheses[idx],
+          evidence: score,
+        }))
+        .sort((a, b) => b.evidence.finalConfidence - a.evidence.finalConfidence);
+      
+      // Step 4: Prune weak hypotheses
+      const provenHypotheses = rankedHypotheses.filter(
+        h => h.evidence.finalConfidence >= 70 && 
+        (h.evidence.verdict === "proven" || h.evidence.verdict === "likely")
+      );
+      
+      const ruledOut = rankedHypotheses.filter(h => h.evidence.finalConfidence < 40);
+      
+      await this.logThought("causal_discovery", "reasoning",
+        `Investigation complete: ${provenHypotheses.length} hypotheses proven, ${ruledOut.length} ruled out`
+      );
+      
+      // Finalize session
+      await storage.updateAgentSession(session.id, {
+        status: "completed",
+        finalOutcome: `Causal investigation complete. Top hypothesis: ${provenHypotheses[0]?.hypothesis.title} (${provenHypotheses[0]?.evidence.finalConfidence}% confidence)`,
+        confidenceScore: provenHypotheses[0]?.evidence.finalConfidence || 0,
+        completedAt: new Date(),
+      });
+      
+      return {
+        sessionId: session.id,
+        allHypotheses: rankedHypotheses,
+        provenHypotheses,
+        ruledOut,
+        topHypothesis: provenHypotheses[0],
+      };
+      
+    } catch (error) {
+      await storage.updateAgentSession(session.id, {
+        status: "failed",
+        finalOutcome: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        completedAt: new Date(),
+      });
+      throw error;
+    }
+  }
+  
+  /**
+   * Generate multiple competing hypotheses for switching behavior
+   */
+  private async generateHypotheses(hcpId: number) {
+    await this.logThought("causal_discovery", "observation",
+      `Analyzing HCP ${hcpId} to generate multiple competing causal hypotheses`
+    );
+    
+    const hcp = await storage.getHcp(hcpId);
+    const history = await storage.getPrescriptionHistory(hcpId);
+    const patients = await storage.getPatientsByHcp(hcpId);
+    const events = await storage.getClinicalEventsByHcp(hcpId);
+    
+    const switchedCount = patients.filter(p => p.switchedDate).length;
+    const totalCount = patients.length;
+    
+    const prompt = `You are a Causal Discovery Agent investigating prescription switching behavior.
+
+HCP PROFILE:
+- Name: ${hcp?.name}
+- Specialty: ${hcp?.specialty}
+- Hospital: ${hcp?.hospital}
+- Patients: ${totalCount} total, ${switchedCount} switched (${Math.round(switchedCount/totalCount*100)}%)
+
+PRESCRIPTION TIMELINE:
+${history.slice(0, 8).map(h => `${h.month}: ${h.productName} (${h.prescriptionCount} Rx)`).join('\n')}
+
+CLINICAL EVENTS:
+${events.map(e => `- ${e.eventDate.toISOString().split('T')[0]}: ${e.eventTitle} (${e.eventType})`).join('\n')}
+
+PATIENT COHORTS:
+${patients.slice(0, 6).map(p => `- ${p.patientCode}: Age ${p.age}, ${p.cancerType}, ${p.cohort} cohort, ${p.switchedDate ? 'Switched' : 'Stable'}`).join('\n')}
+
+TASK: Generate 3-5 COMPETING causal hypotheses that could explain the switching behavior.
+Think like a detective: what are DIFFERENT possible root causes? Consider:
+- Conference/clinical trial data
+- Adverse events/safety signals
+- Competitor marketing/pricing
+- Payer/formulary changes
+- Peer influence
+- Patient population shifts
+
+For each hypothesis, predict what evidence we'd expect to find if it's true.
+
+OUTPUT (JSON):
+{
+  "thought": "My reasoning about potential causes...",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "title": "Conference-Driven Efficacy Shift",
+      "description": "HCP attended medical conference presenting new efficacy data favoring competitor",
+      "causalChain": ["Conference attendance", "New trial data", "Updated treatment beliefs", "Patient switching"],
+      "predictedPatterns": ["Switches cluster after conference date", "Specific patient subtype affected", "Peer physicians show same pattern"],
+      "dataSourcesNeeded": ["Conference schedules", "Trial publications", "Peer prescribing data"],
+      "initialConfidence": 60
+    }
+  ],
+  "rationale": "Why I generated these specific hypotheses..."
+}`;
+    
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      max_completion_tokens: 6000,
+    });
+    
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error("Empty hypothesis generation response");
+    
+    const rawHypotheses = JSON.parse(content);
+    const hypotheses = HypothesisGenerationSchema.parse(rawHypotheses);
+    
+    await this.logThought("causal_discovery", "reasoning", hypotheses.thought);
+    
+    return hypotheses;
+  }
+  
+  /**
+   * Gather and score evidence for a specific hypothesis
+   */
+  private async gatherEvidenceForHypothesis(hypothesis: z.infer<typeof HypothesisSchema>, hcpId: number) {
+    await this.logThought("causal_discovery", "observation",
+      `Testing hypothesis: ${hypothesis.title}`
+    );
+    
+    const hcp = await storage.getHcp(hcpId);
+    const history = await storage.getPrescriptionHistory(hcpId);
+    const patients = await storage.getPatientsByHcp(hcpId);
+    const events = await storage.getClinicalEventsByHcp(hcpId);
+    
+    const prompt = `You are an Evidence Analyst testing a specific causal hypothesis.
+
+HYPOTHESIS:
+${JSON.stringify(hypothesis, null, 2)}
+
+AVAILABLE DATA:
+Prescription History: ${history.length} months
+Patients: ${patients.length} (${patients.filter(p => p.switchedDate).length} switched)
+Clinical Events: ${events.length} events
+${events.map(e => `- ${e.eventDate.toISOString().split('T')[0]}: ${e.eventTitle}`).join('\n')}
+
+Cohort Breakdown:
+${Object.entries(patients.reduce((acc: any, p) => { acc[p.cohort] = (acc[p.cohort] || 0) + 1; return acc; }, {}))
+  .map(([cohort, count]) => `- ${cohort}: ${count} patients`)
+  .join('\n')}
+
+TASK: Search for evidence that SUPPORTS or REFUTES this hypothesis.
+Look for:
+- Temporal correlations (did events precede switches?)
+- Pattern matches (do actual patterns match predictions?)
+- Cohort-specific behavior (which patients switched and why?)
+- Missing evidence (what should be there but isn't?)
+
+Be objective - evidence can disprove a hypothesis too!
+
+OUTPUT (JSON):
+{
+  "hypothesisId": "${hypothesis.id}",
+  "evidenceFound": [
+    {
+      "source": "Clinical Events Timeline",
+      "finding": "ASCO conference on June 15, first RCC switch on July 3 (18-day lag)",
+      "supportsHypothesis": true,
+      "strength": "strong"
+    }
+  ],
+  "finalConfidence": 85,
+  "verdict": "proven",
+  "reasoning": "Why this hypothesis is proven/disproven based on evidence..."
+}`;
+    
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      max_completion_tokens: 6000,
+    });
+    
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error("Empty evidence scoring response");
+    
+    const rawScore = JSON.parse(content);
+    const score = EvidenceScoreSchema.parse(rawScore);
+    
+    await this.logAction("causal_discovery", "gather_evidence",
+      `Found ${score.evidenceFound.length} pieces of evidence for ${hypothesis.title}`,
+      { hypothesisId: hypothesis.id },
+      { confidence: score.finalConfidence, verdict: score.verdict }
+    );
+    
+    return score;
   }
   
   /**

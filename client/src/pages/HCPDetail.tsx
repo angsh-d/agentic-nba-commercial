@@ -16,7 +16,9 @@ import {
   MapPin,
   ChevronDown,
   ChevronUp,
-  Eye
+  Eye,
+  Brain,
+  Search
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
@@ -313,6 +315,52 @@ export default function HCPDetail() {
               </CardContent>
             </Card>
           )}
+        </div>
+
+        {/* Investigation Hub CTA */}
+        <div className="mb-16">
+          <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 via-blue-50 to-white shadow-xl overflow-hidden">
+            <CardContent className="p-12">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg">
+                      <Brain className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
+                        Autonomous Causal Investigation
+                      </h2>
+                      <p className="text-base text-gray-600 mt-1">
+                        Multi-agent AI system with hypothesis generation & evidence gathering
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed max-w-3xl">
+                    Launch our autonomous investigation engine to discover <span className="font-semibold">root causes</span> of switching behavior.
+                    The AI will generate multiple competing hypotheses, gather evidence from clinical data and external sources,
+                    test each hypothesis objectively, and identify proven causal factors with confidence scores.
+                  </p>
+                  <div className="mt-6 flex items-center gap-3">
+                    <Link href={`/hcp/${hcpId}/investigate`}>
+                      <Button
+                        size="lg"
+                        className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-base shadow-lg"
+                        data-testid="button-launch-investigation"
+                      >
+                        <Search className="w-5 h-5 mr-2" />
+                        Launch Investigation
+                      </Button>
+                    </Link>
+                    <div className="text-sm text-gray-500">
+                      <div className="font-medium">Key Features:</div>
+                      <div className="text-xs">Multi-hypothesis reasoning • Evidence scoring • Autonomous pruning</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Event Timeline & Causal Analysis */}

@@ -255,6 +255,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI-Powered endpoints
+  
+  // Causal Investigation - Multi-Hypothesis Reasoning
+  app.post("/api/ai/investigate/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const hcp = await storage.getHcp(hcpId);
+      if (!hcp) {
+        return res.status(404).json({ error: "HCP not found" });
+      }
+
+      // Trigger async causal investigation
+      const investigation = await agentOrchestrator.executeCausalInvestigation(hcpId);
+      
+      res.json({ 
+        success: true,
+        sessionId: investigation.sessionId,
+        investigation 
+      });
+    } catch (error) {
+      console.error("Causal investigation error:", error);
+      res.status(500).json({ error: "Failed to run causal investigation" });
+    }
+  });
+  
   app.post("/api/ai/generate-nba/:hcpId", async (req, res) => {
     try {
       const hcpId = parseInt(req.params.hcpId);
