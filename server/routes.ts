@@ -300,32 +300,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
     try {
       const highRiskHcps = await storage.getHighRiskHcps(50);
-      const generated = [];
+      const sessionPromises = [];
 
       for (const hcp of highRiskHcps.slice(0, 5)) {  // Limit to top 5 for demo
-        try {
-          // Use agent orchestrator for full reasoning visibility
-          const result = await agentOrchestrator.executeNBAGenerationLoop(hcp.id);
-          generated.push({
-            hcpId: hcp.id,
-            nbaId: result.nba.nbaId,
-            sessionId: result.sessionId,
-            confidence: result.reflection.confidenceScore,
-          });
-        } catch (error) {
+        // Start async generation - don't await
+        const promise = agentOrchestrator.executeNBAGenerationLoop(hcp.id).then(result => ({
+          hcpId: hcp.id,
+          nbaId: result.nba.nbaId,
+          sessionId: result.sessionId,
+          confidence: result.reflection.confidenceScore,
+        })).catch(error => {
           console.error(`Failed to generate NBA for HCP ${hcp.id}:`, error);
-        }
+          return null;
+        });
+        sessionPromises.push(promise);
       }
 
+      // Return immediately with the count - let generation happen in background
       res.json({ 
         success: true, 
-        generated: generated.length,
-        sessions: generated,
-        message: `Generated ${generated.length} AI-powered NBAs with full reasoning traces` 
+        generated: sessionPromises.length,
+        sessions: [], // Will be populated as they complete
+        message: `Started generating ${sessionPromises.length} AI-powered NBAs - connect to reasoning streams to watch progress` 
+      });
+
+      // Continue processing in background (but don't block response)
+      Promise.all(sessionPromises).then(results => {
+        const successful = results.filter(r => r !== null);
+        console.log(`Background NBA generation completed: ${successful.length}/${sessionPromises.length} successful`);
       });
     } catch (error) {
       console.error("Auto NBA generation error:", error);
-      res.status(500).json({ error: "Failed to auto-generate NBAs" });
+      res.status(500).json({ error: "Failed to start NBA generation" });
     }
   });
 

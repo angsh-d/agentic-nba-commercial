@@ -70,24 +70,36 @@ export default function Home() {
 
   const autoGenerateMutation = useMutation({
     mutationFn: autoGenerateAiNbas,
+    onMutate: () => {
+      // Start polling for latest in-progress session
+      const pollInterval = setInterval(async () => {
+        try {
+          const latestSession = await fetchLatestAgentSession();
+          if (latestSession && !activeSessionId) {
+            console.log("Found in-progress session:", latestSession.id);
+            setActiveSessionId(latestSession.id);
+            clearInterval(pollInterval);
+          }
+        } catch (err) {
+          // No session yet, keep polling
+        }
+      }, 500);
+
+      // Stop polling after 10 seconds
+      setTimeout(() => clearInterval(pollInterval), 10000);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["nbas"] });
       
-      console.log("Auto-generate response:", data);
-      
-      // Set session ID to show completion panel
-      if (data.sessions && data.sessions.length > 0) {
-        console.log("Setting active session ID:", data.sessions[0].sessionId);
-        setActiveSessionId(data.sessions[0].sessionId);
-      }
+      console.log("Auto-generate started:", data);
       
       toast.success(data.message, {
-        description: `Successfully generated ${data.generated} AI-powered Next Best Actions with full reasoning traces`,
+        description: `Generating ${data.generated} NBAs with real-time reasoning visibility`,
       });
     },
     onError: (error) => {
       setActiveSessionId(null);
-      toast.error("Failed to generate AI NBAs", {
+      toast.error("Failed to start NBA generation", {
         description: error instanceof Error ? error.message : "Unknown error occurred",
       });
     },
