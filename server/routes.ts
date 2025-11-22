@@ -296,6 +296,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate NBA for a single HCP (Phase 1)
+  app.post("/api/ai/generate-nba/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      
+      // Create session FIRST and return its ID immediately
+      const sessionId = await agentOrchestrator.createSession(
+        `Generate optimal Next Best Action for HCP ${hcpId} with full reasoning trace`,
+        "nba_generation",
+        { hcpId }
+      );
+      
+      // Run orchestrator in background (don't await)
+      agentOrchestrator.executeNBAGenerationLoop(hcpId, sessionId).then(result => {
+        console.log(`NBA generation completed for HCP ${hcpId}, session ${sessionId}`);
+      }).catch(error => {
+        console.error(`Failed to generate NBA for HCP ${hcpId}:`, error);
+        storage.updateAgentSession(sessionId, { status: 'failed' }).catch(console.error);
+      });
+
+      // Return immediately with session ID
+      res.json({ 
+        success: true,
+        sessionId,
+        hcpId,
+        message: `NBA generation started for HCP ${hcpId}` 
+      });
+    } catch (error) {
+      console.error("NBA generation error:", error);
+      res.status(500).json({ error: "Failed to start NBA generation" });
+    }
+  });
+
+  // Get formatted NBA results for Phase 1 display
+  app.get("/api/ai/nba-results/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      
+      // Get the most recent session for this HCP
+      const sessions = await storage.getAgentSessionsByHcp(hcpId);
+      if (!sessions || sessions.length === 0) {
+        return res.json({ hasResults: false });
+      }
+      
+      const latestSession = sessions[0];
+      const sessionDetails = await agentOrchestrator.getSessionDetails(latestSession.id);
+      
+      // Get the NBA created in this session
+      const nbas = await storage.getNbasByHcp(hcpId);
+      const latestNba = nbas.find((nba: any) => {
+        // Find NBA created around the same time as this session
+        const nbaTime = new Date(nba.generatedAt).getTime();
+        const sessionTime = new Date(latestSession.startedAt).getTime();
+        return Math.abs(nbaTime - sessionTime) < 60000; // Within 1 minute
+      });
+      
+      res.json({
+        hasResults: true,
+        session: latestSession,
+        thoughts: sessionDetails.thoughts,
+        actions: sessionDetails.actions,
+        nba: latestNba,
+      });
+    } catch (error) {
+      console.error("Failed to get NBA results:", error);
+      res.status(500).json({ error: "Failed to retrieve NBA results" });
+    }
+  });
+
   // Autonomous Agent - Generate NBAs for all high-risk HCPs with visible reasoning
   app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
     try {

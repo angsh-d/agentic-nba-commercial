@@ -12,6 +12,7 @@ export interface IStorage {
   // Next Best Actions operations
   getAllNbas(): Promise<(Nba & { hcp: Hcp })[]>;
   getNbasByTerritory(territory: string): Promise<(Nba & { hcp: Hcp })[]>;
+  getNbasByHcp(hcpId: number): Promise<Nba[]>;
   createNba(nba: InsertNba): Promise<Nba>;
   updateNbaStatus(id: number, status: string): Promise<void>;
   
@@ -40,6 +41,7 @@ export interface IStorage {
   getAgentSession(id: number): Promise<AgentSession | undefined>;
   updateAgentSession(id: number, updates: Partial<AgentSession>): Promise<void>;
   getRecentAgentSessions(limit?: number): Promise<AgentSession[]>;
+  getAgentSessionsByHcp(hcpId: number): Promise<AgentSession[]>;
   
   // Agent Thought operations
   createAgentThought(thought: InsertAgentThought): Promise<AgentThought>;
@@ -101,6 +103,14 @@ export class DatabaseStorage implements IStorage {
   async createNba(insertNba: InsertNba): Promise<Nba> {
     const results = await db.insert(nextBestActions).values(insertNba).returning();
     return results[0];
+  }
+
+  async getNbasByHcp(hcpId: number): Promise<Nba[]> {
+    return await db
+      .select()
+      .from(nextBestActions)
+      .where(eq(nextBestActions.hcpId, hcpId))
+      .orderBy(desc(nextBestActions.generatedAt));
   }
 
   async updateNbaStatus(id: number, status: string): Promise<void> {
@@ -222,6 +232,14 @@ export class DatabaseStorage implements IStorage {
       .from(agentSessions)
       .orderBy(desc(agentSessions.startedAt))
       .limit(limit);
+  }
+
+  async getAgentSessionsByHcp(hcpId: number): Promise<AgentSession[]> {
+    return await db
+      .select()
+      .from(agentSessions)
+      .where(sql`${agentSessions.contextData}->>'hcpId' = ${hcpId.toString()}`)
+      .orderBy(desc(agentSessions.startedAt));
   }
   
   // Agent Thought operations
