@@ -21,12 +21,12 @@ interface HCP {
   id: number;
   name: string;
   specialty: string;
-  institution: string;
-  location: string;
-  riskScore: number;
-  engagement: string;
-  prescriptionTrend: string;
-  accountAge: number;
+  hospital: string;
+  territory: string;
+  switchRiskScore: number;
+  switchRiskTier: string;
+  engagementLevel: string;
+  createdAt: string;
 }
 
 async function fetchHCPs(): Promise<HCP[]> {
@@ -35,10 +35,25 @@ async function fetchHCPs(): Promise<HCP[]> {
   return response.json();
 }
 
-function getRiskLevel(score: number) {
-  if (score >= 70) return { label: "High Risk", color: "bg-red-500", textColor: "text-red-700", bgColor: "bg-red-50" };
-  if (score >= 40) return { label: "Medium Risk", color: "bg-yellow-500", textColor: "text-yellow-700", bgColor: "bg-yellow-50" };
+function getRiskLevel(tier: string, score: number) {
+  if (tier === "high" || score >= 70) return { label: "High Risk", color: "bg-red-500", textColor: "text-red-700", bgColor: "bg-red-50" };
+  if (tier === "medium" || score >= 40) return { label: "Medium Risk", color: "bg-yellow-500", textColor: "text-yellow-700", bgColor: "bg-yellow-50" };
   return { label: "Low Risk", color: "bg-green-500", textColor: "text-green-700", bgColor: "bg-green-50" };
+}
+
+function getEngagementLabel(level: string) {
+  if (level === "high") return "High";
+  if (level === "medium") return "Medium";
+  if (level === "low") return "Low";
+  return "Not Set";
+}
+
+function calculateAccountAge(createdAt: string) {
+  const created = new Date(createdAt);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - created.getTime());
+  const diffMonths = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 30));
+  return diffMonths;
 }
 
 function getTrendIcon(trend: string | undefined | null) {
@@ -181,7 +196,8 @@ export default function Home() {
           ) : (
             <div className="grid gap-8">
               {hcps.map((hcp, index) => {
-                const risk = getRiskLevel(hcp.riskScore);
+                const risk = getRiskLevel(hcp.switchRiskTier, hcp.switchRiskScore);
+                const accountAge = calculateAccountAge(hcp.createdAt);
                 return (
                   <motion.div
                     key={hcp.id}
@@ -224,7 +240,7 @@ export default function Home() {
                                   </span>
                                   <span className="flex items-center gap-2.5">
                                     <MapPin className="w-5 h-5 text-gray-400" />
-                                    {hcp.institution}, {hcp.location}
+                                    {hcp.hospital}, {hcp.territory}
                                   </span>
                                 </div>
                               </div>
@@ -233,7 +249,7 @@ export default function Home() {
                             {/* Risk Score */}
                             <div className="text-right">
                               <div className="text-6xl font-bold text-gray-900 mb-2 leading-none">
-                                {hcp.riskScore}
+                                {hcp.switchRiskScore}
                               </div>
                               <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">
                                 Switch Risk
@@ -242,22 +258,13 @@ export default function Home() {
                           </div>
 
                           {/* Insights Grid */}
-                          <div className="grid grid-cols-3 gap-8 p-8 bg-gray-50 rounded-[28px] mb-6">
+                          <div className="grid grid-cols-2 gap-8 p-8 bg-gray-50 rounded-[28px] mb-6">
                             <div>
                               <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
-                                Engagement
+                                Engagement Level
                               </div>
                               <div className="text-xl font-semibold text-gray-900">
-                                {hcp.engagement || "N/A"}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold flex items-center gap-2">
-                                Rx Trend
-                                {getTrendIcon(hcp.prescriptionTrend)}
-                              </div>
-                              <div className="text-xl font-semibold text-gray-900">
-                                {hcp.prescriptionTrend || "Stable"}
+                                {getEngagementLabel(hcp.engagementLevel)}
                               </div>
                             </div>
                             <div>
@@ -265,7 +272,7 @@ export default function Home() {
                                 Account Age
                               </div>
                               <div className="text-xl font-semibold text-gray-900">
-                                {hcp.accountAge ?? 0} months
+                                {accountAge} {accountAge === 1 ? 'month' : 'months'}
                               </div>
                             </div>
                           </div>
