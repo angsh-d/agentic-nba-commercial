@@ -375,15 +375,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get the latest/most recent agent session (for polling)
+  // Get the latest IN-PROGRESS agent session (for polling)
   app.get("/api/agent/sessions/latest", async (_req, res) => {
     try {
-      const sessions = await storage.getRecentAgentSessions(1);
-      if (sessions.length === 0) {
-        res.status(404).json({ error: "No sessions found" });
+      const sessions = await storage.getRecentAgentSessions(10);
+      // Only return in-progress sessions, not completed ones
+      const inProgressSession = sessions.find(s => s.status === 'in_progress');
+      if (!inProgressSession) {
+        res.status(404).json({ error: "No in-progress sessions found" });
         return;
       }
-      res.json(sessions[0]);
+      res.json(inProgressSession);
     } catch (error) {
       console.error("Failed to fetch latest session:", error);
       res.status(500).json({ error: "Failed to fetch latest session" });

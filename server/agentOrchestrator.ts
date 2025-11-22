@@ -224,7 +224,7 @@ You must respond ONLY with valid JSON in exactly this format:
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
+      max_completion_tokens: 6000,  // Conservative limit for Azure GPT-5-mini
     });
     
     const content = response.choices[0]?.message?.content;
@@ -289,7 +289,7 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
+      max_completion_tokens: 6000,  // Conservative limit for Azure GPT-5-mini
     });
     
     const content = response.choices[0]?.message?.content;
@@ -343,7 +343,7 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 2500,  // GPT-5-mini uses many tokens for reasoning, synthesizer needs more
+      max_completion_tokens: 6000,  // Conservative limit for Azure GPT-5-mini
     });
     
     const content = response.choices[0]?.message?.content;
@@ -425,7 +425,7 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
+      max_completion_tokens: 6000,  // Conservative limit for Azure GPT-5-mini
     });
     
     const content = response.choices[0]?.message?.content;
