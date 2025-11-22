@@ -62,7 +62,7 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
   const eventSourceRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch completed session data on mount
+  // Fetch completed session data on mount and poll for updates
   useEffect(() => {
     if (!sessionId) {
       setEvents([]);
@@ -70,11 +70,19 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
     }
 
     const fetchSessionHistory = async () => {
-      setIsLoadingHistory(true);
+      if (!isLoadingHistory) {
+        setIsLoadingHistory(true);
+      }
       try {
         const response = await fetch(`/api/agent/sessions/${sessionId}`);
         if (response.ok) {
           const session = await response.json();
+          
+          console.log("Fetched session data:", {
+            sessionId,
+            thoughtCount: (session.session?.thoughts || session.thoughts || []).length,
+            actionCount: (session.session?.actions || session.actions || []).length,
+          });
           
           // Convert session data to events format
           const historyEvents: ReasoningEvent[] = [];
@@ -128,7 +136,21 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
       }
     };
 
+    // Initial fetch
     fetchSessionHistory();
+    
+    // Poll every 2 seconds for updates while session is in progress
+    const pollInterval = setInterval(() => {
+      const sessionData = events.find(e => 'sessionId' in e);
+      // Keep polling if we haven't seen a completed event yet
+      if (!events.some(e => e.type === 'completed')) {
+        fetchSessionHistory();
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(pollInterval);
+    };
   }, [sessionId]);
 
   // Set up SSE stream for live updates
