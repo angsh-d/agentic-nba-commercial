@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TerritoryPlan } from "@/components/TerritoryPlan";
 import { 
   Brain, 
   Sparkles, 
@@ -79,10 +80,12 @@ const copilotSuggestions = [
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("actions");
+  const [planOpen, setPlanOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50/50 font-sans text-gray-900 selection:bg-gray-200">
       <Navbar />
+      <TerritoryPlan open={planOpen} onOpenChange={setPlanOpen} />
       
       <main className="relative">
         {/* Hero Section */}
@@ -286,6 +289,7 @@ export default function Home() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 + (i * 0.1) }}
+                        onClick={() => suggestion.action === "View Plan" && setPlanOpen(true)}
                         className="bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-[20px] p-5 transition-all cursor-pointer border border-white/5 group"
                        >
                          <h4 className="text-[15px] font-semibold text-white mb-2 group-hover:text-[#2997ff] transition-colors">{suggestion.title}</h4>
