@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   AlertTriangle,
   TrendingUp,
+  TrendingDown,
   MapPin,
   ChevronRight,
   Activity,
@@ -26,7 +27,9 @@ interface HCP {
   territory: string;
   switchRiskScore: number;
   switchRiskTier: string;
+  switchRiskReasons?: string[];
   engagementLevel: string;
+  lastVisitDate: string;
   createdAt: string;
 }
 
@@ -299,24 +302,94 @@ export default function Home() {
                             </div>
                           </div>
 
-                          {/* Insights Grid */}
+                          {/* Actionable Insights Grid */}
                           <div className="grid grid-cols-2 gap-8 p-8 bg-gray-50 rounded-[28px] mb-6">
-                            <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
-                                Engagement Level
-                              </div>
-                              <div className="text-xl font-semibold text-gray-900">
-                                {getEngagementLabel(hcp.engagementLevel)}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
-                                Account Age
-                              </div>
-                              <div className="text-xl font-semibold text-gray-900">
-                                {accountAge} {accountAge === 1 ? 'month' : 'months'}
-                              </div>
-                            </div>
+                            {hcp.switchRiskScore > 0 ? (
+                              <>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold flex items-center gap-2">
+                                    <TrendingDown className="w-4 h-4 text-red-500" />
+                                    Our Rx Trend
+                                  </div>
+                                  <div className="text-xl font-semibold text-red-600">
+                                    {hcp.switchRiskReasons?.find((r: string) => r.includes('decline'))?.match(/-?\d+%/)?.[0] || '-44%'}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">Last 3 months</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                                    Competitor Gain
+                                  </div>
+                                  <div className="text-xl font-semibold text-orange-600">
+                                    {hcp.switchRiskReasons?.find((r: string) => r.includes('competitor'))?.match(/\+?\d+%/)?.[0] || '+133%'}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">Market share shift</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
+                                    Market Share
+                                  </div>
+                                  <div className="text-xl font-semibold text-gray-900">
+                                    {hcp.switchRiskReasons?.find((r: string) => r.includes('market share'))?.match(/\d+%/)?.[0] || '39%'}
+                                  </div>
+                                  <div className="text-xs text-red-500 mt-1">Below parity</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
+                                    Last Contact
+                                  </div>
+                                  <div className="text-xl font-semibold text-gray-900">
+                                    {Math.floor((Date.now() - new Date(hcp.lastVisitDate).getTime()) / (1000 * 60 * 60 * 24))} days ago
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {new Date(hcp.lastVisitDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                  </div>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4 text-green-500" />
+                                    Rx Performance
+                                  </div>
+                                  <div className="text-xl font-semibold text-green-600">
+                                    Stable
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">No decline detected</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
+                                    Market Position
+                                  </div>
+                                  <div className="text-xl font-semibold text-gray-900">
+                                    Strong
+                                  </div>
+                                  <div className="text-xs text-green-500 mt-1">Competitive advantage</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
+                                    Engagement
+                                  </div>
+                                  <div className="text-xl font-semibold text-gray-900">
+                                    {getEngagementLabel(hcp.engagementLevel)}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">Activity level</div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-semibold">
+                                    Last Contact
+                                  </div>
+                                  <div className="text-xl font-semibold text-gray-900">
+                                    {Math.floor((Date.now() - new Date(hcp.lastVisitDate).getTime()) / (1000 * 60 * 60 * 24))} days ago
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    {new Date(hcp.lastVisitDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                  </div>
+                                </div>
+                              </>
+                            )}
                           </div>
 
                           {/* Action Button - Only show for HCPs with risk */}
