@@ -83,7 +83,12 @@ export async function generateAiNba(hcpId: number): Promise<{ nba: Nba; aiDetail
   return response.json();
 }
 
-export async function autoGenerateAiNbas(): Promise<{ success: boolean; generated: number; message: string }> {
+export async function autoGenerateAiNbas(): Promise<{ 
+  success: boolean; 
+  generated: number; 
+  message: string;
+  sessions?: Array<{ hcpId: number; nbaId: number; sessionId: number; confidence: number }>;
+}> {
   const response = await fetch(`${API_BASE}/api/ai/auto-generate-nbas`, {
     method: "POST",
   });

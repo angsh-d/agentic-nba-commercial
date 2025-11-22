@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TerritoryPlan } from "@/components/TerritoryPlan";
 import { SwitchingAlerts } from "@/components/SwitchingAlerts";
+import { AgentReasoningPanel } from "@/components/AgentReasoningPanel";
 import { 
   Brain, 
   Sparkles, 
@@ -48,6 +49,7 @@ const copilotSuggestions = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState("actions");
   const [planOpen, setPlanOpen] = useState(false);
+  const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const { data: nbas = [], isLoading: nbasLoading } = useQuery({
@@ -67,8 +69,18 @@ export default function Home() {
 
   const autoGenerateMutation = useMutation({
     mutationFn: autoGenerateAiNbas,
+    onMutate: () => {
+      // Reset session when starting new generation
+      setActiveSessionId(null);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["nbas"] });
+      
+      // Set the first session ID for real-time reasoning display
+      if (data.sessions && data.sessions.length > 0) {
+        setActiveSessionId(data.sessions[0].sessionId);
+      }
+      
       toast.success(data.message, {
         description: `Successfully generated ${data.generated} AI-powered Next Best Actions`,
       });
@@ -138,6 +150,21 @@ export default function Home() {
           
           {/* Switching Alerts - Critical Priority */}
           <SwitchingAlerts />
+
+          {/* Agent Reasoning Panel - Real-time AI Thinking */}
+          {(autoGenerateMutation.isPending || activeSessionId) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="mb-16"
+            >
+              <AgentReasoningPanel 
+                sessionId={activeSessionId} 
+                onClose={() => setActiveSessionId(null)}
+              />
+            </motion.div>
+          )}
 
           {/* AI Agent Control Panel */}
           <motion.div
