@@ -232,6 +232,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Patient endpoints
+  app.get("/api/hcps/:hcpId/patients", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const patients = await storage.getPatientsByHcp(hcpId);
+      res.json(patients);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch patients" });
+    }
+  });
+
+  // Clinical Event endpoints
+  app.get("/api/hcps/:hcpId/events", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const events = await storage.getClinicalEventsByHcp(hcpId);
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch clinical events" });
+    }
+  });
+
   // AI-Powered endpoints
   app.post("/api/ai/generate-nba/:hcpId", async (req, res) => {
     try {
