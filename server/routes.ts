@@ -329,6 +329,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Azure OpenAI connection
+  app.get("/api/test/azure-openai", async (_req, res) => {
+    try {
+      const { azureOpenAI, MODEL } = await import("./aiService");
+      
+      console.log("Testing Azure OpenAI with model:", MODEL);
+      
+      const response = await azureOpenAI.chat.completions.create({
+        model: MODEL,
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: "Say hello in JSON format with a greeting field." }
+        ],
+        max_completion_tokens: 100,
+      });
+      
+      console.log("Full response object:", JSON.stringify(response, null, 2));
+      console.log("Message content:", response.choices[0]?.message?.content);
+      
+      res.json({
+        success: true,
+        model: MODEL,
+        content: response.choices[0]?.message?.content,
+        fullResponse: response,
+      });
+    } catch (error: any) {
+      console.error("Azure OpenAI test failed:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+        stack: error.stack,
+      });
+    }
+  });
+
   // Agent Session endpoints
   app.get("/api/agent/sessions", async (_req, res) => {
     try {

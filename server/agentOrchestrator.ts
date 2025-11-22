@@ -198,37 +198,43 @@ export class AgentOrchestrator extends EventEmitter {
       hasSwitchingEvent: !!switchingEvent,
     });
     
-    const prompt = `You are a Strategic Planning Agent in a multi-agent system.
+    const prompt = `You are a Strategic Planning Agent. Analyze this HCP and create a strategic intervention plan.
 
-CONTEXT:
-- HCP: ${hcp.name}, ${hcp.specialty} at ${hcp.hospital}
-- Territory: ${hcp.territory}
-- Last Visit: ${hcp.lastVisitDate || 'Never'}
-- Engagement Level: ${hcp.engagementLevel}
-- Switch Risk Score: ${hcp.switchRiskScore}/100 (${hcp.switchRiskTier})
-- Risk Factors: ${hcp.switchRiskReasons?.join(', ') || 'None'}
-- Prescription History: ${history.length} months of data
-- Active Switching Event: ${switchingEvent ? `Yes - ${switchingEvent.fromProduct} → ${switchingEvent.toProduct}` : 'No'}
+HCP DATA:
+Name: ${hcp.name}
+Specialty: ${hcp.specialty}
+Hospital: ${hcp.hospital}
+Territory: ${hcp.territory}
+Last Visit: ${hcp.lastVisitDate || 'Never'}
+Engagement: ${hcp.engagementLevel}
+Risk Score: ${hcp.switchRiskScore}/100 (${hcp.switchRiskTier})
+Risk Factors: ${hcp.switchRiskReasons?.join(', ') || 'None'}
+History: ${history.length} months
+Switching: ${switchingEvent ? `${switchingEvent.fromProduct} → ${switchingEvent.toProduct}` : 'No'}
 
-TASK: Create a strategic plan for intervention. Use chain-of-thought reasoning.
-
-OUTPUT (JSON):
+You must respond ONLY with valid JSON in exactly this format:
 {
-  "thought": "My reasoning about the situation...",
-  "goals": ["Goal 1", "Goal 2", "Goal 3"],
-  "strategy": "Overall approach",
-  "requiredData": ["Data point 1", "Data point 2"],
-  "successCriteria": "How to measure success"
+  "thought": "your strategic reasoning here",
+  "goals": ["goal 1", "goal 2", "goal 3"],
+  "strategy": "your overall strategy",
+  "requiredData": ["data 1", "data 2"],
+  "successCriteria": "success measurement"
 }`;
     
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: 600,
-      response_format: { type: "json_object" },
+      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
     });
     
-    const rawPlan = JSON.parse(response.choices[0]?.message?.content || "{}");
+    const content = response.choices[0]?.message?.content;
+    console.log("Planner raw response:", content);
+    
+    if (!content || content.trim() === "") {
+      throw new Error("Empty response from GPT-5-mini planner");
+    }
+    
+    const rawPlan = JSON.parse(content);
     const plan = PlanSchema.parse(rawPlan);
     
     await this.logThought("planner", "reasoning", plan.thought);
@@ -283,12 +289,17 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      // temperature: GPT-5-mini only supports default (1) // 0.6,
-      max_completion_tokens: 600,
-      response_format: { type: "json_object" },
+      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
     });
     
-    const rawEvidence = JSON.parse(response.choices[0]?.message?.content || "{}");
+    const content = response.choices[0]?.message?.content;
+    console.log("Analyst raw response:", content);
+    
+    if (!content || content.trim() === "") {
+      throw new Error("Empty response from GPT-5-mini analyst");
+    }
+    
+    const rawEvidence = JSON.parse(content);
     const evidence = EvidenceSchema.parse(rawEvidence);
     
     await this.logThought("analyst", "reasoning", evidence.thought);
@@ -332,12 +343,17 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      // temperature: GPT-5-mini only supports default (1) // 0.7,
-      max_completion_tokens: 800,
-      response_format: { type: "json_object" },
+      max_completion_tokens: 2500,  // GPT-5-mini uses many tokens for reasoning, synthesizer needs more
     });
     
-    const rawSynthesis = JSON.parse(response.choices[0]?.message?.content || "{}");
+    const content = response.choices[0]?.message?.content;
+    console.log("Synthesizer raw response:", content);
+    
+    if (!content || content.trim() === "") {
+      throw new Error("Empty response from GPT-5-mini synthesizer");
+    }
+    
+    const rawSynthesis = JSON.parse(content);
     const synthesis = SynthesisSchema.parse(rawSynthesis);
     
     await this.logThought("synthesizer", "reasoning", synthesis.thought);
@@ -409,12 +425,17 @@ OUTPUT (JSON):
     const response = await azureOpenAI.chat.completions.create({
       model: MODEL,
       messages: [{ role: "user", content: prompt }],
-      // temperature: GPT-5-mini only supports default (1) // 0.6,
-      max_completion_tokens: 600,
-      response_format: { type: "json_object" },
+      max_completion_tokens: 2000,  // GPT-5-mini uses many tokens for reasoning, need higher limit
     });
     
-    const rawReflection = JSON.parse(response.choices[0]?.message?.content || "{}");
+    const content = response.choices[0]?.message?.content;
+    console.log("Reflector raw response:", content);
+    
+    if (!content || content.trim() === "") {
+      throw new Error("Empty response from GPT-5-mini reflector");
+    }
+    
+    const rawReflection = JSON.parse(content);
     const reflection = ReflectionSchema.parse(rawReflection);
     
     await this.logThought("reflector", "critique", reflection.thought);

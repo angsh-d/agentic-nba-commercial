@@ -11,6 +11,9 @@ const azureOpenAI = new AzureOpenAI({
 
 const MODEL = "gpt-5-mini"; // Using GPT-5-mini as specified
 
+// Export for testing and debugging
+export { azureOpenAI, MODEL };
+
 export interface AIGeneratedNBA {
   action: string;
   actionType: "meeting" | "email" | "call" | "event";
