@@ -99,15 +99,65 @@ export const selectSwitchingAnalyticsSchema = createSelectSchema(switchingAnalyt
 export type InsertSwitchingAnalytics = z.infer<typeof insertSwitchingAnalyticsSchema>;
 export type SwitchingAnalytics = typeof switchingAnalytics.$inferSelect;
 
+// Patients - Individual patients with cohort data for causal analysis
+export const patients = pgTable("patients", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  patientCode: text("patient_code").notNull(), // Anonymous identifier like "P001"
+  age: integer("age").notNull(),
+  cancerType: text("cancer_type").notNull(), // e.g., "Renal Cell Carcinoma"
+  cancerStage: text("cancer_stage").notNull(), // e.g., "Stage III"
+  hasCardiovascularRisk: integer("has_cardiovascular_risk").notNull().default(0), // 1 = yes, 0 = no
+  cardiovascularConditions: jsonb("cardiovascular_conditions").$type<string[]>().default([]), // e.g., ["Prior MI", "CHF"]
+  currentDrug: text("current_drug").notNull(), // Current prescription
+  cohort: text("cohort").notNull(), // "young_rcc", "cv_risk", "stable", "other"
+  switchedDate: timestamp("switched_date"), // When they switched (if applicable)
+  switchedToDrug: text("switched_to_drug"), // What drug they switched to
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPatientSchema = createInsertSchema(patients).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectPatientSchema = createSelectSchema(patients);
+export type InsertPatient = z.infer<typeof insertPatientSchema>;
+export type Patient = typeof patients.$inferSelect;
+
+// Clinical Events - External events that influence prescribing (ASCO, AEs, publications)
+export const clinicalEvents = pgTable("clinical_events", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").references(() => hcps.id), // Null if event is global (like ASCO)
+  patientId: integer("patient_id").references(() => patients.id), // Null if not patient-specific
+  eventType: text("event_type").notNull(), // "conference", "adverse_event", "publication", "webinar"
+  eventTitle: text("event_title").notNull(), // e.g., "ASCO 2025 - ORION-Y Trial"
+  eventDescription: text("event_description").notNull(),
+  eventDate: timestamp("event_date").notNull(),
+  impact: text("impact").notNull(), // "high", "medium", "low"
+  relatedDrug: text("related_drug"), // Drug mentioned in event
+  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional details
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertClinicalEventSchema = createInsertSchema(clinicalEvents).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectClinicalEventSchema = createSelectSchema(clinicalEvents);
+export type InsertClinicalEvent = z.infer<typeof insertClinicalEventSchema>;
+export type ClinicalEvent = typeof clinicalEvents.$inferSelect;
+
 // Prescription History - Track prescriptions over time for switching detection
 export const prescriptionHistory = pgTable("prescription_history", {
   id: serial("id").primaryKey(),
   hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  patientId: integer("patient_id").references(() => patients.id), // Link to specific patient
   productName: text("product_name").notNull(), // Our product or competitor
   productCategory: text("product_category").notNull(), // e.g., "immunotherapy", "targeted therapy"
   prescriptionCount: integer("prescription_count").notNull(),
   month: text("month").notNull(), // e.g., "2024-10"
   isOurProduct: integer("is_our_product").notNull().default(1), // 1 = our product, 0 = competitor
+  cohort: text("cohort"), // Patient cohort this prescription belongs to
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

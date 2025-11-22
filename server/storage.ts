@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
