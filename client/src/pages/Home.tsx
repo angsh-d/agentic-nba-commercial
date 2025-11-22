@@ -55,18 +55,18 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-white text-black">
       <Navbar />
       
       {/* Hero Section - Apple Style */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
         {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-white" />
         
         {/* Animated Grid Pattern */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0" style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',
+            backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0)',
             backgroundSize: '40px 40px'
           }} />
         </div>
@@ -79,20 +79,20 @@ export default function Home() {
           >
             {/* Eyebrow */}
             <div className="mb-6">
-              <span className="text-sm font-semibold tracking-wider text-gray-400 uppercase">
+              <span className="text-sm font-semibold tracking-wider text-gray-600 uppercase">
                 Agentic AI Platform
               </span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-7xl md:text-8xl font-semibold tracking-tight mb-6 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent leading-none">
+            <h1 className="text-7xl md:text-8xl font-semibold tracking-tight mb-6 bg-gradient-to-b from-gray-900 to-gray-600 bg-clip-text text-transparent leading-none">
               Territory Intelligence.
               <br />
               Reimagined.
             </h1>
 
             {/* Subheadline */}
-            <p className="text-2xl md:text-3xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-2xl md:text-3xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
               Autonomous AI agents detect prescription switching and generate contextual Next Best Actions in real-time.
             </p>
 
@@ -149,7 +149,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1, duration: 1 }}
-              className="text-sm text-gray-500"
+              className="text-sm text-gray-400"
             >
               <div className="inline-block animate-bounce">↓</div>
             </motion.div>
@@ -158,7 +158,7 @@ export default function Home() {
       </section>
 
       {/* Territory Section - Apple Style */}
-      <section className="relative bg-white text-black py-24">
+      <section className="relative bg-gray-50 text-black py-24">
         <div className="container mx-auto px-6 max-w-7xl">
           {/* Section Header */}
           <div className="text-center mb-20">
@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <section className="bg-gray-100 text-black py-16">
+      <section className="bg-white border-t border-gray-200 text-black py-16">
         <div className="container mx-auto px-6 text-center">
           <p className="text-sm text-gray-500">
             © 2025 Saama. Powered by Azure OpenAI GPT-5-mini.
