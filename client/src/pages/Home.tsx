@@ -86,41 +86,45 @@ export default function Home() {
       
       <main className="relative">
         {/* Hero Section */}
-        <section className="relative h-[500px] overflow-hidden bg-white border-b border-gray-100">
+        <section className="relative h-[600px] overflow-hidden bg-white border-b border-gray-100 flex items-center">
           <div className="absolute inset-0 z-0">
              <img 
                src={heroImage} 
                alt="Abstract Data Flow" 
-               className="w-full h-full object-cover opacity-40 mix-blend-multiply grayscale contrast-125"
+               className="w-full h-full object-cover opacity-30 mix-blend-multiply grayscale contrast-125"
              />
-             <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
-             <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent" />
+             <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-white/10" />
+             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/50 to-transparent" />
           </div>
 
           <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-center max-w-7xl">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-2xl"
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-3xl"
             >
-              <div className="flex items-center gap-2 mb-6">
-                <Badge variant="secondary" className="bg-gray-100 text-gray-600 border-gray-200 px-3 py-1 rounded-full font-medium tracking-wide uppercase text-[10px]">
+              <div className="flex items-center gap-2 mb-8">
+                <Badge variant="secondary" className="bg-gray-100/80 backdrop-blur-sm text-gray-600 border-gray-200 px-4 py-1.5 rounded-full font-semibold tracking-wider uppercase text-[11px] shadow-sm">
                   Agentic AI Platform v2.0
                 </Badge>
               </div>
-              <h1 className="text-6xl font-semibold tracking-tight text-gray-900 mb-6 leading-[1.1]">
-                Intelligent <span className="text-gray-400">Orchestration</span> for Oncology
+              
+              <h1 className="text-[64px] md:text-[80px] font-semibold tracking-tight text-[#1d1d1f] mb-6 leading-[1.05] -ml-1">
+                Agentic AI. <br />
+                <span className="text-[#86868b]">Contextual Action.</span>
               </h1>
-              <p className="text-xl text-gray-500 font-light leading-relaxed mb-8 max-w-xl">
-                Empower your territory strategy with autonomous agents that analyze, reason, and plan the next best action for every healthcare provider.
+              
+              <p className="text-[21px] md:text-[24px] text-[#86868b] font-normal leading-relaxed mb-10 max-w-2xl tracking-tight">
+                Transforming commercial optimization with autonomous agents that reason, plan, and adapt in real-time.
               </p>
-              <div className="flex items-center gap-4">
-                <Button size="lg" className="rounded-full h-12 px-8 text-base bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-200/50 transition-all hover:scale-105 active:scale-95">
-                  <Sparkles className="mr-2 h-4 w-4" />
+              
+              <div className="flex items-center gap-5">
+                <Button size="lg" className="rounded-full h-14 px-10 text-[17px] font-medium bg-[#1d1d1f] hover:bg-black text-white shadow-xl shadow-gray-200/50 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <Sparkles className="mr-2 h-5 w-5" />
                   Explore Agents
                 </Button>
-                <Button size="lg" variant="outline" className="rounded-full h-12 px-8 text-base border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all">
+                <Button size="lg" variant="outline" className="rounded-full h-14 px-10 text-[17px] font-medium border-[#d2d2d7] text-[#1d1d1f] hover:bg-gray-50 hover:text-black transition-all hover:border-[#86868b]">
                   View Roadmap
                 </Button>
               </div>
