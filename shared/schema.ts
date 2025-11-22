@@ -12,6 +12,10 @@ export const hcps = pgTable("hcps", {
   territory: text("territory").notNull(),
   lastVisitDate: timestamp("last_visit_date"),
   engagementLevel: text("engagement_level").notNull().default("medium"), // low, medium, high
+  switchRiskScore: integer("switch_risk_score").default(0), // 0-100 risk score
+  switchRiskTier: text("switch_risk_tier").default("low"), // low, medium, high, critical
+  switchRiskReasons: jsonb("switch_risk_reasons").$type<string[]>().default([]), // Array of risk factors
+  lastRiskUpdate: timestamp("last_risk_update"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -94,3 +98,46 @@ export const insertSwitchingAnalyticsSchema = createInsertSchema(switchingAnalyt
 export const selectSwitchingAnalyticsSchema = createSelectSchema(switchingAnalytics);
 export type InsertSwitchingAnalytics = z.infer<typeof insertSwitchingAnalyticsSchema>;
 export type SwitchingAnalytics = typeof switchingAnalytics.$inferSelect;
+
+// Prescription History - Track prescriptions over time for switching detection
+export const prescriptionHistory = pgTable("prescription_history", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  productName: text("product_name").notNull(), // Our product or competitor
+  productCategory: text("product_category").notNull(), // e.g., "immunotherapy", "targeted therapy"
+  prescriptionCount: integer("prescription_count").notNull(),
+  month: text("month").notNull(), // e.g., "2024-10"
+  isOurProduct: integer("is_our_product").notNull().default(1), // 1 = our product, 0 = competitor
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPrescriptionHistorySchema = createInsertSchema(prescriptionHistory).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectPrescriptionHistorySchema = createSelectSchema(prescriptionHistory);
+export type InsertPrescriptionHistory = z.infer<typeof insertPrescriptionHistorySchema>;
+export type PrescriptionHistory = typeof prescriptionHistory.$inferSelect;
+
+// Switching Events - Detected switching incidents
+export const switchingEvents = pgTable("switching_events", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  fromProduct: text("from_product").notNull(), // Product they switched from
+  toProduct: text("to_product").notNull(), // Product they switched to
+  detectedAt: timestamp("detected_at").defaultNow().notNull(),
+  confidenceScore: integer("confidence_score").notNull(), // 0-100
+  switchType: text("switch_type").notNull(), // "gradual", "sudden", "complete"
+  impactLevel: text("impact_level").notNull(), // "low", "medium", "high", "critical"
+  rootCauses: jsonb("root_causes").$type<string[]>().default([]), // Identified causes
+  status: text("status").notNull().default("active"), // active, addressed, monitoring
+  aiAnalysis: text("ai_analysis").notNull(), // Detailed AI explanation
+});
+
+export const insertSwitchingEventSchema = createInsertSchema(switchingEvents).omit({ 
+  id: true, 
+  detectedAt: true 
+});
+export const selectSwitchingEventSchema = createSelectSchema(switchingEvents);
+export type InsertSwitchingEvent = z.infer<typeof insertSwitchingEventSchema>;
+export type SwitchingEvent = typeof switchingEvents.$inferSelect;

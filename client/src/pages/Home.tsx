@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TerritoryPlan } from "@/components/TerritoryPlan";
+import { SwitchingAlerts } from "@/components/SwitchingAlerts";
 import { 
   Brain, 
   Sparkles, 
@@ -117,6 +118,9 @@ export default function Home() {
 
         {/* Dashboard Content */}
         <div className="container mx-auto px-6 py-16 max-w-[1400px]">
+          
+          {/* Switching Alerts - Critical Priority */}
+          <SwitchingAlerts />
           
           {/* Stats Overview - Bento Grid Style */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">

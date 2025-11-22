@@ -1,8 +1,12 @@
-import type { Hcp, Nba, TerritoryPlan, SwitchingAnalytics } from "@shared/schema";
+import type { Hcp, Nba, TerritoryPlan, SwitchingAnalytics, SwitchingEvent } from "@shared/schema";
 
 const API_BASE = "";
 
 export interface NbaWithHcp extends Nba {
+  hcp: Hcp;
+}
+
+export interface SwitchingEventWithHcp extends SwitchingEvent {
   hcp: Hcp;
 }
 
@@ -47,4 +51,26 @@ export async function updateNbaStatus(id: number, status: string): Promise<void>
     body: JSON.stringify({ status }),
   });
   if (!response.ok) throw new Error("Failed to update NBA status");
+}
+
+export async function fetchSwitchingEvents(status?: string): Promise<SwitchingEventWithHcp[]> {
+  const url = status ? `${API_BASE}/api/switching/events?status=${status}` : `${API_BASE}/api/switching/events`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch switching events");
+  return response.json();
+}
+
+export async function fetchHighRiskHcps(minScore: number = 50): Promise<Hcp[]> {
+  const response = await fetch(`${API_BASE}/api/switching/high-risk?minScore=${minScore}`);
+  if (!response.ok) throw new Error("Failed to fetch high-risk HCPs");
+  return response.json();
+}
+
+export async function updateSwitchingEventStatus(id: number, status: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/api/switching/events/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) throw new Error("Failed to update event status");
 }

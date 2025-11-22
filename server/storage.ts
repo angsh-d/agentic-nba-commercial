@@ -1,7 +1,7 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent } from "@shared/schema";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // HCP operations
@@ -22,6 +22,18 @@ export interface IStorage {
   // Switching Analytics operations
   getLatestAnalytics(): Promise<SwitchingAnalytics | undefined>;
   createAnalytics(analytics: InsertSwitchingAnalytics): Promise<SwitchingAnalytics>;
+  
+  // Prescription History operations
+  createPrescriptionHistory(history: InsertPrescriptionHistory): Promise<PrescriptionHistory>;
+  getPrescriptionHistory(hcpId: number): Promise<PrescriptionHistory[]>;
+  
+  // Switching Events operations
+  getAllSwitchingEvents(): Promise<(SwitchingEvent & { hcp: Hcp })[]>;
+  getSwitchingEventsByStatus(status: string): Promise<(SwitchingEvent & { hcp: Hcp })[]>;
+  updateSwitchingEventStatus(id: number, status: string): Promise<void>;
+  
+  // High-risk HCPs
+  getHighRiskHcps(minScore?: number): Promise<Hcp[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -111,6 +123,64 @@ export class DatabaseStorage implements IStorage {
   async createAnalytics(insertAnalytics: InsertSwitchingAnalytics): Promise<SwitchingAnalytics> {
     const results = await db.insert(switchingAnalytics).values(insertAnalytics).returning();
     return results[0];
+  }
+  
+  // Prescription History operations
+  async createPrescriptionHistory(insertHistory: InsertPrescriptionHistory): Promise<PrescriptionHistory> {
+    const results = await db.insert(prescriptionHistory).values(insertHistory).returning();
+    return results[0];
+  }
+  
+  async getPrescriptionHistory(hcpId: number): Promise<PrescriptionHistory[]> {
+    return await db
+      .select()
+      .from(prescriptionHistory)
+      .where(eq(prescriptionHistory.hcpId, hcpId))
+      .orderBy(desc(prescriptionHistory.month));
+  }
+  
+  // Switching Events operations
+  async getAllSwitchingEvents(): Promise<(SwitchingEvent & { hcp: Hcp })[]> {
+    const results = await db
+      .select()
+      .from(switchingEvents)
+      .leftJoin(hcps, eq(switchingEvents.hcpId, hcps.id))
+      .orderBy(desc(switchingEvents.detectedAt));
+    
+    return results.map((row) => ({
+      ...row.switching_events,
+      hcp: row.hcps!,
+    }));
+  }
+  
+  async getSwitchingEventsByStatus(status: string): Promise<(SwitchingEvent & { hcp: Hcp })[]> {
+    const results = await db
+      .select()
+      .from(switchingEvents)
+      .leftJoin(hcps, eq(switchingEvents.hcpId, hcps.id))
+      .where(eq(switchingEvents.status, status))
+      .orderBy(desc(switchingEvents.detectedAt));
+    
+    return results.map((row) => ({
+      ...row.switching_events,
+      hcp: row.hcps!,
+    }));
+  }
+  
+  async updateSwitchingEventStatus(id: number, status: string): Promise<void> {
+    await db
+      .update(switchingEvents)
+      .set({ status })
+      .where(eq(switchingEvents.id, id));
+  }
+  
+  // High-risk HCPs
+  async getHighRiskHcps(minScore: number = 50): Promise<Hcp[]> {
+    return await db
+      .select()
+      .from(hcps)
+      .where(sql`${hcps.switchRiskScore} >= ${minScore}`)
+      .orderBy(desc(hcps.switchRiskScore));
   }
 }
 

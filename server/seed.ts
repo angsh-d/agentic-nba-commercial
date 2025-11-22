@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { runSwitchingDetectionForAllHCPs } from "./switchingDetection";
 
 export async function seedDatabase() {
   try {
@@ -113,7 +114,108 @@ export async function seedDatabase() {
       competitorPricing: 10,
     });
 
-    console.log("✅ Database seeded successfully");
+    // Seed Prescription History for switching detection
+    // Dr. Smith - showing declining pattern (high risk)
+    await storage.createPrescriptionHistory({
+      hcpId: drSmith.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 45,
+      month: "2024-07",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drSmith.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 32,
+      month: "2024-08",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drSmith.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 18,
+      month: "2024-09",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drSmith.id,
+      productName: "Competitor-X",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 12,
+      month: "2024-08",
+      isOurProduct: 0,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drSmith.id,
+      productName: "Competitor-X",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 28,
+      month: "2024-09",
+      isOurProduct: 0,
+    });
+
+    // Dr. Wilson - stable pattern (medium risk)
+    await storage.createPrescriptionHistory({
+      hcpId: drWilson.id,
+      productName: "Onco-Pro",
+      productCategory: "Targeted Therapy",
+      prescriptionCount: 25,
+      month: "2024-07",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drWilson.id,
+      productName: "Onco-Pro",
+      productCategory: "Targeted Therapy",
+      prescriptionCount: 22,
+      month: "2024-08",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drWilson.id,
+      productName: "Onco-Pro",
+      productCategory: "Targeted Therapy",
+      prescriptionCount: 20,
+      month: "2024-09",
+      isOurProduct: 1,
+    });
+
+    // Dr. Chen - growing pattern (low risk)
+    await storage.createPrescriptionHistory({
+      hcpId: drChen.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 30,
+      month: "2024-07",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drChen.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 35,
+      month: "2024-08",
+      isOurProduct: 1,
+    });
+    await storage.createPrescriptionHistory({
+      hcpId: drChen.id,
+      productName: "Onco-Pro",
+      productCategory: "Immunotherapy",
+      prescriptionCount: 42,
+      month: "2024-09",
+      isOurProduct: 1,
+    });
+
+    console.log("✅ Database seeded with HCPs, NBAs, plans, and prescription history");
+
+    // Run switching detection
+    console.log("🔍 Running switching detection analysis...");
+    await runSwitchingDetectionForAllHCPs();
+    
+    console.log("✅ Database seeded successfully with switching detection complete");
   } catch (error) {
     console.error("❌ Error seeding database:", error);
   }

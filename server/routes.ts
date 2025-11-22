@@ -1,8 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema } from "@shared/schema";
+import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema, insertPrescriptionHistorySchema } from "@shared/schema";
 import { z } from "zod";
+import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // HCP routes
@@ -136,18 +137,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const hcps = await storage.getAllHcps();
       const nbas = await storage.getAllNbas();
+      const highRiskHcps = await storage.getHighRiskHcps(50);
       
       const stats = {
         activeHcps: hcps.length,
-        switchingRisks: nbas.filter(n => n.priority === "High" && n.status === "pending").length,
+        switchingRisks: highRiskHcps.length,
         actionsCompleted: nbas.filter(n => n.status === "completed").length,
         totalActions: nbas.length,
-        agentAccuracy: 94.2, // Simulated metric
+        agentAccuracy: 94.2,
       };
       
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  // Switching Detection endpoints
+  app.get("/api/switching/events", async (req, res) => {
+    try {
+      const { status } = req.query;
+      const events = status 
+        ? await storage.getSwitchingEventsByStatus(status as string)
+        : await storage.getAllSwitchingEvents();
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch switching events" });
+    }
+  });
+
+  app.patch("/api/switching/events/:id/status", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      await storage.updateSwitchingEventStatus(id, status);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update event status" });
+    }
+  });
+
+  app.get("/api/switching/high-risk", async (req, res) => {
+    try {
+      const minScore = req.query.minScore ? parseInt(req.query.minScore as string) : 50;
+      const highRiskHcps = await storage.getHighRiskHcps(minScore);
+      res.json(highRiskHcps);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch high-risk HCPs" });
+    }
+  });
+
+  app.post("/api/switching/analyze/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const analysis = await detectSwitchingPatterns(hcpId);
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to analyze HCP" });
+    }
+  });
+
+  app.post("/api/switching/analyze-all", async (_req, res) => {
+    try {
+      await runSwitchingDetectionForAllHCPs();
+      res.json({ success: true, message: "Switching detection completed" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to run detection" });
+    }
+  });
+
+  // Prescription History endpoints
+  app.get("/api/prescription-history/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const history = await storage.getPrescriptionHistory(hcpId);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch prescription history" });
+    }
+  });
+
+  app.post("/api/prescription-history", async (req, res) => {
+    try {
+      const validatedData = insertPrescriptionHistorySchema.parse(req.body);
+      const history = await storage.createPrescriptionHistory(validatedData);
+      res.status(201).json(history);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create prescription history" });
     }
   });
 
