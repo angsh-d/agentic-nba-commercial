@@ -71,7 +71,7 @@ export default function Home() {
           }} />
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 py-32 text-center max-w-6xl">
+        <div className="relative z-10 container mx-auto px-6 py-40 text-center max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,7 +85,7 @@ export default function Home() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-7xl md:text-8xl font-semibold tracking-tight mb-6 bg-gradient-to-b from-gray-900 to-gray-600 bg-clip-text text-transparent leading-none">
+            <h1 className="text-7xl md:text-8xl font-semibold tracking-tight mb-8 bg-gradient-to-b from-gray-900 to-gray-600 bg-clip-text text-transparent leading-[1.15] pb-2">
               Territory Intelligence.
               <br />
               Reimagined.
