@@ -300,34 +300,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
     try {
       const highRiskHcps = await storage.getHighRiskHcps(50);
-      const sessionPromises = [];
+      const sessions = [];
 
       for (const hcp of highRiskHcps.slice(0, 5)) {  // Limit to top 5 for demo
-        // Start async generation - don't await
-        const promise = agentOrchestrator.executeNBAGenerationLoop(hcp.id).then(result => ({
+        // Create session FIRST and return its ID immediately
+        const sessionId = await agentOrchestrator.createSession(
+          `Generate optimal Next Best Action for HCP ${hcp.id} with full reasoning trace`,
+          "nba_generation",
+          { hcpId: hcp.id }
+        );
+        
+        sessions.push({
           hcpId: hcp.id,
-          nbaId: result.nba.nbaId,
-          sessionId: result.sessionId,
-          confidence: result.reflection.confidenceScore,
-        })).catch(error => {
-          console.error(`Failed to generate NBA for HCP ${hcp.id}:`, error);
-          return null;
+          sessionId,
+          status: 'in_progress',
         });
-        sessionPromises.push(promise);
+        
+        // Run orchestrator in background with pre-created session (don't await)
+        agentOrchestrator.executeNBAGenerationLoop(hcp.id, sessionId).then(result => {
+          console.log(`NBA generation completed for HCP ${hcp.id}, session ${sessionId}`);
+        }).catch(error => {
+          console.error(`Failed to generate NBA for HCP ${hcp.id}:`, error);
+          // Mark session as failed
+          storage.updateAgentSession(sessionId, { status: 'failed' }).catch(console.error);
+        });
       }
 
-      // Return immediately with the count - let generation happen in background
+      // Return immediately with session IDs so UI can connect to streams
       res.json({ 
         success: true, 
-        generated: sessionPromises.length,
-        sessions: [], // Will be populated as they complete
-        message: `Started generating ${sessionPromises.length} AI-powered NBAs - connect to reasoning streams to watch progress` 
-      });
-
-      // Continue processing in background (but don't block response)
-      Promise.all(sessionPromises).then(results => {
-        const successful = results.filter(r => r !== null);
-        console.log(`Background NBA generation completed: ${successful.length}/${sessionPromises.length} successful`);
+        generated: sessions.length,
+        sessions,
+        message: `Started ${sessions.length} AI-powered NBA generation sessions - live reasoning now streaming` 
       });
     } catch (error) {
       console.error("Auto NBA generation error:", error);

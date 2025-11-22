@@ -70,31 +70,20 @@ export default function Home() {
 
   const autoGenerateMutation = useMutation({
     mutationFn: autoGenerateAiNbas,
-    onMutate: () => {
-      // Start polling for latest in-progress session
-      const pollInterval = setInterval(async () => {
-        try {
-          const latestSession = await fetchLatestAgentSession();
-          if (latestSession && !activeSessionId) {
-            console.log("Found in-progress session:", latestSession.id);
-            setActiveSessionId(latestSession.id);
-            clearInterval(pollInterval);
-          }
-        } catch (err) {
-          // No session yet, keep polling
-        }
-      }, 500);
-
-      // Stop polling after 10 seconds
-      setTimeout(() => clearInterval(pollInterval), 10000);
-    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["nbas"] });
       
-      console.log("Auto-generate started:", data);
+      console.log("Auto-generate response:", data);
+      
+      // Set the first session ID immediately if available
+      if (data.sessions && data.sessions.length > 0) {
+        const sessionId = data.sessions[0].sessionId;
+        console.log("Setting active session ID:", sessionId);
+        setActiveSessionId(sessionId);
+      }
       
       toast.success(data.message, {
-        description: `Generating ${data.generated} NBAs with real-time reasoning visibility`,
+        description: `Generating ${data.generated} NBAs - watch live agent reasoning!`,
       });
     },
     onError: (error) => {

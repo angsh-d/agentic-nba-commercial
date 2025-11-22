@@ -147,7 +147,7 @@ export const agentSessions = pgTable("agent_sessions", {
   id: serial("id").primaryKey(),
   goalDescription: text("goal_description").notNull(), // High-level goal
   goalType: text("goal_type").notNull(), // "nba_generation", "territory_planning", "switching_analysis"
-  status: text("status").notNull().default("running"), // running, completed, failed
+  status: text("status").notNull().default("in_progress"), // in_progress, completed, failed
   currentPhase: text("current_phase"), // Current agent phase
   contextData: jsonb("context_data").$type<Record<string, any>>(), // Session context
   finalOutcome: text("final_outcome"), // Result summary

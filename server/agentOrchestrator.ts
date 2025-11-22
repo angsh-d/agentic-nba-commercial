@@ -63,13 +63,30 @@ export class AgentOrchestrator extends EventEmitter {
   private maxIterations: number = 10;
   
   /**
-   * Start a new agentic session with goal-driven planning
+   * Create a new session and return its ID immediately (for async execution)
+   */
+  async createSession(goalDescription: string, goalType: string, contextData: any): Promise<number> {
+    const session = await storage.createAgentSession({
+      goalDescription,
+      goalType,
+      status: "in_progress",
+      currentPhase: "initializing",
+      contextData,
+    });
+    
+    this.emit("session:created", { sessionId: session.id, goal: goalDescription });
+    
+    return session.id;
+  }
+  
+  /**
+   * Start a new agentic session with goal-driven planning (legacy method)
    */
   async startSession(goalDescription: string, goalType: string, contextData: any) {
     const session = await storage.createAgentSession({
       goalDescription,
       goalType,
-      status: "running",
+      status: "in_progress",
       currentPhase: "planning",
       contextData,
     });
@@ -85,9 +102,17 @@ export class AgentOrchestrator extends EventEmitter {
   /**
    * Execute full ReAct loop for NBA generation with iterative reasoning
    */
-  async executeNBAGenerationLoop(hcpId: number) {
+  async executeNBAGenerationLoop(hcpId: number, existingSessionId?: number) {
     const goal = `Generate optimal Next Best Action for HCP ${hcpId} with full reasoning trace`;
-    const session = await this.startSession(goal, "nba_generation", { hcpId });
+    
+    // Use existing session if provided, otherwise create new one
+    const session = existingSessionId 
+      ? await storage.getAgentSession(existingSessionId)
+      : await this.startSession(goal, "nba_generation", { hcpId });
+    
+    if (!session) {
+      throw new Error(`Session ${existingSessionId} not found`);
+    }
     
     try {
       // Initialize loop state
