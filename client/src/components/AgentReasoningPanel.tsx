@@ -58,12 +58,79 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
   const [events, setEvents] = useState<ReasoningEvent[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [currentPhase, setCurrentPhase] = useState<string>("Initializing");
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Fetch completed session data on mount
   useEffect(() => {
     if (!sessionId) {
       setEvents([]);
+      return;
+    }
+
+    const fetchSessionHistory = async () => {
+      setIsLoadingHistory(true);
+      try {
+        const response = await fetch(`/api/agent/sessions/${sessionId}`);
+        if (response.ok) {
+          const session = await response.json();
+          
+          // Convert session data to events format
+          const historyEvents: ReasoningEvent[] = [];
+          
+          // Add thoughts
+          if (session.thoughts) {
+            session.thoughts.forEach((thought: any) => {
+              historyEvents.push({
+                type: 'thought',
+                sessionId: session.id,
+                agent: thought.agent,
+                thoughtType: thought.thoughtType,
+                content: thought.content,
+                timestamp: thought.timestamp,
+              });
+            });
+          }
+          
+          // Add actions
+          if (session.actions) {
+            session.actions.forEach((action: any) => {
+              historyEvents.push({
+                type: 'action',
+                sessionId: session.id,
+                agent: action.agent,
+                actionType: action.actionType,
+                description: action.description,
+                metadata: action.metadata,
+                timestamp: action.timestamp,
+              });
+            });
+          }
+          
+          // Sort by timestamp
+          historyEvents.sort((a, b) => {
+            const aTime = 'timestamp' in a ? new Date(a.timestamp).getTime() : 0;
+            const bTime = 'timestamp' in b ? new Date(b.timestamp).getTime() : 0;
+            return aTime - bTime;
+          });
+          
+          setEvents(historyEvents);
+          setCurrentPhase(session.status === 'completed' ? 'Completed' : session.status);
+        }
+      } catch (error) {
+        console.error("Failed to load session history:", error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchSessionHistory();
+  }, [sessionId]);
+
+  // Set up SSE stream for live updates
+  useEffect(() => {
+    if (!sessionId) {
       setIsConnected(false);
       return;
     }
@@ -164,7 +231,16 @@ export function AgentReasoningPanel({ sessionId, onClose }: AgentReasoningPanelP
         ref={scrollRef}
         className="h-[500px] overflow-y-auto p-6 space-y-4"
       >
-        {events.length === 0 && isConnected && (
+        {isLoadingHistory && events.length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 text-[#86868b] animate-spin mx-auto mb-2" />
+              <p className="text-sm text-[#86868b]">Loading reasoning history...</p>
+            </div>
+          </div>
+        )}
+        
+        {!isLoadingHistory && events.length === 0 && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <Loader2 className="w-8 h-8 text-[#86868b] animate-spin mx-auto mb-2" />
