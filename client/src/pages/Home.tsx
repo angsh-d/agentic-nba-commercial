@@ -210,16 +210,16 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
                   data={[
-                    { month: "Jan", ourRx: 98, competitorRx: 45, label: "Jan" },
-                    { month: "Feb", ourRx: 102, competitorRx: 43, label: "Feb" },
-                    { month: "Mar", ourRx: 100, competitorRx: 46, label: "Mar" },
-                    { month: "Apr", ourRx: 99, competitorRx: 44, label: "Apr" },
-                    { month: "May", ourRx: 101, competitorRx: 45, label: "May" },
-                    { month: "Jun", ourRx: 95, competitorRx: 52, label: "Jun", conference: true },
-                    { month: "Jul", ourRx: 78, competitorRx: 68, label: "Jul" },
-                    { month: "Aug", ourRx: 58, competitorRx: 85, label: "Aug", adverseEvents: true },
-                    { month: "Sep", ourRx: 42, competitorRx: 95, label: "Sep" },
-                    { month: "Oct", ourRx: 30, competitorRx: 102, label: "Oct" }
+                    { month: "Jan", oncoPro: 98, nephroX: 42, label: "Jan" },
+                    { month: "Feb", oncoPro: 102, nephroX: 41, label: "Feb" },
+                    { month: "Mar", oncoPro: 100, nephroX: 43, label: "Mar" },
+                    { month: "Apr", oncoPro: 99, nephroX: 42, label: "Apr" },
+                    { month: "May", oncoPro: 101, nephroX: 44, label: "May" },
+                    { month: "Jun", oncoPro: 92, nephroX: 50, label: "Jun", conference: true },
+                    { month: "Jul", oncoPro: 80, nephroX: 60, label: "Jul" },
+                    { month: "Aug", oncoPro: 68, nephroX: 72, label: "Aug", adverseEvents: true },
+                    { month: "Sep", oncoPro: 56, nephroX: 80, label: "Sep" },
+                    { month: "Oct", oncoPro: 48, nephroX: 86, label: "Oct" }
                   ]}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
@@ -243,24 +243,24 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
                     }}
                   />
                   
-                  {/* Our Product Rx Decline */}
+                  {/* Onco-Pro Rx Decline */}
                   <Line 
                     type="monotone" 
-                    dataKey="ourRx" 
+                    dataKey="oncoPro" 
                     stroke="#2563eb" 
                     strokeWidth={2.5}
                     dot={{ r: 4, fill: '#2563eb' }}
-                    name="Our Product"
+                    name="Onco-Pro"
                   />
                   
-                  {/* Competitor Product Rx Increase */}
+                  {/* Nephro-X Rx Increase */}
                   <Line 
                     type="monotone" 
-                    dataKey="competitorRx" 
+                    dataKey="nephroX" 
                     stroke="#9333ea" 
                     strokeWidth={2.5}
                     dot={{ r: 4, fill: '#9333ea' }}
-                    name="Competitor Product"
+                    name="Nephro-X"
                   />
                   
                   {/* Signal 2: ASCO Conference (Jun) */}
@@ -299,11 +299,11 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               <div className="flex items-center justify-center gap-6 mt-4 text-xs flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-0.5 bg-blue-600" />
-                  <span className="text-gray-700">Our Product</span>
+                  <span className="text-gray-700">Onco-Pro</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-0.5 bg-purple-600" />
-                  <span className="text-gray-700">Competitor Product</span>
+                  <span className="text-gray-700">Nephro-X</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
@@ -316,7 +316,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-3 leading-relaxed">
-              <strong>Temporal Correlation:</strong> Steady volumes Jan-May, then our Rx declines sharply post-ASCO (Jun) while competitor gains share. Decline accelerates post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
+              <strong>Temporal Correlation:</strong> Steady volumes Jan-May, then Onco-Pro declines post-ASCO (Jun) while Nephro-X gains share. Decline continues post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
             </p>
           </div>
 
