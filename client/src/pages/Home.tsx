@@ -159,27 +159,30 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           </DialogDescription>
         </DialogHeader>
         
-        {/* Quick Signal Bullets */}
+        {/* Dynamic Signal Bullets */}
         <div className="space-y-3 py-6 border-t border-gray-100">
           <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-4">Agent-Discovered Signals</p>
-          <div className="flex items-start gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
-            <p className="text-sm text-gray-700 leading-relaxed">
-              <span className="font-semibold text-gray-900">Prescription decline:</span> Onco-Pro dropped 70% over 3 months
-            </p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
-            <p className="text-sm text-gray-700 leading-relaxed">
-              <span className="font-semibold text-gray-900">Conference impact:</span> ASCO presentation triggered young patient switches
-            </p>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
-            <p className="text-sm text-gray-700 leading-relaxed">
-              <span className="font-semibold text-gray-900">Safety events:</span> 4 cardiac events led to switches in at-risk patients
-            </p>
-          </div>
+          {signalData.signals.slice(0, 3).map((signal, idx) => {
+            // Format signal type as readable label
+            const signalTypeLabels: Record<string, string> = {
+              rx_decline: "Prescription decline",
+              event_attendance: "Conference impact",
+              adverse_event_cluster: "Safety events",
+              peer_influence: "Peer influence",
+              access_barrier: "Access barriers",
+              cohort_switching: "Cohort switching"
+            };
+            const label = signalTypeLabels[signal.signalType] || signal.signalType.replace(/_/g, ' ');
+            
+            return (
+              <div key={idx} className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <span className="font-semibold text-gray-900">{label}:</span> {signal.signalDescription}
+                </p>
+              </div>
+            );
+          })}
         </div>
         
         {/* Single Clear CTA */}
