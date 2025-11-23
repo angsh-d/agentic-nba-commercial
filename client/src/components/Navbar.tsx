@@ -12,7 +12,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <img src={saamaLogo} alt="Saama" className="h-6 w-auto object-contain opacity-90" />
           <div className="h-5 w-px bg-gray-300" />
-          <span className="text-[17px] font-semibold text-gray-900 tracking-tight">Prescient</span>
+          <span className="text-[17px] font-semibold text-gray-900 tracking-tight">Agentic NBA Platform</span>
         </div>
       </div>
 

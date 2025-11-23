@@ -1,8 +1,8 @@
-# Prescient - AI Prescription Intelligence Platform
+# Agentic NBA Platform - AI Prescription Intelligence Platform
 
 ## Overview
 
-Prescient is an AI-powered prescription intelligence platform for pharmaceutical sales representatives, focused on detecting prescription switching patterns in oncology Healthcare Providers (HCPs) and delivering contextual Next Best Actions (NBAs). The platform uses Azure OpenAI to analyze HCP behavior, predict switching risks, and generate intelligent action recommendations through autonomous agent orchestration.
+Agentic NBA Platform is an AI-powered prescription intelligence platform for pharmaceutical sales representatives, focused on detecting prescription switching patterns in oncology Healthcare Providers (HCPs) and delivering contextual Next Best Actions (NBAs). The platform uses Azure OpenAI to analyze HCP behavior, predict switching risks, and generate intelligent action recommendations through autonomous agent orchestration.
 
 The core value proposition is helping field representatives identify when HCPs are switching from the company's products to competitors, understand why this is happening, and receive AI-generated strategic recommendations to prevent or reverse these switches.
 

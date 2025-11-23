@@ -10,6 +10,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 interface HCP {
   id: number;
@@ -40,30 +41,68 @@ function getRiskBadge(tier: string, score: number) {
 }
 
 export default function Home() {
+  const [viewMode, setViewMode] = useState<"switch_risk" | "all">("switch_risk");
+  
   const { data: hcps = [], isLoading } = useQuery({
     queryKey: ["hcps"],
     queryFn: fetchHCPs,
   });
 
-  // Only show HCPs with switch risk
-  const atRiskHcps = hcps.filter(hcp => hcp.switchRiskScore > 0);
+  // Filter based on view mode
+  const displayedHcps = viewMode === "switch_risk" 
+    ? hcps.filter(hcp => hcp.switchRiskScore > 0)
+    : hcps;
+
+  const atRiskCount = hcps.filter(hcp => hcp.switchRiskScore > 0).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-16">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">
-            Healthcare Providers
-          </h1>
-          <p className="text-lg text-gray-500">
-            {atRiskHcps.length} providers with detected switching patterns
-          </p>
+      {/* Hero Section */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-20">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight leading-tight">
+              AI-Powered Prescription Intelligence
+            </h1>
+            <p className="text-xl text-gray-600 mb-12 leading-relaxed">
+              Autonomous causal discovery detects switching patterns and delivers evidence-based Next Best Actions
+            </p>
+            
+            {/* View Toggle */}
+            <div className="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+              <button
+                onClick={() => setViewMode("switch_risk")}
+                disabled={isLoading}
+                className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  viewMode === "switch_risk"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                data-testid="toggle-switch-risk"
+              >
+                Switch Risk ({isLoading ? "..." : atRiskCount})
+              </button>
+              <button
+                onClick={() => setViewMode("all")}
+                disabled={isLoading}
+                className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  viewMode === "all"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+                data-testid="toggle-all-hcps"
+              >
+                All HCPs ({isLoading ? "..." : hcps.length})
+              </button>
+            </div>
+          </div>
         </div>
-
+      </section>
+      
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto px-6 py-12">
         {/* HCP List */}
         {isLoading ? (
           <div className="flex items-center justify-center h-96">
@@ -72,17 +111,21 @@ export default function Home() {
               <p className="text-sm text-gray-500">Loading...</p>
             </div>
           </div>
-        ) : atRiskHcps.length === 0 ? (
+        ) : displayedHcps.length === 0 ? (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-lg font-medium text-gray-900 mb-1">No providers found</p>
-              <p className="text-sm text-gray-500">All prescription patterns are stable</p>
+              <p className="text-sm text-gray-500">
+                {viewMode === "switch_risk" 
+                  ? "All prescription patterns are stable" 
+                  : "No healthcare providers in database"}
+              </p>
             </div>
           </div>
         ) : (
           <div className="space-y-3">
-            {atRiskHcps.map((hcp, index) => (
+            {displayedHcps.map((hcp, index) => (
               <motion.div
                 key={hcp.id}
                 initial={{ opacity: 0, y: 8 }}
@@ -125,10 +168,13 @@ export default function Home() {
                             <div className="text-2xl font-semibold text-gray-900 mb-0.5">
                               {hcp.switchRiskScore}
                             </div>
-                            <div className="text-xs text-gray-500">Risk Score</div>
+                            <div className="text-xs text-gray-500 mb-1.5">risk score</div>
+                            {hcp.switchRiskScore === 0 ? (
+                              <Badge className="bg-gray-200 text-gray-700 text-xs px-2.5 py-0.5">Stable</Badge>
+                            ) : (
+                              getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)
+                            )}
                           </div>
-                          
-                          {getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)}
                           
                           <ChevronRight className="w-5 h-5 text-gray-400" />
                         </div>
