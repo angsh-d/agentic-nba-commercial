@@ -127,6 +127,11 @@ export default function HCPDetail() {
     queryKey: ["nba-results", hcpId],
     queryFn: () => fetchNBAResults(hcpId!),
     enabled: !!hcpId,
+    // Poll every 3 seconds if investigation is confirmed but NBA not yet generated
+    refetchInterval: () => {
+      const isGenerating = investigationResults?.isConfirmed && !nbaResults?.nba;
+      return isGenerating ? 3000 : false;
+    },
   });
 
   const { data: prescriptionTrends = [] } = useQuery({
@@ -290,16 +295,39 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Strategy Recommendations - Only show if investigation is complete with proven hypotheses */}
-        {canShowStrategies && nbaResults?.nba && (
+        {/* Strategy Recommendations - Show if investigation is confirmed */}
+        {canShowStrategies && (
           <div id="strategies" className="mb-12 scroll-mt-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
               AI-Generated Strategy Recommendations
             </h2>
-            <EnsembleNBAPanel 
-              nba={nbaResults.nba} 
-              provenHypotheses={confirmedHypotheses}
-            />
+            
+            {nbaResults?.nba ? (
+              <EnsembleNBAPanel 
+                nba={nbaResults.nba} 
+                provenHypotheses={confirmedHypotheses}
+              />
+            ) : (
+              <Card className="border border-gray-200 bg-gray-50">
+                <CardContent className="p-16 text-center">
+                  <Brain className="w-16 h-16 text-gray-400 mx-auto mb-8 animate-pulse" />
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">
+                    Generating Strategies...
+                  </h3>
+                  <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-base font-light leading-relaxed">
+                    Our AI agents are analyzing the confirmed root causes and generating personalized strategy recommendations across three sources: RL-based patterns, compliance rules, and autonomous AI reasoning.
+                  </p>
+                  <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-8 font-light">
+                    This typically takes 30-60 seconds. Page will auto-refresh when complete.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
