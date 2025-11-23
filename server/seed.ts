@@ -656,6 +656,254 @@ export async function seedDatabase() {
     });
 
     console.log("✅ Signal detection data seeded");
+
+    // === HCP 2: DR. MICHAEL CHEN - PATIENT ACCESS BARRIER SCENARIO ===
+    console.log("🏥 Seeding HCP 2: Dr. Michael Chen (Access Barrier Scenario)...");
+    
+    const drMichaelChen = await storage.createHcp({
+      name: "Dr. Michael Chen",
+      specialty: "Oncologist",
+      hospital: "Dana-Farber Cancer Institute",
+      territory: "Boston Metro",
+      lastVisitDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      engagementLevel: "high",
+    });
+
+    console.log("✅ HCP 2 created");
+
+    // COHORT 1: High Copay Shock Patients (4 patients) - $35 → $450 copay shock
+    const hcp2_p001 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P001",
+      age: 62,
+      cancerType: "Renal Cell Carcinoma",
+      cancerStage: "Stage III",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "high_copay",
+      payer: "United Healthcare",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 450,
+      fulfillmentLagDays: 3,
+      switchedDate: new Date("2025-08-20"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p002 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P002",
+      age: 58,
+      cancerType: "Non-Small Cell Lung Cancer",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "high_copay",
+      payer: "United Healthcare",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 450,
+      fulfillmentLagDays: 2,
+      switchedDate: new Date("2025-08-25"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p003 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P003",
+      age: 65,
+      cancerType: "Pancreatic Cancer",
+      cancerStage: "Stage III",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "high_copay",
+      payer: "United Healthcare",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 450,
+      fulfillmentLagDays: 4,
+      switchedDate: new Date("2025-09-05"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p004 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P004",
+      age: 71,
+      cancerType: "Colorectal Cancer",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 1,
+      cardiovascularConditions: ["Hypertension"],
+      currentDrug: "Onco-Rival",
+      cohort: "high_copay",
+      payer: "United Healthcare",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 450,
+      fulfillmentLagDays: 3,
+      switchedDate: new Date("2025-09-10"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    // COHORT 2: PA Denied/Step-Edit Patients (3 patients) - Prior Auth rejections
+    const hcp2_p005 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P005",
+      age: 54,
+      cancerType: "Ovarian Cancer",
+      cancerStage: "Stage III",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "pa_denied",
+      payer: "Aetna",
+      priorAuthStatus: "denied",
+      denialCode: "step_edit_required",
+      copayAmount: 35,
+      fulfillmentLagDays: 14,
+      switchedDate: new Date("2025-08-18"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p006 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P006",
+      age: 60,
+      cancerType: "Breast Cancer",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "pa_denied",
+      payer: "Cigna",
+      priorAuthStatus: "denied",
+      denialCode: "step_edit_required",
+      copayAmount: 35,
+      fulfillmentLagDays: 12,
+      switchedDate: new Date("2025-08-28"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p007 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P007",
+      age: 67,
+      cancerType: "Prostate Cancer",
+      cancerStage: "Stage III",
+      hasCardiovascularRisk: 1,
+      cardiovascularConditions: ["Diabetes"],
+      currentDrug: "Onco-Rival",
+      cohort: "pa_denied",
+      payer: "United Healthcare",
+      priorAuthStatus: "denied",
+      denialCode: "step_edit_required",
+      copayAmount: 35,
+      fulfillmentLagDays: 11,
+      switchedDate: new Date("2025-09-02"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    // COHORT 3: Specialty Pharmacy Fulfillment Delays (2 patients) - Long lag times
+    const hcp2_p008 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P008",
+      age: 56,
+      cancerType: "Bladder Cancer",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "fulfillment_delay",
+      payer: "Humana",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 35,
+      fulfillmentLagDays: 14,
+      switchedDate: new Date("2025-09-12"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    const hcp2_p009 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P009",
+      age: 69,
+      cancerType: "Renal Cell Carcinoma",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Rival",
+      cohort: "fulfillment_delay",
+      payer: "Blue Cross Blue Shield",
+      priorAuthStatus: "approved",
+      denialCode: null,
+      copayAmount: 35,
+      fulfillmentLagDays: 13,
+      switchedDate: new Date("2025-09-18"),
+      switchedToDrug: "Onco-Rival",
+    });
+
+    // COHORT 4: Smooth Access Patients (3 patients) - No access issues, stayed on Onco-Pro
+    const hcp2_p010 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P010",
+      age: 63,
+      cancerType: "Melanoma",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Pro",
+      cohort: "smooth_access",
+      payer: "Medicare",
+      priorAuthStatus: "not_required",
+      denialCode: null,
+      copayAmount: 35,
+      fulfillmentLagDays: 2,
+      switchedDate: null,
+      switchedToDrug: null,
+    });
+
+    const hcp2_p011 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P011",
+      age: 61,
+      cancerType: "Lymphoma",
+      cancerStage: "Stage III",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Pro",
+      cohort: "smooth_access",
+      payer: "Medicare",
+      priorAuthStatus: "not_required",
+      denialCode: null,
+      copayAmount: 35,
+      fulfillmentLagDays: 3,
+      switchedDate: null,
+      switchedToDrug: null,
+    });
+
+    const hcp2_p012 = await storage.createPatient({
+      hcpId: drMichaelChen.id,
+      patientCode: "MC-P012",
+      age: 59,
+      cancerType: "Gastric Cancer",
+      cancerStage: "Stage II",
+      hasCardiovascularRisk: 0,
+      cardiovascularConditions: [],
+      currentDrug: "Onco-Pro",
+      cohort: "smooth_access",
+      payer: "Kaiser Permanente",
+      priorAuthStatus: "not_required",
+      denialCode: null,
+      copayAmount: 35,
+      fulfillmentLagDays: 2,
+      switchedDate: null,
+      switchedToDrug: null,
+    });
+
+    console.log("✅ HCP 2 patient cohorts created (12 patients: 4 copay shock, 3 PA denied, 2 fulfillment delay, 3 smooth access)");
     
     console.log("✅ Database seeded successfully with rich multi-cohort scenario");
   } catch (error) {
