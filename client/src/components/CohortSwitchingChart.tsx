@@ -316,7 +316,7 @@ export function CohortSwitchingChart({
                   <span className="text-sm text-blue-700">/ {youngRccPatients.length} switched</span>
                 </div>
                 <div className="text-xs text-blue-800 leading-relaxed">
-                  {youngRccSwitchPeriod} following ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55
+                  {youngRccSwitchPeriod} following ASCO presentation (Jun 15) of Nephro-X trial showing superior efficacy vs Onco-Pro in young RCC patients
                 </div>
                 <Badge className="bg-blue-200 text-blue-900 text-[10px] px-2 py-0.5">
                   Efficacy-Driven
@@ -381,9 +381,9 @@ export function CohortSwitchingChart({
                 Dual Causal Drivers Detected
               </h4>
               <p className="text-sm text-gray-700 leading-relaxed">
-                <strong>Pattern 1 (Efficacy):</strong> {youngRccSwitched.length} young RCC patients switched {youngRccSwitchPeriod} following ASCO conference (Jun 15) presenting ORION-Y trial data showing 40% PFS improvement in patients &lt;55. 
-                <strong className="ml-2">Pattern 2 (Safety):</strong> {cvRiskSwitched.length} CV-risk patients switched {cvRiskSwitchPeriod} after experiencing cardiac adverse events (Aug) amplified by competitor safety webinar (Aug 30). 
-                <strong className="ml-2">Control Group:</strong> {stableRemained.length} stable cohort patients remained on {productName}, confirming strategic (not categorical) switching behavior.
+                <strong>Pattern 1 (Efficacy):</strong> {youngRccSwitched.length} young RCC patients switched {youngRccSwitchPeriod} following ASCO conference (Jun 15) presenting Nephro-X trial data showing superior efficacy vs {productName} in young RCC patients. 
+                <strong className="ml-2">Pattern 2 (Safety):</strong> {cvRiskSwitched.length} CV-risk patients switched {cvRiskSwitchPeriod} after experiencing cardiac adverse events (Aug) with {productName}, amplified by Nephro-X safety positioning. 
+                <strong className="ml-2">Control Group:</strong> {stableRemained.length} stable cohort patients remained on {productName}, confirming targeted (not categorical) switching behavior.
               </p>
             </div>
           </div>
