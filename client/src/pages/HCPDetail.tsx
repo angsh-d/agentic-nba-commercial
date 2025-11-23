@@ -388,69 +388,6 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Traditional NBA Alert (Surface-Level View) */}
-        {hcp.switchRiskScore > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Traditional NBA Alert
-              </h2>
-              <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                Rule-Based Approach
-              </Badge>
-              {hasInvestigation && isConfirmed && (
-                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2.5 py-1">
-                  Insufficient
-                </Badge>
-              )}
-            </div>
-            <Card className="border border-gray-300 bg-gray-50">
-              <CardContent className="p-8">
-                <div className="grid grid-cols-4 gap-6 mb-8">
-                  <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Risk Score</div>
-                    <div className="text-2xl font-semibold text-gray-900">{hcp.switchRiskScore}/100</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Engagement</div>
-                    <div className="text-2xl font-semibold text-gray-900 capitalize">{hcp.engagementLevel}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Institution</div>
-                    <div className="text-2xl font-semibold text-gray-900">Tier-1</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Competitor Share</div>
-                    <div className="text-2xl font-semibold text-gray-900">+15%</div>
-                  </div>
-                </div>
-                <div className="border-t border-gray-300 pt-6">
-                  <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">Generic Recommendation</div>
-                  <p className="text-base text-gray-700 italic font-light">
-                    "Schedule clinical lunch-and-learn to review latest product efficacy data. Priority: Medium."
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            {hasInvestigation && isConfirmed && (
-              <div className="mt-6 p-6 bg-white border-l-4 border-red-600">
-                <div className="flex items-start gap-3">
-                  <div className="text-2xl">⚠️</div>
-                  <div>
-                    <h3 className="text-base font-semibold text-gray-900 mb-2">What This One-Size-Fits-All Approach Missed</h3>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      Traditional rule-based NBA systems treat all switching as a monolithic "competitor threat" event. 
-                      Autonomous causal investigation revealed <strong className="text-gray-900">two distinct, independent switching patterns</strong> across different patient cohorts, 
-                      each driven by separate clinical triggers (efficacy signal vs. safety signal) requiring <strong>fundamentally different interventions</strong>. 
-                      A generic "lunch-and-learn" would have failed to address either root cause effectively.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Investigation CTA */}
         <div className="mb-20">
           <Card className="border border-gray-200 bg-gray-50 hover:border-gray-900 hover:shadow-lg transition-all duration-200">
