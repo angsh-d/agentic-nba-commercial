@@ -139,7 +139,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               <div className="text-xs text-gray-500 mt-0.5">Signals Detected</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-semibold text-blue-600">{avgSignalStrength}/10</div>
+              <div className="text-2xl font-semibold text-blue-600">{avgSignalStrength}/100</div>
               <div className="text-xs text-gray-500 mt-0.5">Avg Strength</div>
             </div>
             <div className="text-center">
@@ -160,14 +160,19 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           {signalData.signals.length > 0 && (
             <div>
               <h4 className="text-sm font-semibold text-gray-900 mb-2">Detected Signals</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-2">
                 {signalData.signals.map((signal) => (
-                  <Badge
-                    key={signal.id}
-                    className="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 font-normal"
-                  >
-                    {signal.signalType.replace(/_/g, ' ')} ({signal.signalStrength}/10)
-                  </Badge>
+                  <div key={signal.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium text-gray-900 capitalize">
+                        {signal.signalType.replace(/_/g, ' ')}
+                      </span>
+                      <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5">
+                        {signal.signalStrength}/100
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600">{signal.signalDescription}</p>
+                  </div>
                 ))}
               </div>
             </div>
