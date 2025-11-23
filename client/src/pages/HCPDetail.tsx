@@ -495,6 +495,24 @@ export default function HCPDetail() {
           </Card>
         </div>
 
+        {/* Cohort Analysis */}
+        {prescriptionHistory.length > 0 && (
+          <div className="mb-20">
+            <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+              Patient Cohort Analysis
+            </h2>
+            <p className="text-base text-gray-600 leading-relaxed max-w-3xl mb-8">
+              Prescription patterns across different patient groups reveal distinct switching behaviors.
+            </p>
+            <CohortSwitchingChart
+              prescriptionHistory={prescriptionHistory}
+              patients={patients}
+              clinicalEvents={clinicalEvents}
+              productName="Onco-Pro"
+            />
+          </div>
+        )}
+
         {/* Strategy Recommendations CTA */}
         {canShowStrategies && (
           <Card className="border border-gray-200 bg-gray-50">
