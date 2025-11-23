@@ -113,11 +113,19 @@ export function CohortSwitchingChart({
 
   // Format switching timeframes
   const youngRccSwitchPeriod = youngRccFirstSwitch && youngRccLastSwitch
-    ? `${new Date(youngRccFirstSwitch).toLocaleDateString("en-US", { month: "short" })}-${new Date(youngRccLastSwitch).toLocaleDateString("en-US", { month: "short" })}`
+    ? (() => {
+        const firstMonth = new Date(youngRccFirstSwitch).toLocaleDateString("en-US", { month: "short" });
+        const lastMonth = new Date(youngRccLastSwitch).toLocaleDateString("en-US", { month: "short" });
+        return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
+      })()
     : "N/A";
   
   const cvRiskSwitchPeriod = cvRiskFirstSwitch && cvRiskLastSwitch
-    ? `${new Date(cvRiskFirstSwitch).toLocaleDateString("en-US", { month: "short" })}-${new Date(cvRiskLastSwitch).toLocaleDateString("en-US", { month: "short" })}`
+    ? (() => {
+        const firstMonth = new Date(cvRiskFirstSwitch).toLocaleDateString("en-US", { month: "short" });
+        const lastMonth = new Date(cvRiskLastSwitch).toLocaleDateString("en-US", { month: "short" });
+        return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
+      })()
     : "N/A";
 
   return (
