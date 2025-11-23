@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Dr. Sarah Smith Story: Why Traditional NBAs Fail</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: #ffffff;
+      color: #1d1d1f;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 80px 40px 120px;
+    }
+
+    h1 {
+      font-size: 56px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      color: #1d1d1f;
+    }
+
+    h2 {
+      font-size: 40px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 100px 0 32px;
+      color: #1d1d1f;
+    }
+
+    h3 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 60px 0 20px;
+      color: #1d1d1f;
+    }
+
+    p {
+      font-size: 17px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      color: #1d1d1f;
+      font-weight: 400;
+    }
+
+    .subtitle {
+      font-size: 24px;
+      color: #6e6e73;
+      font-weight: 400;
+      margin-bottom: 60px;
+    }
+
+    .metric-card {
+      background: #f5f5f7;
+      border-radius: 18px;
+      padding: 32px;
+      margin: 40px 0;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin: 40px 0;
+    }
+
+    .metric-item {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 48px;
+      font-weight: 600;
+      color: #1d1d1f;
+      display: block;
+    }
+
+    .metric-label {
+      font-size: 14px;
+      color: #6e6e73;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .chart-container {
+      margin: 60px 0;
+      background: #f5f5f7;
+      border-radius: 18px;
+      padding: 40px;
+    }
+
+    .cohort-timeline {
+      margin: 60px 0;
+    }
+
+    .timeline-row {
+      margin: 32px 0;
+      padding: 24px;
+      background: #f5f5f7;
+      border-radius: 12px;
+    }
+
+    .timeline-header {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 16px;
+    }
+
+    .timeline-content {
+      font-size: 15px;
+      color: #6e6e73;
+      line-height: 1.6;
+    }
+
+    .comparison-table {
+      width: 100%;
+      margin: 60px 0;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th {
+      background: #f5f5f7;
+      padding: 20px;
+      text-align: left;
+      font-size: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #d2d2d7;
+    }
+
+    .comparison-table td {
+      padding: 20px;
+      border-bottom: 1px solid #f5f5f7;
+      font-size: 15px;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .highlight-box {
+      background: #1d1d1f;
+      color: #ffffff;
+      border-radius: 18px;
+      padding: 48px;
+      margin: 60px 0;
+    }
+
+    .highlight-box h3 {
+      color: #ffffff;
+      margin-top: 0;
+    }
+
+    .highlight-box p {
+      color: #f5f5f7;
+    }
+
+    .agent-workflow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+    }
+
+    .agent-step {
+      background: #f5f5f7;
+      border-radius: 12px;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .agent-number {
+      width: 48px;
+      height: 48px;
+      background: #1d1d1f;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .agent-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .agent-desc {
+      font-size: 13px;
+      color: #6e6e73;
+      line-height: 1.5;
+    }
+
+    ul {
+      margin: 20px 0 20px 24px;
+    }
+
+    li {
+      font-size: 17px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+      color: #1d1d1f;
+    }
+
+    .divider {
+      height: 1px;
+      background: #d2d2d7;
+      margin: 80px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>The Dr. Sarah Smith Story</h1>
+    <p class="subtitle">Why Traditional NBAs Fail at Causal Intelligence</p>
+
+    <div class="metric-grid">
+      <div class="metric-item">
+        <span class="metric-value">12</span>
+        <span class="metric-label">Total Patients</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-value">9</span>
+        <span class="metric-label">Switched to Competitor</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-value">75%</span>
+        <span class="metric-label">Switch Rate</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-value">15/100</span>
+        <span class="metric-label">Risk Score</span>
+      </div>
+    </div>
+
+    <p>In October 2025, Dr. Sarah Smith appeared on the traditional NBA dashboard with a concerning signal. She's a high-engagement oncologist at Memorial Sloan Kettering with a 10-month relationship history, but competitors were gaining +15% share.</p>
+
+    <h2>The Traditional Approach Failed</h2>
+    
+    <div class="metric-card">
+      <h3 style="margin-top: 0;">Traditional NBA System Output</h3>
+      <p style="font-size: 19px; font-style: italic; color: #6e6e73;">"Recommended Action: Schedule clinical lunch-and-learn to review latest product efficacy data. Priority: Medium."</p>
+    </div>
+
+    <p>The field rep followed the recommendation. Dr. Smith was polite and engaged, but the switching continued.</p>
+
+    <p><strong>Why did this fail?</strong></p>
+
+    <h2>The Hidden Story: Two Distinct Switching Patterns</h2>
+
+    <p>Dr. Smith didn't have "one switching problem" — she had <strong>two distinct, evidence-driven switching patterns</strong> happening simultaneously across different patient cohorts.</p>
+
+    <div class="chart-container">
+      <canvas id="switchingChart"></canvas>
+    </div>
+
+    <div class="cohort-timeline">
+      <div class="timeline-row">
+        <div class="timeline-header">Pattern 1: Young RCC Cohort (Ages 46-54)</div>
+        <div class="timeline-content">
+          <strong>5 patients</strong> switched to Onco-Rival between <strong>July 3 - August 1, 2025</strong><br>
+          <strong>Causal trigger:</strong> ASCO ORION-Y trial results (June 15, 2025) showing 40% PFS benefit in patients &lt;55<br>
+          <strong>Dr. Smith's decision:</strong> Systematic, evidence-based adoption for younger RCC patients
+        </div>
+      </div>
+
+      <div class="timeline-row">
+        <div class="timeline-header">Pattern 2: Cardiovascular Risk Cohort (Ages 59-72)</div>
+        <div class="timeline-content">
+          <strong>4 patients</strong> with cardiac comorbidities (CAD, prior MI, CHF, stroke) switched in <strong>September 2025</strong><br>
+          <strong>Causal triggers:</strong> (1) Three cardiac adverse events in Dr. Smith's own patients (August 2025: QT prolongation, arrhythmia, chest pain), (2) Onco-Rival cardiac safety webinar (August 30, 2025)<br>
+          <strong>Dr. Smith's decision:</strong> Safety-driven defensive switching to protect high-risk patients
+        </div>
+      </div>
+
+      <div class="timeline-row">
+        <div class="timeline-header">Pattern 3: Stable Cohort</div>
+        <div class="timeline-content">
+          <strong>3 patients</strong> remained on Onco-Pro (bladder, ovarian, prostate cancer patients without CV risk or RCC)<br>
+          <strong>Why no switch?</strong> Neither the efficacy signal (wrong indication) nor safety concern (no CV risk) applied
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>The Agentic NBA Approach</h2>
+
+    <p>The Agentic NBA Platform deployed <strong>four specialized AI agents</strong> in sequence to conduct multi-hypothesis causal investigation:</p>
+
+    <div class="agent-workflow">
+      <div class="agent-step">
+        <div class="agent-number">1</div>
+        <div class="agent-title">Hypothesis Generator</div>
+        <div class="agent-desc">Generated competing causal hypotheses from multiple angles</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-number">2</div>
+        <div class="agent-title">Evidence Analyst</div>
+        <div class="agent-desc">Gathered timestamped evidence from diverse sources</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-number">3</div>
+        <div class="agent-title">Pattern Synthesizer</div>
+        <div class="agent-desc">Connected temporal correlations across cohorts</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-number">4</div>
+        <div class="agent-title">Recommender Agent</div>
+        <div class="agent-desc">Generated cohort-specific, causally-informed NBA</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>The Winning Strategy</h3>
+      <p style="font-size: 19px; line-height: 1.6;">Host an on-site 60-90 minute CME-aligned 'Cardio-Oncology Tumor Board & Rapid Case Review' at MSK with:</p>
+      <ul style="color: #f5f5f7;">
+        <li>Cardiology co-management expert to address CV-risk patient safety concerns</li>
+        <li>Peer KOL to present nuanced ORION-Y subgroup data and patient selection criteria</li>
+        <li>Pre-pull 8-12 of Dr. Smith's patients to review live cases</li>
+        <li>Establish cardiac monitoring protocol and standing cardiology consult workflow</li>
+        <li>Activate fast-track PA team with &lt;10 business day SLA</li>
+      </ul>
+      <p style="margin-top: 32px; font-size: 15px; color: #a1a1a6;">Confidence Score: 85% after multi-agent reasoning</p>
+    </div>
+
+    <h2>Traditional vs Agentic NBA</h2>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Traditional NBA</th>
+          <th>Agentic NBA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Signal Detection</strong></td>
+          <td>"Competitor gaining share"</td>
+          <td>"Two distinct causal drivers: efficacy (young RCC) + safety (CV risk)"</td>
+        </tr>
+        <tr>
+          <td><strong>Root Cause Analysis</strong></td>
+          <td>None - surface metrics only</td>
+          <td>Multi-hypothesis causal investigation with evidence scoring</td>
+        </tr>
+        <tr>
+          <td><strong>Recommendation Type</strong></td>
+          <td>Generic lunch-and-learn</td>
+          <td>Cohort-specific tumor board with cardiology + KOL</td>
+        </tr>
+        <tr>
+          <td><strong>Intervention Timing</strong></td>
+          <td>Reactive (after switches)</td>
+          <td>Proactive (addresses root causes to prevent further attrition)</td>
+        </tr>
+        <tr>
+          <td><strong>Clinical Credibility</strong></td>
+          <td>One-size-fits-all product pitch</td>
+          <td>Understands evidence-based decision-making across patient segments</td>
+        </tr>
+        <tr>
+          <td><strong>Operational Support</strong></td>
+          <td>30-minute presentation</td>
+          <td>90-minute collaborative session with fast-track PA support</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <h2>The Outcome</h2>
+
+    <p>With the agentic approach, the field rep arrives at MSK with:</p>
+
+    <ul>
+      <li><strong>Clinical credibility:</strong> "I understand you switched young RCC patients post-ORION-Y, and CV-risk patients after the cardiac AEs — both were evidence-based decisions."</li>
+      <li><strong>Targeted solutions:</strong> For CV-risk patients: cardiac monitoring protocols + cardiology co-management. For young RCC: nuanced patient selection criteria showing when Onco-Pro still wins.</li>
+      <li><strong>Operational support:</strong> Fast-track PA team to remove access friction</li>
+    </ul>
+
+    <p style="font-size: 21px; font-weight: 500; margin-top: 60px;">Dr. Smith sees a partner who <strong>understands her clinical decision-making</strong>, not a vendor pushing product.</p>
+
+    <div class="metric-card" style="margin-top: 80px; text-align: center;">
+      <p style="font-size: 28px; font-weight: 600; color: #1d1d1f; margin: 0;">Traditional NBAs see "switching."</p>
+      <p style="font-size: 28px; font-weight: 600; color: #1d1d1f; margin: 16px 0 0 0;">Agentic NBAs see "strategic, evidence-driven clinical decision-making."</p>
+    </div>
+  </div>
+
+  <script>
+    // Prescription switching timeline chart
+    const ctx = document.getElementById('switchingChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['May', 'June', 'July', 'August', 'September', 'October'],
+        datasets: [
+          {
+            label: 'Onco-Pro (Our Product)',
+            data: [45, 43, 38, 36, 28, 25],
+            borderColor: '#1d1d1f',
+            backgroundColor: 'rgba(29, 29, 31, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          {
+            label: 'Onco-Rival (Competitor)',
+            data: [0, 0, 5, 7, 13, 15],
+            borderColor: '#86868b',
+            backgroundColor: 'rgba(134, 134, 139, 0.1)',
+            borderWidth: 3,
+            tension: 0.3,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            borderDash: [8, 4]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2.5,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              font: {
+                size: 14,
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI"'
+              },
+              padding: 20,
+              color: '#1d1d1f'
+            }
+          },
+          title: {
+            display: true,
+            text: 'Prescription Volume Timeline (Dr. Sarah Smith)',
+            font: {
+              size: 18,
+              weight: '600',
+              family: '-apple-system, BlinkMacSystemFont, "Segoe UI"'
+            },
+            color: '#1d1d1f',
+            padding: {
+              bottom: 30
+            }
+          },
+          annotation: {
+            annotations: {
+              asco: {
+                type: 'line',
+                xMin: 1.5,
+                xMax: 1.5,
+                borderColor: '#6e6e73',
+                borderWidth: 2,
+                borderDash: [4, 4],
+                label: {
+                  display: true,
+                  content: 'ASCO Jun 15',
+                  position: 'top',
+                  backgroundColor: '#f5f5f7',
+                  color: '#1d1d1f',
+                  font: {
+                    size: 11
+                  }
+                }
+              },
+              cardiacAEs: {
+                type: 'line',
+                xMin: 3.3,
+                xMax: 3.3,
+                borderColor: '#6e6e73',
+                borderWidth: 2,
+                borderDash: [4, 4],
+                label: {
+                  display: true,
+                  content: 'Cardiac AEs',
+                  position: 'top',
+                  backgroundColor: '#f5f5f7',
+                  color: '#1d1d1f',
+                  font: {
+                    size: 11
+                  }
+                }
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: '#f5f5f7',
+              drawBorder: false
+            },
+            ticks: {
+              font: {
+                size: 13,
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI"'
+              },
+              color: '#6e6e73'
+            },
+            title: {
+              display: true,
+              text: 'Prescription Count',
+              font: {
+                size: 14,
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI"'
+              },
+              color: '#1d1d1f'
+            }
+          },
+          x: {
+            grid: {
+              display: false,
+              drawBorder: false
+            },
+            ticks: {
+              font: {
+                size: 13,
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI"'
+              },
+              color: '#6e6e73'
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
