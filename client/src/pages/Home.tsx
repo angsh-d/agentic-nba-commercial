@@ -27,6 +27,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -332,32 +334,31 @@ export default function Home() {
               </motion.div>
             </div>
             
-            {/* View Toggle */}
-            <div className="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
-              <button
-                onClick={() => setViewMode("switch_risk")}
-                disabled={isLoading}
-                className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  viewMode === "switch_risk"
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+            {/* View Toggle - Slider Switch */}
+            <div className="flex items-center justify-center gap-4 bg-gray-100 rounded-full px-6 py-3 inline-flex">
+              <Label 
+                htmlFor="view-mode-switch" 
+                className={`text-sm font-medium cursor-pointer transition-colors ${
+                  viewMode === "switch_risk" ? "text-gray-900" : "text-gray-500"
                 }`}
-                data-testid="toggle-switch-risk"
               >
                 Switch Risk ({isLoading ? "..." : atRiskCount})
-              </button>
-              <button
-                onClick={() => setViewMode("all")}
+              </Label>
+              <Switch
+                id="view-mode-switch"
+                checked={viewMode === "all"}
+                onCheckedChange={(checked) => setViewMode(checked ? "all" : "switch_risk")}
                 disabled={isLoading}
-                className={`px-6 py-2.5 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  viewMode === "all"
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                data-testid="view-mode-switch"
+              />
+              <Label 
+                htmlFor="view-mode-switch"
+                className={`text-sm font-medium cursor-pointer transition-colors ${
+                  viewMode === "all" ? "text-gray-900" : "text-gray-500"
                 }`}
-                data-testid="toggle-all-hcps"
               >
                 All HCPs ({isLoading ? "..." : hcps.length})
-              </button>
+              </Label>
             </div>
           </div>
         </div>
