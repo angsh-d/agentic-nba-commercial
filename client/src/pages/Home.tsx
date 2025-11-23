@@ -111,30 +111,18 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
     : insight.narrative;
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors text-xs font-medium border border-blue-200 hover:border-blue-300"
-          data-testid={`ai-insight-badge-${hcpId}`}
-        >
-          <Zap className="w-3.5 h-3.5" />
-          <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
-        </button>
-      </DialogTrigger>
-      <DialogContent 
-        className="max-w-2xl"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
+    <div onClick={(e) => e.stopPropagation()}>
+      <Dialog>
+        <DialogTrigger asChild>
+          <button
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors text-xs font-medium border border-blue-200 hover:border-blue-300"
+            data-testid={`ai-insight-badge-${hcpId}`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
+          </button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900">
             {headline}
@@ -193,6 +181,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
         </div>
       </DialogContent>
     </Dialog>
+    </div>
   );
 }
 
