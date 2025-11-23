@@ -945,5 +945,356 @@ OUTPUT (JSON):
   }
 }
 
+// ============================================================================
+// SIGNAL DETECTION AGENT SYSTEM
+// ============================================================================
+
+/**
+ * ObservationAgent: Detects weak signals from prescription data
+ * Monitors: Rx anomalies, trend changes, clustering patterns
+ */
+const SignalDetectionSchema = z.object({
+  thought: z.string(),
+  signals: z.array(z.object({
+    signalType: z.enum(["rx_decline", "rx_spike", "event_attendance", "peer_influence", "adverse_event_cluster"]),
+    strength: z.number().min(1).max(10),
+    context: z.record(z.any()),
+    reasoning: z.string(),
+  })),
+  overallAssessment: z.string(),
+});
+
+export async function detectSignalsForHcp(hcpId: number): Promise<void> {
+  const hcp = await storage.getHcp(hcpId);
+  if (!hcp) return;
+  
+  const prescriptions = await storage.getPrescriptionHistory(hcpId);
+  const clinicalEvents = await storage.getClinicalEventsByHcp(hcpId);
+  
+  // Aggregate prescriptions by month
+  const prescriptionsByMonth = prescriptions.reduce((acc, p) => {
+    if (!acc[p.month]) {
+      acc[p.month] = { oncoPro: 0, oncoRival: 0 };
+    }
+    if (p.isOurProduct === 1) {
+      acc[p.month].oncoPro += p.prescriptionCount;
+    } else {
+      acc[p.month].oncoRival += p.prescriptionCount;
+    }
+    return acc;
+  }, {} as Record<string, { oncoPro: number; oncoRival: number }>);
+  
+  // Build context for AI analysis
+  const context = {
+    hcp: {
+      name: hcp.name,
+      specialty: hcp.specialty,
+      hospital: hcp.hospital,
+      currentRiskScore: hcp.switchRiskScore,
+    },
+    prescriptions: Object.entries(prescriptionsByMonth).map(([month, counts]) => ({
+      month,
+      oncoPro: counts.oncoPro,
+      oncoRival: counts.oncoRival,
+    })),
+    recentEvents: clinicalEvents.slice(0, 10).map(e => ({
+      type: e.eventType,
+      title: e.eventTitle,
+      date: e.eventDate,
+    })),
+  };
+  
+  const prompt = `You are an elite pharmaceutical commercial AI agent specializing in signal detection for oncology HCPs.
+
+Analyze the following HCP data for weak signals that might indicate future prescription switching:
+
+${JSON.stringify(context, null, 2)}
+
+Your task:
+1. Identify weak signals in the data:
+   - rx_decline: Gradual decrease in our product prescriptions
+   - rx_spike: Sudden increase in competitor prescriptions
+   - event_attendance: Pattern of conference/event attendance that may influence prescribing
+   - peer_influence: Changes correlated with peer behavior
+   - adverse_event_cluster: Multiple adverse events in patient population
+
+2. Rate each signal's strength (1-10):
+   - 1-3: Weak/noise
+   - 4-6: Moderate/worth monitoring
+   - 7-10: Strong/actionable
+
+3. Provide context for each signal (specific numbers, dates, patterns)
+
+4. Give an overall assessment of signal landscape
+
+Return your analysis as JSON matching the schema.`;
+
+  try {
+    const completion = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI agent specialized in signal detection for pharmaceutical commercial intelligence. Return only valid JSON.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_completion_tokens: 2000,
+      response_format: { type: "json_object" },
+    });
+    
+    const content = completion.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    const parsed = JSON.parse(content);
+    const validated = SignalDetectionSchema.parse(parsed);
+    
+    // Store detected signals in database
+    for (const signal of validated.signals) {
+      if (signal.strength >= 4) { // Only store moderate+ signals
+        await storage.createDetectedSignal({
+          hcpId,
+          signalType: signal.signalType,
+          signalStrength: signal.strength,
+          signalSource: "observation_agent",
+          signalDescription: signal.reasoning,
+          contextData: signal.context,
+          status: "active",
+        });
+      }
+    }
+    
+  } catch (error) {
+    console.error("Signal detection failed:", error);
+    throw error;
+  }
+}
+
+/**
+ * CorrelationAgent: Discovers temporal patterns across signals
+ * Analyzes: Event X → Switch within Y days patterns
+ */
+const CorrelationDiscoverySchema = z.object({
+  thought: z.string(),
+  patterns: z.array(z.object({
+    patternType: z.string(),
+    triggerEvent: z.string(),
+    consequenceEvent: z.string(),
+    timeWindow: z.string(),
+    correlationStrength: z.number().min(0).max(1),
+    evidenceCount: z.number(),
+    description: z.string(),
+  })),
+  insights: z.array(z.string()),
+});
+
+export async function discoverCorrelations(): Promise<void> {
+  // Get all active signals across HCPs
+  const signals = await storage.getAllActiveSignals();
+  
+  // Group signals by HCP for temporal analysis
+  const signalsByHcp = signals.reduce((acc, signal) => {
+    if (!acc[signal.hcpId]) acc[signal.hcpId] = [];
+    acc[signal.hcpId].push(signal);
+    return acc;
+  }, {} as Record<number, typeof signals>);
+  
+  // Build context for pattern discovery
+  const context = {
+    totalHcps: Object.keys(signalsByHcp).length,
+    totalSignals: signals.length,
+    signalDistribution: signals.reduce((acc, s) => {
+      acc[s.signalType] = (acc[s.signalType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    recentSignals: signals.slice(0, 50).map(s => ({
+      hcpId: s.hcpId,
+      type: s.signalType,
+      strength: s.signalStrength,
+      detectedAt: s.detectedAt,
+      context: s.contextData,
+    })),
+  };
+  
+  const prompt = `You are an elite pharmaceutical commercial AI agent specializing in pattern discovery.
+
+Analyze the following signal data to discover temporal correlations:
+
+${JSON.stringify(context, null, 2)}
+
+Your task:
+1. Identify temporal patterns (e.g., "Event attendance → Rx decline within 30 days")
+2. Calculate correlation strength (0.0-1.0) based on:
+   - Consistency of pattern occurrence
+   - Time window predictability
+   - Signal strength alignment
+3. Count supporting evidence (number of HCPs showing pattern)
+4. Provide actionable insights
+
+Focus on patterns that help predict future switches, not just historical correlations.
+
+Return your analysis as JSON matching the schema.`;
+
+  try {
+    const completion = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI agent specialized in pattern discovery for pharmaceutical intelligence. Return only valid JSON.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.8,
+      max_completion_tokens: 3000,
+      response_format: { type: "json_object" },
+    });
+    
+    const content = completion.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    const parsed = JSON.parse(content);
+    const validated = CorrelationDiscoverySchema.parse(parsed);
+    
+    // Store discovered patterns in database
+    for (const pattern of validated.patterns) {
+      if (pattern.correlationStrength >= 0.5) { // Only store meaningful correlations
+        await storage.createSignalCorrelation({
+          patternName: pattern.patternType,
+          signalA: pattern.triggerEvent,
+          signalB: pattern.consequenceEvent,
+          temporalLag: parseInt(pattern.timeWindow.split(' ')[0]) || 30, // Extract days from "X days"
+          correlationStrength: Math.round(pattern.correlationStrength * 100), // Convert to 0-100
+          occurrenceCount: pattern.evidenceCount,
+          description: pattern.description,
+          isActive: 1,
+        });
+      }
+    }
+    
+  } catch (error) {
+    console.error("Correlation discovery failed:", error);
+    throw error;
+  }
+}
+
+/**
+ * NarrativeGenerator: Produces human-readable risk explanations
+ * Synthesizes: Signals + Correlations → Actionable Insight
+ */
+const NarrativeGenerationSchema = z.object({
+  thought: z.string(),
+  riskLevel: z.enum(["low", "medium", "high", "critical"]),
+  headline: z.string(),
+  narrative: z.string(),
+  keySignals: z.array(z.string()),
+  recommendedActions: z.array(z.string()),
+  confidenceScore: z.number().min(0).max(100),
+  expirationDays: z.number(),
+});
+
+export async function generateRiskInsight(hcpId: number): Promise<void> {
+  const hcp = await storage.getHcp(hcpId);
+  if (!hcp) return;
+  
+  const signals = await storage.getDetectedSignals(hcpId);
+  const correlations = await storage.getAllActiveCorrelations();
+  
+  // Build narrative context
+  const context = {
+    hcp: {
+      name: hcp.name,
+      specialty: hcp.specialty,
+      currentRiskScore: hcp.switchRiskScore,
+      riskTier: hcp.switchRiskTier,
+    },
+    signals: signals.map(s => ({
+      id: s.id,
+      type: s.signalType,
+      strength: s.signalStrength,
+      detectedAt: s.detectedAt,
+      context: s.contextData,
+    })),
+    knownPatterns: correlations.slice(0, 10).map(c => ({
+      pattern: c.patternName,
+      description: c.description,
+      strength: c.correlationStrength,
+    })),
+  };
+  
+  const prompt = `You are an elite pharmaceutical commercial AI agent specializing in risk narrative generation.
+
+Analyze this HCP's signal landscape and generate an actionable risk insight:
+
+${JSON.stringify(context, null, 2)}
+
+Your task:
+1. Assess overall risk level (low/medium/high/critical) based on:
+   - Signal strength and volume
+   - Alignment with known correlation patterns
+   - Momentum and trend direction
+
+2. Create a compelling headline (10-15 words) that captures the key risk
+
+3. Write a narrative explanation (100-150 words):
+   - What's happening
+   - Why it matters
+   - What patterns support this assessment
+   - Use specific data points from signals
+
+4. List key signal IDs that drive this insight
+
+5. Recommend 2-3 specific actions for field reps
+
+6. Assign confidence score (0-100) based on signal quality and pattern alignment
+
+7. Set expiration days (how long until insight should be refreshed)
+
+Return your analysis as JSON matching the schema.`;
+
+  try {
+    const completion = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI agent specialized in generating actionable risk narratives. Return only valid JSON.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_completion_tokens: 2000,
+      response_format: { type: "json_object" },
+    });
+    
+    const content = completion.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    const parsed = JSON.parse(content);
+    const validated = NarrativeGenerationSchema.parse(parsed);
+    
+    // Store AI insight
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validated.expirationDays);
+    
+    // Combine headline and narrative
+    const fullNarrative = `${validated.headline}\n\n${validated.narrative}`;
+    
+    await storage.createAiInsight({
+      hcpId,
+      insightType: "risk_assessment",
+      narrative: fullNarrative,
+      keySignals: validated.keySignals,
+      confidenceScore: validated.confidenceScore,
+      expiresAt,
+    });
+    
+  } catch (error) {
+    console.error("Narrative generation failed:", error);
+    throw error;
+  }
+}
+
 // Export singleton instance
 export const agentOrchestrator = new AgentOrchestrator();
