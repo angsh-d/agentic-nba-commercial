@@ -483,28 +483,31 @@ export default function Home() {
                   transition={{ delay: 0.1, duration: 0.5 }}
                   className="relative group"
                 >
-                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
-                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Detect</div>
-                    <div className="space-y-4">
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('observer')}
-                        data-testid="agent-observer"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <Eye className="w-5 h-5 text-blue-600" />
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-8 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative">
+                      <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Detect</div>
+                      <div className="space-y-4">
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('observer')}
+                          data-testid="agent-observer"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Eye className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Observer</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Observer</div>
-                      </div>
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('correlator')}
-                        data-testid="agent-correlator"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <Activity className="w-5 h-5 text-blue-600" />
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('correlator')}
+                          data-testid="agent-correlator"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Activity className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Correlator</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Correlator</div>
                       </div>
                     </div>
                   </div>
@@ -523,28 +526,31 @@ export default function Home() {
                   transition={{ delay: 0.3, duration: 0.5 }}
                   className="relative group"
                 >
-                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
-                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Investigate</div>
-                    <div className="space-y-4">
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('planner')}
-                        data-testid="agent-planner"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <Target className="w-5 h-5 text-blue-600" />
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-8 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative">
+                      <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Investigate</div>
+                      <div className="space-y-4">
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('planner')}
+                          data-testid="agent-planner"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Target className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Planner</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Planner</div>
-                      </div>
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('gatherer')}
-                        data-testid="agent-gatherer"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <Search className="w-5 h-5 text-blue-600" />
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('gatherer')}
+                          data-testid="agent-gatherer"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Search className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Gatherer</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Gatherer</div>
                       </div>
                     </div>
                   </div>
@@ -563,28 +569,31 @@ export default function Home() {
                   transition={{ delay: 0.5, duration: 0.5 }}
                   className="group"
                 >
-                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
-                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Act</div>
-                    <div className="space-y-4">
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('synthesizer')}
-                        data-testid="agent-synthesizer"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <Sparkles className="w-5 h-5 text-blue-600" />
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-8 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative">
+                      <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Act</div>
+                      <div className="space-y-4">
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('synthesizer')}
+                          data-testid="agent-synthesizer"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Sparkles className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Synthesizer</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Synthesizer</div>
-                      </div>
-                      <div 
-                        className="flex items-center gap-3.5 group/item cursor-pointer"
-                        onClick={() => setSelectedAgent('reflector')}
-                        data-testid="agent-reflector"
-                      >
-                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
-                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                        <div 
+                          className="flex items-center gap-3.5 group/item cursor-pointer rounded-xl p-2 -m-2 hover:bg-blue-50/50 transition-all duration-300"
+                          onClick={() => setSelectedAgent('reflector')}
+                          data-testid="agent-reflector"
+                        >
+                          <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors">Reflector</div>
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Reflector</div>
                       </div>
                     </div>
                   </div>
