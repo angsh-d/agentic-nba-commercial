@@ -207,16 +207,19 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           <div className="border-t border-gray-100 pt-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Temporal Signal Correlation</h3>
             <div className="bg-gray-50 rounded-lg p-4">
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={300}>
                 <LineChart
                   data={[
-                    { month: "Apr", rx: 100, label: "Apr" },
-                    { month: "May", rx: 95, label: "May" },
-                    { month: "Jun", rx: 88, label: "Jun", conference: true },
-                    { month: "Jul", rx: 75, label: "Jul" },
-                    { month: "Aug", rx: 55, label: "Aug", adverseEvents: true },
-                    { month: "Sep", rx: 45, label: "Sep" },
-                    { month: "Oct", rx: 30, label: "Oct" }
+                    { month: "Jan", ourRx: 98, competitorRx: 45, label: "Jan" },
+                    { month: "Feb", ourRx: 102, competitorRx: 43, label: "Feb" },
+                    { month: "Mar", ourRx: 100, competitorRx: 46, label: "Mar" },
+                    { month: "Apr", ourRx: 99, competitorRx: 44, label: "Apr" },
+                    { month: "May", ourRx: 101, competitorRx: 45, label: "May" },
+                    { month: "Jun", ourRx: 95, competitorRx: 52, label: "Jun", conference: true },
+                    { month: "Jul", ourRx: 78, competitorRx: 68, label: "Jul" },
+                    { month: "Aug", ourRx: 58, competitorRx: 85, label: "Aug", adverseEvents: true },
+                    { month: "Sep", ourRx: 42, competitorRx: 95, label: "Sep" },
+                    { month: "Oct", ourRx: 30, competitorRx: 102, label: "Oct" }
                   ]}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
@@ -240,14 +243,24 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
                     }}
                   />
                   
-                  {/* Signal 1: Rx Decline Trend */}
+                  {/* Our Product Rx Decline */}
                   <Line 
                     type="monotone" 
-                    dataKey="rx" 
+                    dataKey="ourRx" 
                     stroke="#2563eb" 
                     strokeWidth={2.5}
                     dot={{ r: 4, fill: '#2563eb' }}
-                    name="Prescription Volume"
+                    name="Our Product"
+                  />
+                  
+                  {/* Competitor Product Rx Increase */}
+                  <Line 
+                    type="monotone" 
+                    dataKey="competitorRx" 
+                    stroke="#9333ea" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#9333ea' }}
+                    name="Competitor Product"
                   />
                   
                   {/* Signal 2: ASCO Conference (Jun) */}
@@ -283,10 +296,14 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               </ResponsiveContainer>
               
               {/* Legend */}
-              <div className="flex items-center justify-center gap-6 mt-4 text-xs">
+              <div className="flex items-center justify-center gap-6 mt-4 text-xs flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-0.5 bg-blue-600" />
-                  <span className="text-gray-700">Rx Volume Decline (Signal 1)</span>
+                  <span className="text-gray-700">Our Product</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-0.5 bg-purple-600" />
+                  <span className="text-gray-700">Competitor Product</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
@@ -299,7 +316,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-3 leading-relaxed">
-              <strong>Temporal Correlation:</strong> Rx decline accelerates immediately after ASCO conference (Jun), with secondary drop following adverse event cluster (Aug) — demonstrating two distinct causal drivers acting on different patient cohorts.
+              <strong>Temporal Correlation:</strong> Steady volumes Jan-May, then our Rx declines sharply post-ASCO (Jun) while competitor gains share. Decline accelerates post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
             </p>
           </div>
 
