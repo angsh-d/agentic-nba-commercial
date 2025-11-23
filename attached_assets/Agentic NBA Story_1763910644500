@@ -1,0 +1,97 @@
+The Dr. Sarah Smith Story: Why Traditional NBAs Missed the Mark
+The Surface-Level Alert (Traditional Approach)
+In October 2025, Dr. Sarah Smith appeared on the traditional NBA dashboard with a concerning signal:
+
+✅ Memorial Sloan Kettering oncologist (tier-1 institution)
+✅ High engagement (10-month relationship, regular visits)
+⚠️ Competitor gaining share: +15%
+✅ Low churn risk score: 15/100
+Traditional NBA System Output:
+
+"Recommended Action: Schedule clinical lunch-and-learn to review latest product efficacy data. Priority: Medium."
+
+The field rep followed the recommendation. Dr. Smith was polite, engaged, but the switching continued. Why did this fail?
+
+What Traditional NBAs Missed: The Hidden Causal Story
+Dr. Smith didn't have "one switching problem" — she had two distinct, evidence-driven switching patterns happening simultaneously across different patient cohorts:
+
+Pattern 1: Young RCC Cohort (Ages 46-54)
+
+5 patients switched to Onco-Rival between July 3-August 1, 2025
+Causal trigger: ASCO ORION-Y trial results (June 15, 2025) showing 40% PFS benefit in patients <55
+Dr. Smith's decision: Systematic, evidence-based adoption for her younger RCC patients
+Pattern 2: Cardiovascular Risk Cohort (Ages 59-72)
+
+4 patients with cardiac comorbidities (CAD, prior MI, CHF, stroke) switched in September 2025
+Causal triggers:
+Three cardiac adverse events in Dr. Smith's own patients (August 2025: QT prolongation, arrhythmia, chest pain)
+Onco-Rival cardiac safety webinar (August 30, 2025)
+Dr. Smith's decision: Safety-driven defensive switching to protect high-risk patients
+Pattern 3: Stable Cohort
+
+3 patients remained on Onco-Pro (bladder, ovarian, prostate cancer patients without CV risk or RCC)
+Why no switch? Neither the efficacy signal (wrong indication) nor safety concern (no CV risk) applied
+Why Traditional NBAs Failed
+Traditional rule-based NBA systems would have:
+
+Aggregated the signal: "9 of 12 patients switched → Dr. Smith is churning"
+Applied generic tactics: "Schedule meeting, show efficacy data"
+Missed the causality: No understanding of why different cohorts switched at different times
+Wrong intervention timing: Recommended action after both causal events already occurred
+One-size-fits-all: Same recommendation regardless of underlying root causes
+The field rep walks in with a generic efficacy deck when Dr. Smith has already made two sophisticated, evidence-based decisions for different clinical reasons.
+
+The Agentic NBA Approach: Multi-Hypothesis Causal Investigation
+The Agentic NBA Platform deployed four specialized AI agents in sequence:
+
+1. Hypothesis Generator Agent
+Generated competing causal hypotheses:
+
+"Conference-driven efficacy shift for RCC subgroup"
+"Safety-driven switching post-adverse events"
+"Competitor marketing campaign"
+"Formulary/payer changes"
+2. Evidence Analyst Agent
+Gathered timestamped evidence from multiple sources:
+
+FDA FAERS database (cardiac AE reports trending up 340% in Q3)
+ASCO conference archives (ORION-Y abstract, June 15)
+Dr. Smith's own patient cohort (3 cardiac AEs in August)
+Prescription timeline showing two distinct switching waves
+3. Pattern Synthesizer Agent
+Connected temporal correlations:
+
+Young RCC switches cluster immediately after ASCO (July)
+CV-risk switches cluster immediately after cardiac AEs + webinar (September)
+Stable cohort unaffected → indicates strategic, not categorical switching
+4. Recommender Agent
+Generated a cohort-specific, causally-informed NBA:
+
+"Host an on-site 60-90 minute CME-aligned 'Cardio-Oncology Tumor Board & Rapid Case Review' at MSK with:
+
+Cardiology co-management expert to address CV-risk patient safety concerns
+Peer KOL to present nuanced ORION-Y subgroup data and patient selection criteria
+Pre-pull 8-12 of Dr. Smith's patients to review live cases
+Establish cardiac monitoring protocol and standing cardiology consult workflow
+Activate fast-track PA team with <10 business day SLA"
+Why the Agentic Approach Wins
+Traditional NBA	Agentic NBA
+"Competitor gaining share"	"Two distinct causal drivers: efficacy (young RCC) + safety (CV risk)"
+Generic lunch-and-learn	Cohort-specific tumor board with cardiology + KOL
+Reactive (after switches)	Proactive (addresses root causes to prevent further attrition)
+No hypothesis testing	Multi-hypothesis causal investigation with evidence scoring
+One-size-fits-all	Tailored to Dr. Smith's specific patient mix and clinical decision drivers
+30-minute pitch	90-minute collaborative clinical session with operational support
+The Outcome Story
+With the agentic approach, the field rep arrives at MSK with:
+
+Clinical credibility: "I understand you switched young RCC patients post-ORION-Y, and CV-risk patients after the cardiac AEs — both were evidence-based decisions."
+Targeted solutions:
+For CV-risk patients: Cardiac monitoring protocols + cardiology co-management
+For young RCC: Nuanced patient selection criteria showing when Onco-Pro still wins
+Operational support: Fast-track PA team to remove access friction
+Dr. Smith sees a partner who understands her clinical decision-making, not a vendor pushing product.
+
+The Bottom Line:
+Traditional NBAs see "switching." Agentic NBAs see "strategic, evidence-driven clinical decision-making across distinct patient cohorts with temporal causal triggers." That difference drives retention.
+
