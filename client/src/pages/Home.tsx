@@ -295,13 +295,13 @@ export default function Home() {
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Eye className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Observation</div>
+                        <div className="text-sm text-gray-700 font-medium">Observer</div>
                       </div>
                       <div className="flex items-center gap-3.5 group/item cursor-pointer">
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Activity className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-sm text-gray-700 font-medium">Correlation</div>
+                        <div className="text-sm text-gray-700 font-medium">Correlator</div>
                       </div>
                     </div>
                   </div>
