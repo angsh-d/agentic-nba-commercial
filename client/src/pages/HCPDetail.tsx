@@ -322,129 +322,282 @@ export default function HCPDetail() {
           </div>
         </div>
 
-        {/* Primary Insight - Hero Card */}
+        {/* AGENTIC MISSION CONTROL */}
         {hcp.switchRiskScore > 0 && hcpId && (
           <div className="mb-24">
-            {/* PRIMARY DRIVER HEADLINE */}
-            <Card className="border-none shadow-sm bg-gray-50 mb-16">
-              <CardContent className="p-12">
-                <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <Badge className="bg-blue-600 text-white text-xs px-3 py-1 mb-4">
-                      AI-Identified Root Cause
-                    </Badge>
-                    <h2 className="text-4xl font-semibold text-gray-900 mb-4 tracking-tight leading-tight">
+            {/* MULTI-AGENT HERO - Showcase Three Agent Families */}
+            <div className="mb-16">
+              <div className="flex items-center gap-3 mb-6">
+                <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
+                  Agentic Intelligence System
+                </h2>
+                <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
+                  Multi-Agent Collaboration
+                </Badge>
+              </div>
+              
+              {/* Three Agent Family Cards */}
+              <div className="grid grid-cols-3 gap-6 mb-8">
+                {/* Family 1: Observe & Correlate */}
+                <Card className="border border-gray-200 hover:border-blue-600 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                        <Eye className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1">Observe & Correlate</h3>
+                        <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5">Family 1</Badge>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      Detect patterns across prescription data, clinical events, call notes, and payer communications
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Family 2: Plan & Investigate */}
+                <Card className="border border-gray-200 hover:border-purple-600 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <Search className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1">Plan & Investigate Causality</h3>
+                        <Badge className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5">Family 2</Badge>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      Generate hypotheses, decompose tasks, gather evidence, and test causal relationships
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Family 3: Synthesize & Reflect */}
+                <Card className="border border-gray-200 hover:border-emerald-600 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 mb-1">Synthesize & Reflect</h3>
+                        <Badge className="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5">Family 3</Badge>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      Ensemble RL-based NBA Engine, business rules, and LLM reasoning with self-reflection
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Primary Finding Banner */}
+              <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-8 text-white">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Badge className="bg-white text-gray-900 text-xs px-3 py-1">
+                        Root Cause Identified
+                      </Badge>
+                      <span className="text-sm text-gray-300">by multi-agent collaboration</span>
+                    </div>
+                    <h3 className="text-3xl font-semibold mb-3 tracking-tight">
                       {hcpId === "1" ? "Safety & Efficacy Concerns" : "Access Barriers Blocking Patient Starts"}
-                    </h2>
-                    <p className="text-lg text-gray-600 font-light leading-relaxed max-w-3xl">
+                    </h3>
+                    <p className="text-base text-gray-300 leading-relaxed max-w-3xl">
                       {hcpId === "1" 
-                        ? "Agents detected a pattern of proactive switches driven by cardiac safety events in high-risk patients and new ASCO efficacy data influencing young RCC cohort prescribing."
+                        ? "Agents detected proactive switches driven by cardiac safety events in high-risk patients and new ASCO efficacy data influencing young RCC cohort prescribing."
                         : "Agents identified multi-payer policy changes (Tier 3 step-edits, $450 copays) causing 75% patient abandonment across 4 access-barrier cohorts since August 1st."}
                     </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* INVESTIGATION SUMMARY - Accordion */}
-            <Accordion type="single" collapsible className="mb-16">
-              <AccordionItem value="investigation" className="border border-gray-200 rounded-xl px-8">
-                <AccordionTrigger className="hover:no-underline py-6">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-gray-600" />
-                    <span className="text-lg font-medium text-gray-900">View Agent Investigation Process</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-8 pt-4">
-                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                    Agents generated {getHypothesesForHcp(hcpId).length} competing hypotheses, systematically gathered cross-signal evidence, and validated conclusions to eliminate confirmation bias.
-                  </p>
-
-                  {/* Proven Hypotheses Summary */}
-                  <div className="space-y-4 mb-6">
-                    {getHypothesesForHcp(hcpId)
-                      .filter(h => h.status === "proven")
-                      .map((hypothesis) => (
-                        <div key={hypothesis.id} className="flex items-start gap-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="text-sm font-semibold text-gray-900">{hypothesis.text}</h4>
-                              <Badge className="bg-emerald-600 text-white text-xs">{hypothesis.confidence}% confidence</Badge>
-                            </div>
-                            
-                            {/* Evidence Modal Trigger */}
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="link" className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700">
-                                  <FileText className="w-3 h-3 mr-1" />
-                                  View supporting evidence
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>{hypothesis.text}</DialogTitle>
-                                </DialogHeader>
-                                <div className="mt-4">
-                                  <MultiSignalEvidencePanel 
-                                    callNotes={callNotes} 
-                                    payerCommunications={payerCommunications}
-                                    patients={patients}
-                                  />
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-
-                  {/* Competing Hypotheses - Collapsed */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" className="w-full text-sm font-light">
-                        <ChevronDown className="w-4 h-4 mr-2" />
-                        View all {getHypothesesForHcp(hcpId).length} competing hypotheses
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Competing Hypotheses Analysis</DialogTitle>
-                      </DialogHeader>
-                      <div className="mt-4">
-                        <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* CONFIRMATION GATE */}
-            {!hypothesisConfirmed && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-8">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Evidence-Supported Root Causes</h4>
-                    <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                      Agents gathered cross-signal evidence and identified {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven root causes for the switching pattern. Review the evidence above and confirm to proceed with detailed cohort analysis.
-                    </p>
-                    <Button
-                      onClick={() => setHypothesisConfirmed(true)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
-                      data-testid="button-confirm-hypothesis"
-                    >
-                      <ChevronRight className="w-4 h-4 mr-2" />
-                      Confirm & Proceed to Deep Dive Analysis
-                    </Button>
+                  <div className="text-right">
+                    <div className="text-5xl font-semibold mb-2">{hcp.switchRiskScore}</div>
+                    <div className="text-sm text-gray-300">Risk Score</div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+
+            {/* MISSION TIMELINE - Goal-Driven Agent Workflow */}
+            <div className="mb-16">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Agent Mission Timeline</h3>
+              <div className="relative">
+                {/* Timeline Rail */}
+                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200" />
+                
+                {/* Phase 1: Observe & Correlate Signals */}
+                <div className="flex gap-6 mb-8 relative">
+                  <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 z-10">
+                    <Eye className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-lg font-semibold text-gray-900">Observe & Correlate Signals</h4>
+                      <Badge className="bg-blue-100 text-blue-700 text-xs">Family 1</Badge>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Detected {hcpId === "1" ? "safety/efficacy" : "access barrier"} patterns across 4 signal types</p>
+                    <div className="flex gap-2">
+                      <Badge className="bg-gray-100 text-gray-700 text-xs">Rx Data</Badge>
+                      <Badge className="bg-gray-100 text-gray-700 text-xs">Clinical Events</Badge>
+                      <Badge className="bg-gray-100 text-gray-700 text-xs">Call Notes</Badge>
+                      <Badge className="bg-gray-100 text-gray-700 text-xs">Payer Docs</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 2: Plan & Investigate Causality */}
+                <div className="flex gap-6 mb-8 relative">
+                  <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0 z-10">
+                    <Search className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-lg font-semibold text-gray-900">Plan & Investigate Causality</h4>
+                      <Badge className="bg-purple-100 text-purple-700 text-xs">Family 2</Badge>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Generated {getHypothesesForHcp(hcpId).length} competing hypotheses, gathered evidence, validated {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} root causes</p>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="text-xs h-8">
+                          <FileText className="w-3 h-3 mr-1.5" />
+                          View hypothesis tree & evidence
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Causal Investigation - Hypothesis Testing</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4">
+                          <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+
+                {/* Phase 3: Synthesize & Reflect */}
+                <div className="flex gap-6 relative">
+                  <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 z-10">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1 pt-2">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h4 className="text-lg font-semibold text-gray-900">Synthesize & Reflect</h4>
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">Family 3</Badge>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">Ensemble recommendation from RL-NBA Engine, business rules, and LLM reasoning</p>
+                    <div className="flex gap-2">
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">RL Engine</Badge>
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">Business Rules</Badge>
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">LLM Synthesis</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* EVIDENCE WORKBENCH - Multi-Signal Data */}
+            <div className="mb-16">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-6">Evidence Workbench</h3>
+              <Card className="border border-gray-200">
+                <CardContent className="p-0">
+                  {/* Signals Observatory */}
+                  <div className="p-6 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                          <Eye className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <h4 className="text-base font-semibold text-gray-900">Signals Observatory</h4>
+                        <Badge className="bg-blue-100 text-blue-700 text-xs">Family 1 Output</Badge>
+                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="text-xs h-8">
+                            View all signals
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Multi-Signal Evidence</DialogTitle>
+                          </DialogHeader>
+                          <div className="mt-4">
+                            <MultiSignalEvidencePanel 
+                              callNotes={callNotes} 
+                              payerCommunications={payerCommunications}
+                              patients={patients}
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Correlated {callNotes.length} call notes, {payerCommunications.length} payer documents, and {patients.length} patient records across temporal timeline
+                    </p>
+                  </div>
+
+                  {/* Causal Lab */}
+                  <div className="p-6 border-b border-gray-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                          <Search className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <h4 className="text-base font-semibold text-gray-900">Causal Lab</h4>
+                        <Badge className="bg-purple-100 text-purple-700 text-xs">Family 2 Output</Badge>
+                      </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" className="text-xs h-8">
+                            View hypothesis tree
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Hypothesis Testing Results</DialogTitle>
+                          </DialogHeader>
+                          <div className="mt-4">
+                            <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Tested {getHypothesesForHcp(hcpId).length} competing hypotheses, validated {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} root causes with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence
+                    </p>
+                  </div>
+
+                  {/* Decision Studio */}
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <h4 className="text-base font-semibold text-gray-900">Decision Studio</h4>
+                      <Badge className="bg-emerald-100 text-emerald-700 text-xs">Family 3 Output</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Ensemble NBA from RL engine, business rules, and LLM synthesis with self-reflection loop
+                    </p>
+                    {!hypothesisConfirmed && (
+                      <Button
+                        onClick={() => setHypothesisConfirmed(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                        data-testid="button-confirm-hypothesis"
+                      >
+                        <ChevronRight className="w-4 h-4 mr-2" />
+                        Unlock Deep Dive Analysis
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* DEEP DIVE: Timeline Chart - Only after confirmation */}
             {hypothesisConfirmed && (
