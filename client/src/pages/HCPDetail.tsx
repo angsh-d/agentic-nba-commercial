@@ -208,16 +208,6 @@ export default function HCPDetail() {
           </div>
         </div>
 
-        {/* Comparative Prescription Trends */}
-        {prescriptionTrends.length > 0 && (
-          <div className="mb-24">
-            <ComparativePrescriptionTrends 
-              hcpName={hcp.name}
-              prescriptionData={prescriptionTrends}
-            />
-          </div>
-        )}
-
         {/* Multi-Signal Investigation */}
         {hcpId === "1" && (
           <div className="mb-24">
@@ -504,21 +494,6 @@ export default function HCPDetail() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Cohort Analysis */}
-        {prescriptionHistory.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
-              Cohort Analysis
-            </h2>
-            <CohortSwitchingChart
-              prescriptionHistory={prescriptionHistory}
-              patients={patients}
-              clinicalEvents={clinicalEvents}
-              productName="Onco-Pro"
-            />
-          </div>
-        )}
 
         {/* Strategy Recommendations CTA */}
         {canShowStrategies && (
