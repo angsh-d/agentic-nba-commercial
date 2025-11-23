@@ -2,6 +2,8 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
 import { ComparativePrescriptionTrends } from "@/components/ComparativePrescriptionTrends";
 import { HypothesisTreeView } from "@/components/HypothesisTreeView";
@@ -11,6 +13,7 @@ import {
   Brain,
   MapPin,
   ChevronRight,
+  ChevronDown,
   Lightbulb,
   UserCheck,
   Eye,
@@ -18,7 +21,9 @@ import {
   Sparkles,
   Search,
   Target,
-  CheckCircle2
+  CheckCircle2,
+  FileText,
+  AlertTriangle
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
@@ -317,57 +322,108 @@ export default function HCPDetail() {
           </div>
         </div>
 
-        {/* Hypothesis-First Investigation */}
+        {/* Primary Insight - Hero Card */}
         {hcp.switchRiskScore > 0 && hcpId && (
           <div className="mb-24">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-8">
-                <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
-                  Root Cause Investigation
-                </h2>
-                <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
-                  Agent-Driven
-                </Badge>
-              </div>
-            </div>
-
-            {/* Investigation Context */}
-            <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Autonomous Hypothesis Generation</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Agents generated {getHypothesesForHcp(hcpId).length} competing hypotheses for the observed switching pattern, then systematically gathered evidence to prove or reject each one. This eliminates confirmation bias and ensures all causal pathways are explored before conclusions.
-                  </p>
+            {/* PRIMARY DRIVER HEADLINE */}
+            <Card className="border-none shadow-sm bg-gray-50 mb-16">
+              <CardContent className="p-12">
+                <div className="flex items-start gap-6">
+                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <Badge className="bg-blue-600 text-white text-xs px-3 py-1 mb-4">
+                      AI-Identified Root Cause
+                    </Badge>
+                    <h2 className="text-4xl font-semibold text-gray-900 mb-4 tracking-tight leading-tight">
+                      {hcpId === "1" ? "Safety & Efficacy Concerns" : "Access Barriers Blocking Patient Starts"}
+                    </h2>
+                    <p className="text-lg text-gray-600 font-light leading-relaxed max-w-3xl">
+                      {hcpId === "1" 
+                        ? "Agents detected a pattern of proactive switches driven by cardiac safety events in high-risk patients and new ASCO efficacy data influencing young RCC cohort prescribing."
+                        : "Agents identified multi-payer policy changes (Tier 3 step-edits, $450 copays) causing 75% patient abandonment across 4 access-barrier cohorts since August 1st."}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Hypothesis Tree */}
-            <Card className="border border-gray-200 mb-8">
-              <CardContent className="p-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Competing Hypotheses</h3>
-                <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
               </CardContent>
             </Card>
 
-            {/* Multi-Signal Evidence Panel */}
-            <Card className="border border-gray-200 mb-8">
-              <CardContent className="p-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Cross-Signal Evidence</h3>
-                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
-                  Agents gathered evidence across prescription history, clinical events, call notes, and payer communications to validate each hypothesis.
-                </p>
-                <MultiSignalEvidencePanel 
-                  callNotes={callNotes} 
-                  payerCommunications={payerCommunications}
-                  patients={patients}
-                />
-              </CardContent>
-            </Card>
+            {/* INVESTIGATION SUMMARY - Accordion */}
+            <Accordion type="single" collapsible className="mb-16">
+              <AccordionItem value="investigation" className="border border-gray-200 rounded-xl px-8">
+                <AccordionTrigger className="hover:no-underline py-6">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-5 h-5 text-gray-600" />
+                    <span className="text-lg font-medium text-gray-900">View Agent Investigation Process</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-8 pt-4">
+                  <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                    Agents generated {getHypothesesForHcp(hcpId).length} competing hypotheses, systematically gathered cross-signal evidence, and validated conclusions to eliminate confirmation bias.
+                  </p>
 
-            {/* Proven Hypotheses Summary & Confirmation */}
+                  {/* Proven Hypotheses Summary */}
+                  <div className="space-y-4 mb-6">
+                    {getHypothesesForHcp(hcpId)
+                      .filter(h => h.status === "proven")
+                      .map((hypothesis) => (
+                        <div key={hypothesis.id} className="flex items-start gap-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-sm font-semibold text-gray-900">{hypothesis.text}</h4>
+                              <Badge className="bg-emerald-600 text-white text-xs">{hypothesis.confidence}% confidence</Badge>
+                            </div>
+                            
+                            {/* Evidence Modal Trigger */}
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="link" className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700">
+                                  <FileText className="w-3 h-3 mr-1" />
+                                  View supporting evidence
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>{hypothesis.text}</DialogTitle>
+                                </DialogHeader>
+                                <div className="mt-4">
+                                  <MultiSignalEvidencePanel 
+                                    callNotes={callNotes} 
+                                    payerCommunications={payerCommunications}
+                                    patients={patients}
+                                  />
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+
+                  {/* Competing Hypotheses - Collapsed */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full text-sm font-light">
+                        <ChevronDown className="w-4 h-4 mr-2" />
+                        View all {getHypothesesForHcp(hcpId).length} competing hypotheses
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Competing Hypotheses Analysis</DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-4">
+                        <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* CONFIRMATION GATE */}
             {!hypothesisConfirmed && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-8">
                 <div className="flex items-start gap-3">
@@ -390,8 +446,11 @@ export default function HCPDetail() {
               </div>
             )}
 
-            {/* Timeline Chart */}
-            <Card className="border border-gray-200">
+            {/* DEEP DIVE: Timeline Chart - Only after confirmation */}
+            {hypothesisConfirmed && (
+              <div className="mb-16">
+                <h3 className="text-2xl font-semibold text-gray-900 mb-6">Deep Dive Analysis</h3>
+                <Card className="border border-gray-200">
               <CardContent className="p-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Temporal Signal Correlation</h3>
                 <div className="bg-gray-50 rounded-lg p-6">
@@ -509,6 +568,8 @@ export default function HCPDetail() {
                 </p>
               </CardContent>
             </Card>
+              </div>
+            )}
           </div>
         )}
 
