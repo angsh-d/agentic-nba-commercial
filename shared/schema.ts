@@ -276,3 +276,68 @@ export const insertAgentFeedbackSchema = createInsertSchema(agentFeedback).omit(
 export const selectAgentFeedbackSchema = createSelectSchema(agentFeedback);
 export type InsertAgentFeedback = z.infer<typeof insertAgentFeedbackSchema>;
 export type AgentFeedback = typeof agentFeedback.$inferSelect;
+
+// Detected Signals - Weak signals detected by observation agent
+export const detectedSignals = pgTable("detected_signals", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  signalType: text("signal_type").notNull(), // "rx_decline", "rx_spike", "event_attendance", "peer_influence", "adverse_event_cluster"
+  signalStrength: integer("signal_strength").notNull(), // 1-10 strength score
+  signalSource: text("signal_source").notNull(), // "prescription_history", "clinical_events", "peer_network"
+  signalDescription: text("signal_description").notNull(), // Human-readable description
+  contextData: jsonb("context_data").$type<Record<string, any>>(), // Additional signal metadata
+  detectedAt: timestamp("detected_at").defaultNow().notNull(),
+  status: text("status").notNull().default("active"), // active, correlated, dismissed
+});
+
+export const insertDetectedSignalSchema = createInsertSchema(detectedSignals).omit({ 
+  id: true, 
+  detectedAt: true 
+});
+export const selectDetectedSignalSchema = createSelectSchema(detectedSignals);
+export type InsertDetectedSignal = z.infer<typeof insertDetectedSignalSchema>;
+export type DetectedSignal = typeof detectedSignals.$inferSelect;
+
+// Signal Correlations - Discovered temporal patterns between signals
+export const signalCorrelations = pgTable("signal_correlations", {
+  id: serial("id").primaryKey(),
+  patternName: text("pattern_name").notNull(), // e.g., "ASCO Conference → RCC Switch Pattern"
+  signalA: text("signal_a").notNull(), // First signal type
+  signalB: text("signal_b").notNull(), // Second signal type
+  temporalLag: integer("temporal_lag").notNull(), // Days between signal A and signal B
+  correlationStrength: integer("correlation_strength").notNull(), // 0-100 confidence
+  occurrenceCount: integer("occurrence_count").notNull(), // How many times this pattern occurred
+  description: text("description").notNull(), // Explanation of the correlation
+  discoveredBy: text("discovered_by").notNull().default("correlation_agent"), // Which agent discovered it
+  discoveredAt: timestamp("discovered_at").defaultNow().notNull(),
+  isActive: integer("is_active").notNull().default(1), // 1 = active pattern, 0 = retired
+});
+
+export const insertSignalCorrelationSchema = createInsertSchema(signalCorrelations).omit({ 
+  id: true, 
+  discoveredAt: true 
+});
+export const selectSignalCorrelationSchema = createSelectSchema(signalCorrelations);
+export type InsertSignalCorrelation = z.infer<typeof insertSignalCorrelationSchema>;
+export type SignalCorrelation = typeof signalCorrelations.$inferSelect;
+
+// AI Insights - Narrative explanations for HCP risk stratification
+export const aiInsights = pgTable("ai_insights", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  insightType: text("insight_type").notNull(), // "risk_explanation", "signal_synthesis", "recommendation"
+  narrative: text("narrative").notNull(), // AI-generated human-readable explanation
+  keySignals: jsonb("key_signals").$type<string[]>().default([]), // Signal IDs that contributed
+  confidenceScore: integer("confidence_score").notNull(), // 0-100
+  generatedBy: text("generated_by").notNull().default("narrative_generator"), // Which agent generated it
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"), // When this insight becomes stale
+});
+
+export const insertAiInsightSchema = createInsertSchema(aiInsights).omit({ 
+  id: true, 
+  generatedAt: true 
+});
+export const selectAiInsightSchema = createSelectSchema(aiInsights);
+export type InsertAiInsight = z.infer<typeof insertAiInsightSchema>;
+export type AiInsight = typeof aiInsights.$inferSelect;

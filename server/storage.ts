@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -62,6 +62,20 @@ export interface IStorage {
   // Agent Feedback operations
   createAgentFeedback(feedback: InsertAgentFeedback): Promise<AgentFeedback>;
   getSessionFeedback(sessionId: number): Promise<AgentFeedback[]>;
+  
+  // Signal Detection operations
+  createDetectedSignal(signal: InsertDetectedSignal): Promise<DetectedSignal>;
+  getDetectedSignals(hcpId: number): Promise<DetectedSignal[]>;
+  getAllActiveSignals(): Promise<DetectedSignal[]>;
+  
+  // Signal Correlation operations
+  createSignalCorrelation(correlation: InsertSignalCorrelation): Promise<SignalCorrelation>;
+  getAllActiveCorrelations(): Promise<SignalCorrelation[]>;
+  
+  // AI Insight operations
+  createAiInsight(insight: InsertAiInsight): Promise<AiInsight>;
+  getAiInsights(hcpId: number): Promise<AiInsight[]>;
+  getLatestAiInsight(hcpId: number): Promise<AiInsight | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -318,6 +332,66 @@ export class DatabaseStorage implements IStorage {
       .from(agentFeedback)
       .where(eq(agentFeedback.sessionId, sessionId))
       .orderBy(desc(agentFeedback.createdAt));
+  }
+  
+  // Signal Detection operations
+  async createDetectedSignal(insertSignal: InsertDetectedSignal): Promise<DetectedSignal> {
+    const results = await db.insert(detectedSignals).values(insertSignal).returning();
+    return results[0];
+  }
+  
+  async getDetectedSignals(hcpId: number): Promise<DetectedSignal[]> {
+    return await db
+      .select()
+      .from(detectedSignals)
+      .where(eq(detectedSignals.hcpId, hcpId))
+      .orderBy(desc(detectedSignals.detectedAt));
+  }
+  
+  async getAllActiveSignals(): Promise<DetectedSignal[]> {
+    return await db
+      .select()
+      .from(detectedSignals)
+      .where(eq(detectedSignals.status, 'active'))
+      .orderBy(desc(detectedSignals.detectedAt));
+  }
+  
+  // Signal Correlation operations
+  async createSignalCorrelation(insertCorrelation: InsertSignalCorrelation): Promise<SignalCorrelation> {
+    const results = await db.insert(signalCorrelations).values(insertCorrelation).returning();
+    return results[0];
+  }
+  
+  async getAllActiveCorrelations(): Promise<SignalCorrelation[]> {
+    return await db
+      .select()
+      .from(signalCorrelations)
+      .where(eq(signalCorrelations.isActive, 1))
+      .orderBy(desc(signalCorrelations.correlationStrength));
+  }
+  
+  // AI Insight operations
+  async createAiInsight(insertInsight: InsertAiInsight): Promise<AiInsight> {
+    const results = await db.insert(aiInsights).values(insertInsight).returning();
+    return results[0];
+  }
+  
+  async getAiInsights(hcpId: number): Promise<AiInsight[]> {
+    return await db
+      .select()
+      .from(aiInsights)
+      .where(eq(aiInsights.hcpId, hcpId))
+      .orderBy(desc(aiInsights.generatedAt));
+  }
+  
+  async getLatestAiInsight(hcpId: number): Promise<AiInsight | undefined> {
+    const results = await db
+      .select()
+      .from(aiInsights)
+      .where(eq(aiInsights.hcpId, hcpId))
+      .orderBy(desc(aiInsights.generatedAt))
+      .limit(1);
+    return results[0];
   }
 }
 
