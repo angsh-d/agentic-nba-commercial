@@ -155,12 +155,13 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           </div>
 
           <DialogDescription className="text-base text-gray-700 leading-relaxed pt-2">
-            AI agents identified switching patterns across multiple patient groups, each requiring a different approach.
+            Autonomous agents dynamically identified switching patterns across multiple patient groups, each requiring a different approach.
           </DialogDescription>
         </DialogHeader>
         
         {/* Quick Signal Bullets */}
         <div className="space-y-3 py-6 border-t border-gray-100">
+          <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-4">Agent-Discovered Signals</p>
           <div className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
             <p className="text-sm text-gray-700 leading-relaxed">

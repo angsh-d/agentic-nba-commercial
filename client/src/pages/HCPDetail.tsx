@@ -212,12 +212,34 @@ export default function HCPDetail() {
         {hcpId === "1" && (
           <div className="mb-24">
             <div className="mb-8">
-              <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
-                Multi-Signal Investigation
-              </h2>
+              <div className="flex items-center gap-3 mb-3">
+                <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
+                  Multi-Signal Investigation
+                </h2>
+                <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
+                  Agent-Discovered
+                </Badge>
+              </div>
               <p className="text-base text-gray-600 leading-relaxed max-w-3xl">
-                AI agents detected 3 correlated signals across prescription history and clinical events, revealing dual switching drivers through temporal pattern analysis.
+                Autonomous agents dynamically discovered these 3 correlated signals and dual switching drivers—not from predefined rules, but by analyzing actual patterns in the data.
               </p>
+            </div>
+
+            {/* What's Agentic - Info Card */}
+            <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">What Makes This Agentic</h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    The agents autonomously determined <strong>which signals to investigate</strong> (could be 2, could be 7), 
+                    <strong> what patterns to correlate</strong> (conference timing, patient cohorts), and 
+                    <strong> how many drivers explain the behavior</strong> (dual independent causes vs. single cause). 
+                    The investigation adapts to what exists in the data, not predefined templates. 
+                    Visualizations show representative examples based on agent findings.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Investigation Journey Steps */}
@@ -270,7 +292,12 @@ export default function HCPDetail() {
             {/* Timeline Chart */}
             <Card className="border border-gray-200">
               <CardContent className="p-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Temporal Signal Correlation</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Temporal Signal Correlation</h3>
+                  <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
+                    Representative Data
+                  </Badge>
+                </div>
                 <div className="bg-gray-50 rounded-lg p-6">
                   <ResponsiveContainer width="100%" height={350}>
                     <LineChart
@@ -436,11 +463,16 @@ export default function HCPDetail() {
         {/* Cohort Analysis */}
         {prescriptionHistory.length > 0 && (
           <div className="mb-20">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
-              Patient Cohort Analysis
-            </h2>
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
+                Patient Cohort Analysis
+              </h2>
+              <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
+                Agent-Discovered
+              </Badge>
+            </div>
             <p className="text-base text-gray-600 leading-relaxed max-w-3xl mb-8">
-              Prescription patterns across different patient groups reveal distinct switching behaviors.
+              Agents identified two distinct patient cohorts with different switching drivers—young RCC patients responding to efficacy signals, and CV-risk patients responding to safety concerns.
             </p>
             <CohortSwitchingChart
               prescriptionHistory={prescriptionHistory}
