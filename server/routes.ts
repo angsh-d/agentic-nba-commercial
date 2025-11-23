@@ -278,6 +278,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to run causal investigation" });
     }
   });
+
+  // Get investigation results for an HCP
+  app.get("/api/ai/investigation-results/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      
+      // Get all sessions for this HCP
+      const sessions = await storage.getAgentSessionsByHcp(hcpId);
+      
+      // Filter for completed causal investigation sessions
+      const investigationSessions = sessions.filter(
+        s => s.goalType === 'causal_investigation' && s.status === 'completed'
+      );
+      
+      if (investigationSessions.length === 0) {
+        return res.json({ hasInvestigation: false });
+      }
+      
+      // Get the most recent completed investigation
+      const latestInvestigation = investigationSessions[0];
+      const sessionDetails = await agentOrchestrator.getSessionDetails(latestInvestigation.id);
+      
+      // Parse the proven hypotheses from session contextData
+      const provenHypotheses = latestInvestigation.contextData?.provenHypotheses || [];
+      const allHypotheses = latestInvestigation.contextData?.allHypotheses || [];
+      
+      res.json({
+        hasInvestigation: true,
+        session: latestInvestigation,
+        provenHypotheses,
+        allHypotheses,
+        thoughts: sessionDetails.thoughts,
+        actions: sessionDetails.actions,
+      });
+    } catch (error) {
+      console.error("Failed to get investigation results:", error);
+      res.status(500).json({ error: "Failed to retrieve investigation results" });
+    }
+  });
   
   app.post("/api/ai/territory-plan/:territory", async (req, res) => {
     try {

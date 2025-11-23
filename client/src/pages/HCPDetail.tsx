@@ -8,12 +8,11 @@ import {
   ArrowLeft,
   Brain,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  Lightbulb
 } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
 
 interface HCP {
   id: number;
@@ -29,11 +28,16 @@ interface HCP {
   createdAt: string;
 }
 
+interface InvestigationResults {
+  hasInvestigation: boolean;
+  session?: any;
+  provenHypotheses?: any[];
+  allHypotheses?: any[];
+}
+
 interface NBAResults {
   hasResults: boolean;
   session?: any;
-  thoughts?: any[];
-  actions?: any[];
   nba?: any;
 }
 
@@ -49,11 +53,9 @@ async function fetchPrescriptionHistory(hcpId: string) {
   return response.json();
 }
 
-async function triggerNBAGeneration(hcpId: number) {
-  const response = await fetch(`/api/ai/generate-nba/${hcpId}`, {
-    method: "POST",
-  });
-  if (!response.ok) throw new Error("Failed to generate NBA");
+async function fetchInvestigationResults(hcpId: string): Promise<InvestigationResults> {
+  const response = await fetch(`/api/ai/investigation-results/${hcpId}`);
+  if (!response.ok) throw new Error("Failed to fetch investigation results");
   return response.json();
 }
 
@@ -86,7 +88,6 @@ function getRiskBadge(tier: string, score: number) {
 export default function HCPDetail() {
   const [, params] = useRoute("/hcp/:id");
   const hcpId = params?.id;
-  const [sessionId, setSessionId] = useState<number | null>(null);
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
@@ -112,33 +113,17 @@ export default function HCPDetail() {
     enabled: !!hcpId,
   });
 
-  const { data: nbaResults, refetch: refetchResults } = useQuery({
+  const { data: investigationResults } = useQuery({
+    queryKey: ["investigation-results", hcpId],
+    queryFn: () => fetchInvestigationResults(hcpId!),
+    enabled: !!hcpId,
+  });
+
+  const { data: nbaResults } = useQuery({
     queryKey: ["nba-results", hcpId],
     queryFn: () => fetchNBAResults(hcpId!),
     enabled: !!hcpId,
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      if (data?.session?.status === "in_progress") {
-        return 2000;
-      }
-      return false;
-    },
   });
-
-  const generateMutation = useMutation({
-    mutationFn: () => triggerNBAGeneration(Number(hcpId)),
-    onSuccess: (data) => {
-      setSessionId(data.sessionId);
-      toast.success("AI Analysis Started");
-      refetchResults();
-    },
-  });
-
-  useEffect(() => {
-    if (hcp && hcp.switchRiskScore > 0 && nbaResults && !nbaResults.hasResults && !generateMutation.isPending) {
-      generateMutation.mutate();
-    }
-  }, [hcp, nbaResults]);
 
   if (isLoading) {
     return (
@@ -165,7 +150,8 @@ export default function HCPDetail() {
     );
   }
 
-  const isGenerating = generateMutation.isPending || nbaResults?.session?.status === "in_progress";
+  const hasInvestigation = investigationResults?.hasInvestigation;
+  const provenHypotheses = investigationResults?.provenHypotheses || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -223,9 +209,17 @@ export default function HCPDetail() {
                     <h2 className="text-xl font-semibold text-gray-900">
                       Autonomous Causal Investigation
                     </h2>
+                    {hasInvestigation && (
+                      <Badge className="bg-gray-900 text-white text-xs px-2.5 py-0.5">
+                        Completed
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-gray-600 max-w-2xl">
-                    AI-powered multi-hypothesis testing with evidence gathering to discover root causes of switching behavior
+                    {hasInvestigation 
+                      ? `Investigation complete with ${provenHypotheses.length} proven ${provenHypotheses.length === 1 ? 'hypothesis' : 'hypotheses'}`
+                      : "AI-powered multi-hypothesis testing with evidence gathering to discover root causes of switching behavior"
+                    }
                   </p>
                 </div>
                 <Link href={`/hcp/${hcpId}/investigate`}>
@@ -233,7 +227,7 @@ export default function HCPDetail() {
                     className="bg-gray-900 hover:bg-gray-800 text-white"
                     data-testid="button-launch-investigation"
                   >
-                    Launch Investigation
+                    {hasInvestigation ? "View Investigation" : "Launch Investigation"}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>
@@ -257,33 +251,42 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* NBA Recommendations */}
-        {nbaResults?.nba && (
+        {/* Strategy Recommendations - Only show if investigation is complete */}
+        {hasInvestigation && provenHypotheses.length > 0 && nbaResults?.nba && (
           <div className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
-              Recommended Strategies
+              AI-Generated Strategy Recommendations
             </h2>
             <EnsembleNBAPanel 
               nba={nbaResults.nba} 
-              provenHypotheses={[]}
+              provenHypotheses={provenHypotheses}
             />
           </div>
         )}
 
-        {/* Generating State */}
-        {isGenerating && !nbaResults?.nba && (
+        {/* Placeholder - Investigation needed for strategies */}
+        {!hasInvestigation && hcp.switchRiskScore > 0 && (
           <Card className="border border-gray-200 bg-white">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
-                <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-1">
-                    Generating Insights
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Analyzing prescription patterns and market context...
-                  </p>
+            <CardContent className="p-12">
+              <div className="text-center max-w-xl mx-auto">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                  <Lightbulb className="w-8 h-8 text-gray-400" />
                 </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Complete Causal Investigation First
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  AI-generated strategy recommendations will appear here after you complete the autonomous causal investigation to identify proven root causes of switching behavior.
+                </p>
+                <Link href={`/hcp/${hcpId}/investigate`}>
+                  <Button 
+                    className="bg-gray-900 hover:bg-gray-800 text-white"
+                    data-testid="button-start-investigation-cta"
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    Start Investigation
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>

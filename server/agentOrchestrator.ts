@@ -607,11 +607,17 @@ OUTPUT (JSON):
         `Investigation complete: ${provenHypotheses.length} hypotheses proven, ${ruledOut.length} ruled out`
       );
       
-      // Finalize session
+      // Finalize session with investigation results in contextData
       await storage.updateAgentSession(session.id, {
         status: "completed",
         finalOutcome: `Causal investigation complete. Top hypothesis: ${provenHypotheses[0]?.hypothesis.title} (${provenHypotheses[0]?.evidence.finalConfidence}% confidence)`,
         confidenceScore: provenHypotheses[0]?.evidence.finalConfidence || 0,
+        contextData: {
+          ...(session.contextData || {}),
+          provenHypotheses,
+          allHypotheses: rankedHypotheses,
+          ruledOut,
+        },
         completedAt: new Date(),
       });
       
