@@ -329,7 +329,7 @@ export default function HCPDetail() {
               prescriptionHistory={prescriptionHistory}
               patients={patients}
               clinicalEvents={clinicalEvents}
-              productName="OncoDrug"
+              productName="Onco-Pro"
             />
           </div>
         )}
