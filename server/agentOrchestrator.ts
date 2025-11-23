@@ -295,7 +295,15 @@ You must respond ONLY with valid JSON in exactly this format:
       throw new Error("Empty response from GPT-5-mini planner");
     }
     
-    const rawPlan = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawPlan = JSON.parse(decodedContent);
     const plan = PlanSchema.parse(rawPlan);
     
     await this.logThought("planner", "reasoning", plan.thought);
@@ -392,7 +400,15 @@ OUTPUT (JSON):
       throw new Error("Empty response from GPT-5-mini analyst");
     }
     
-    const rawEvidence = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawEvidence = JSON.parse(decodedContent);
     const evidence = EvidenceSchema.parse(rawEvidence);
     
     await this.logThought("analyst", "reasoning", evidence.thought);
@@ -456,7 +472,15 @@ OUTPUT (JSON):
       throw new Error("Empty response from GPT-5-mini synthesizer");
     }
     
-    const rawSynthesis = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawSynthesis = JSON.parse(decodedContent);
     const synthesis = SynthesisSchema.parse(rawSynthesis);
     
     await this.logThought("synthesizer", "reasoning", synthesis.thought);
@@ -538,7 +562,15 @@ OUTPUT (JSON):
       throw new Error("Empty response from GPT-5-mini reflector");
     }
     
-    const rawReflection = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawReflection = JSON.parse(decodedContent);
     const reflection = ReflectionSchema.parse(rawReflection);
     
     await this.logThought("reflector", "critique", reflection.thought);
@@ -709,7 +741,15 @@ OUTPUT (JSON):
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error("Empty hypothesis generation response");
     
-    const rawHypotheses = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawHypotheses = JSON.parse(decodedContent);
     const hypotheses = HypothesisGenerationSchema.parse(rawHypotheses);
     
     await this.logThought("causal_discovery", "reasoning", hypotheses.thought);
@@ -795,7 +835,15 @@ OUTPUT (JSON):
     const content = response.choices[0]?.message?.content;
     if (!content) throw new Error("Empty evidence scoring response");
     
-    const rawScore = JSON.parse(content);
+    // Decode HTML entities that may appear in Azure OpenAI responses
+    const decodedContent = content
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    const rawScore = JSON.parse(decodedContent);
     const score = EvidenceScoreSchema.parse(rawScore);
     
     await this.logAction("causal_discovery", "gather_evidence",
