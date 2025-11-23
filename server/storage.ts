@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -76,6 +76,14 @@ export interface IStorage {
   createAiInsight(insight: InsertAiInsight): Promise<AiInsight>;
   getAiInsights(hcpId: number): Promise<AiInsight[]>;
   getLatestAiInsight(hcpId: number): Promise<AiInsight | undefined>;
+  
+  // Call Note operations
+  createCallNote(note: InsertCallNote): Promise<CallNote>;
+  getCallNotesByHcp(hcpId: number): Promise<CallNote[]>;
+  
+  // Payer Communication operations
+  createPayerCommunication(communication: InsertPayerCommunication): Promise<PayerCommunication>;
+  getPayerCommunicationsByHcp(hcpId: number): Promise<PayerCommunication[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -392,6 +400,34 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(aiInsights.generatedAt))
       .limit(1);
     return results[0];
+  }
+  
+  // Call Note operations
+  async createCallNote(insertNote: InsertCallNote): Promise<CallNote> {
+    const results = await db.insert(callNotes).values(insertNote).returning();
+    return results[0];
+  }
+  
+  async getCallNotesByHcp(hcpId: number): Promise<CallNote[]> {
+    return await db
+      .select()
+      .from(callNotes)
+      .where(eq(callNotes.hcpId, hcpId))
+      .orderBy(desc(callNotes.visitDate));
+  }
+  
+  // Payer Communication operations
+  async createPayerCommunication(insertCommunication: InsertPayerCommunication): Promise<PayerCommunication> {
+    const results = await db.insert(payerCommunications).values(insertCommunication).returning();
+    return results[0];
+  }
+  
+  async getPayerCommunicationsByHcp(hcpId: number): Promise<PayerCommunication[]> {
+    return await db
+      .select()
+      .from(payerCommunications)
+      .where(sql`${payerCommunications.products} && ARRAY['Onco-Pro']::text[]`)
+      .orderBy(desc(payerCommunications.receivedDate));
   }
 }
 
