@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -187,6 +187,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
 
 export default function Home() {
   const [viewMode, setViewMode] = useState<"switch_risk" | "all">("switch_risk");
+  const [, setLocation] = useLocation();
   
   const { data: hcps = [], isLoading } = useQuery({
     queryKey: ["hcps"],
@@ -336,11 +337,11 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.3 }}
               >
-                <Link href={`/hcp/${hcp.id}`}>
-                  <Card 
-                    className="border border-gray-200 bg-white hover:border-gray-900 hover:shadow-md transition-all duration-200 cursor-pointer"
-                    data-testid={`hcp-card-${hcp.id}`}
-                  >
+                <Card 
+                  className="border border-gray-200 bg-white hover:border-gray-900 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  data-testid={`hcp-card-${hcp.id}`}
+                  onClick={() => setLocation(`/hcp/${hcp.id}`)}
+                >
                     <CardContent className="p-5">
                       <div className="flex items-center justify-between">
                         {/* Left: HCP Info */}
@@ -388,7 +389,6 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
               </motion.div>
             ))}
           </div>
