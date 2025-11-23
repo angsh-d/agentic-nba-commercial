@@ -110,9 +110,14 @@ export const patients = pgTable("patients", {
   hasCardiovascularRisk: integer("has_cardiovascular_risk").notNull().default(0), // 1 = yes, 0 = no
   cardiovascularConditions: jsonb("cardiovascular_conditions").$type<string[]>().default([]), // e.g., ["Prior MI", "CHF"]
   currentDrug: text("current_drug").notNull(), // Current prescription
-  cohort: text("cohort").notNull(), // "young_rcc", "cv_risk", "stable", "other"
+  cohort: text("cohort").notNull(), // "young_rcc", "cv_risk", "stable", "high_copay", "pa_denied", "fulfillment_delay", "smooth_access"
   switchedDate: timestamp("switched_date"), // When they switched (if applicable)
   switchedToDrug: text("switched_to_drug"), // What drug they switched to
+  payer: text("payer"), // Insurance payer name (e.g., "United Healthcare")
+  priorAuthStatus: text("prior_auth_status"), // "approved", "denied", "pending", "not_required"
+  denialCode: text("denial_code"), // PA denial reason code (e.g., "step_edit_required")
+  copayAmount: integer("copay_amount"), // Patient copay in dollars
+  fulfillmentLagDays: integer("fulfillment_lag_days"), // Days from Rx to first fill
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -341,3 +346,47 @@ export const insertAiInsightSchema = createInsertSchema(aiInsights).omit({
 export const selectAiInsightSchema = createSelectSchema(aiInsights);
 export type InsertAiInsight = z.infer<typeof insertAiInsightSchema>;
 export type AiInsight = typeof aiInsights.$inferSelect;
+
+// Call Notes - Field rep visit notes (unstructured data source for agentic analysis)
+export const callNotes = pgTable("call_notes", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  repName: text("rep_name").notNull(), // Sales rep who made the visit
+  visitDate: timestamp("visit_date").notNull(), // When the visit occurred
+  noteText: text("note_text").notNull(), // Unstructured free-text notes
+  noteType: text("note_type").notNull().default("routine_visit"), // "routine_visit", "follow_up", "urgent", "virtual"
+  keyTopics: jsonb("key_topics").$type<string[]>().default([]), // Extracted topics for filtering
+  sentiment: text("sentiment"), // "positive", "neutral", "negative", "frustrated" (can be AI-extracted)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCallNoteSchema = createInsertSchema(callNotes).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectCallNoteSchema = createSelectSchema(callNotes);
+export type InsertCallNote = z.infer<typeof insertCallNoteSchema>;
+export type CallNote = typeof callNotes.$inferSelect;
+
+// Payer Communications - Insurance/formulary policy documents (unstructured source)
+export const payerCommunications = pgTable("payer_communications", {
+  id: serial("id").primaryKey(),
+  payerName: text("payer_name").notNull(), // e.g., "United Healthcare", "Aetna"
+  documentType: text("document_type").notNull(), // "formulary_update", "policy_change", "pa_requirement", "tier_change"
+  documentTitle: text("document_title").notNull(), // e.g., "Q3 2025 Formulary Update"
+  documentText: text("document_text").notNull(), // Full text of the communication (can be long)
+  effectiveDate: timestamp("effective_date"), // When policy takes effect
+  products: jsonb("products").$type<string[]>().default([]), // Products mentioned in the document
+  keyChanges: jsonb("key_changes").$type<string[]>().default([]), // AI-extracted key policy changes
+  source: text("source").notNull(), // "email", "pdf", "portal", "fax"
+  receivedDate: timestamp("received_date").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPayerCommunicationSchema = createInsertSchema(payerCommunications).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectPayerCommunicationSchema = createSelectSchema(payerCommunications);
+export type InsertPayerCommunication = z.infer<typeof insertPayerCommunicationSchema>;
+export type PayerCommunication = typeof payerCommunications.$inferSelect;
