@@ -55,7 +55,11 @@ interface SignalData {
     id: number;
     signalType: string;
     signalStrength: number;
+    signalSource: string;
+    signalDescription: string;
+    contextData: Record<string, any>;
     detectedAt: string;
+    status: string;
   }>;
   latestInsight: AiInsight | null;
 }
@@ -110,7 +114,13 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
     <Dialog>
       <DialogTrigger asChild>
         <button
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
           className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors text-xs font-medium border border-blue-200 hover:border-blue-300"
           data-testid={`ai-insight-badge-${hcpId}`}
         >
@@ -120,7 +130,10 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
       </DialogTrigger>
       <DialogContent 
         className="max-w-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
       >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900">
