@@ -36,6 +36,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from "recharts";
 
 interface HCP {
   id: number;
@@ -200,6 +201,106 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Multi-Signal Timeline Chart */}
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Temporal Signal Correlation</h3>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart
+                  data={[
+                    { month: "Apr", rx: 100, label: "Apr" },
+                    { month: "May", rx: 95, label: "May" },
+                    { month: "Jun", rx: 88, label: "Jun", conference: true },
+                    { month: "Jul", rx: 75, label: "Jul" },
+                    { month: "Aug", rx: 55, label: "Aug", adverseEvents: true },
+                    { month: "Sep", rx: 45, label: "Sep" },
+                    { month: "Oct", rx: 30, label: "Oct" }
+                  ]}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="label" 
+                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                    axisLine={{ stroke: '#d1d5db' }}
+                  />
+                  <YAxis 
+                    label={{ value: 'Rx Volume (Indexed)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }}
+                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                    axisLine={{ stroke: '#d1d5db' }}
+                  />
+                  <RechartsTooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                  />
+                  
+                  {/* Signal 1: Rx Decline Trend */}
+                  <Line 
+                    type="monotone" 
+                    dataKey="rx" 
+                    stroke="#2563eb" 
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#2563eb' }}
+                    name="Prescription Volume"
+                  />
+                  
+                  {/* Signal 2: ASCO Conference (Jun) */}
+                  <ReferenceLine 
+                    x="Jun" 
+                    stroke="#dc2626" 
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  >
+                    <ChartLabel 
+                      value="ASCO" 
+                      position="top" 
+                      style={{ fill: '#dc2626', fontSize: 11, fontWeight: 600 }}
+                      offset={10}
+                    />
+                  </ReferenceLine>
+                  
+                  {/* Signal 3: Adverse Events Cluster (Aug) */}
+                  <ReferenceLine 
+                    x="Aug" 
+                    stroke="#ea580c" 
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  >
+                    <ChartLabel 
+                      value="Adverse Events" 
+                      position="top" 
+                      style={{ fill: '#ea580c', fontSize: 11, fontWeight: 600 }}
+                      offset={10}
+                    />
+                  </ReferenceLine>
+                </LineChart>
+              </ResponsiveContainer>
+              
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-6 mt-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-0.5 bg-blue-600" />
+                  <span className="text-gray-700">Rx Volume Decline (Signal 1)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
+                  <span className="text-gray-700">ASCO Conference (Signal 2)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-0.5 border-t-2 border-dashed border-orange-600" />
+                  <span className="text-gray-700">Adverse Events (Signal 3)</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3 leading-relaxed">
+              <strong>Temporal Correlation:</strong> Rx decline accelerates immediately after ASCO conference (Jun), with secondary drop following adverse event cluster (Aug) — demonstrating two distinct causal drivers acting on different patient cohorts.
+            </p>
           </div>
 
           {/* Signal Evidence */}
