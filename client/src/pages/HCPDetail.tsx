@@ -225,18 +225,16 @@ export default function HCPDetail() {
               </p>
             </div>
 
-            {/* What's Agentic - Info Card */}
+            {/* Investigation Context */}
             <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
               <div className="flex items-start gap-3">
                 <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">What Makes This Agentic</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">How Agents Discovered This Pattern</h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    The agents autonomously determined <strong>which signals to investigate</strong> (could be 2, could be 7), 
-                    <strong> what patterns to correlate</strong> (conference timing, patient cohorts), and 
-                    <strong> how many drivers explain the behavior</strong> (dual independent causes vs. single cause). 
-                    The investigation adapts to what exists in the data, not predefined templates. 
-                    Visualizations show representative examples based on agent findings.
+                    Observer detected a 75% switching rate across 12 patients between June-October. 
+                    Correlator identified two distinct temporal clusters: 5 young RCC patients switching post-ASCO conference (June 15) and 4 CV-risk patients switching after cardiac adverse events (August). 
+                    Planner determined these represent independent causal pathways—one efficacy-driven, one safety-driven—rather than a single switching cause.
                   </p>
                 </div>
               </div>
