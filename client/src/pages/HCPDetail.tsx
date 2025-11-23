@@ -331,142 +331,137 @@ export default function HCPDetail() {
         {/* PROGRESSIVE WIZARD - Multi-Agent Investigation */}
         {hcp.switchRiskScore > 0 && hcpId && (
           <div className="mb-24">
-            {/* Wizard Header with Progress */}
-            <div className="mb-12">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-semibold text-gray-900 tracking-tight mb-2">
-                    Agentic Investigation
-                  </h2>
-                  <p className="text-base text-gray-600 font-light">
-                    Progressive multi-agent analysis with human oversight
-                  </p>
-                </div>
-                <Badge className="bg-blue-600 text-white px-4 py-2">
-                  Stage {wizardStage} of 3
-                </Badge>
-              </div>
+            {/* Wizard Header - Apple Style */}
+            <div className="mb-16">
+              <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">
+                Agentic Investigation
+              </h1>
+              <p className="text-lg text-gray-600 font-light mb-12">
+                Multi-agent analysis with human oversight
+              </p>
 
-              {/* Progress Indicator */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className={`flex-1 h-1 rounded-full transition-all ${wizardStage >= 1 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-                    <div className={`flex-1 h-1 rounded-full transition-all ${wizardStage >= 2 ? 'bg-purple-600' : 'bg-gray-200'}`} />
-                    <div className={`flex-1 h-1 rounded-full transition-all ${wizardStage >= 3 ? 'bg-emerald-600' : 'bg-gray-200'}`} />
+              {/* Progress Stepper - Apple Style */}
+              <div className="flex items-center justify-between max-w-2xl">
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    wizardStage >= 1 ? 'bg-blue-600' : 'bg-gray-200'
+                  } transition-colors`}>
+                    <span className={`text-sm font-semibold ${wizardStage >= 1 ? 'text-white' : 'text-gray-500'}`}>1</span>
                   </div>
-                  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                    <span className={wizardStage >= 1 ? 'text-blue-600 font-medium' : ''}>Observe</span>
-                    <span className={wizardStage >= 2 ? 'text-purple-600 font-medium' : ''}>Investigate</span>
-                    <span className={wizardStage >= 3 ? 'text-emerald-600 font-medium' : ''}>Synthesize</span>
+                  <span className={`text-xs mt-2 ${wizardStage >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Observe</span>
+                </div>
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 2 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    wizardStage >= 2 ? 'bg-blue-600' : 'bg-gray-200'
+                  } transition-colors`}>
+                    <span className={`text-sm font-semibold ${wizardStage >= 2 ? 'text-white' : 'text-gray-500'}`}>2</span>
                   </div>
+                  <span className={`text-xs mt-2 ${wizardStage >= 2 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Investigate</span>
+                </div>
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 3 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    wizardStage >= 3 ? 'bg-blue-600' : 'bg-gray-200'
+                  } transition-colors`}>
+                    <span className={`text-sm font-semibold ${wizardStage >= 3 ? 'text-white' : 'text-gray-500'}`}>3</span>
+                  </div>
+                  <span className={`text-xs mt-2 ${wizardStage >= 3 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Synthesize</span>
                 </div>
               </div>
             </div>
 
-            {/* STAGE 1: Observe & Correlate Signals */}
+            {/* STAGE 1: Observe & Correlate Signals - Apple Style */}
             {wizardStage === 1 && (
-              <Card className="border-2 border-blue-600 shadow-lg mb-8">
-                <CardContent className="p-10">
-                  <div className="flex items-start gap-6 mb-8">
-                    <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                      <Eye className="w-8 h-8 text-white" />
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 mb-8">
+                <div className="flex items-start gap-8 mb-12">
+                  <div className="w-20 h-20 rounded-full bg-gray-50 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-100">
+                    <Eye className="w-9 h-9 text-gray-900" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+                      Observe & Correlate Signals
+                    </h2>
+                    <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl">
+                      AI agents analyze multiple data signals to detect switching patterns and anomalies impossible to find with traditional BI tools.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Live Signal Processing */}
+                <div className="space-y-3 mb-12">
+                  <div className="flex items-start gap-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-2xl font-semibold text-gray-900">Observe & Correlate Signals</h3>
-                        <Badge className="bg-blue-600 text-white">Family 1</Badge>
-                      </div>
-                      <p className="text-base text-gray-600 leading-relaxed">
-                        AI agents are analyzing multiple data signals to detect switching patterns and anomalies impossible to find with traditional BI tools.
-                      </p>
+                      <p className="text-sm font-medium text-gray-900 mb-1">Prescription Data Analysis</p>
+                      <p className="text-sm text-gray-600 font-light">Detected 44% Rx decline (45→25) with temporal correlation</p>
                     </div>
                   </div>
+                  <div className="flex items-start gap-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Call Notes Analysis</p>
+                      <p className="text-sm text-gray-600 font-light">Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Payer Communications</p>
+                      <p className="text-sm text-gray-600 font-light">Analyzed {payerCommunications.length} payer docs, {hcpId === "1" ? "no formulary changes" : "found Tier 3 policy change Aug 1"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 py-3">
+                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Patient Cohort Tracking</p>
+                      <p className="text-sm text-gray-600 font-light">Identified {patients.filter(p => p.switchedToCompetitor === 1).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}</p>
+                    </div>
+                  </div>
+                </div>
 
-                  {/* Live Signal Processing */}
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Prescription Data Analysis</p>
-                        <p className="text-xs text-gray-600">Detected 44% Rx decline (45→25) with temporal correlation</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Call Notes Analysis</p>
-                        <p className="text-xs text-gray-600">Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Payer Communications</p>
-                        <p className="text-xs text-gray-600">Analyzed {payerCommunications.length} payer docs, {hcpId === "1" ? "no formulary changes" : "found Tier 3 policy change Aug 1"}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Patient Cohort Tracking</p>
-                        <p className="text-xs text-gray-600">Identified {patients.filter(p => p.switchedToCompetitor === 1).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}</p>
-                      </div>
-                    </div>
-                  </div>
+                {/* Key Finding */}
+                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                  <p className="text-base text-gray-900 leading-relaxed">
+                    {hcpId === "1" 
+                      ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
+                      : "Agents detected 75% patient abandonment rate correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 4 patient cohorts."}
+                  </p>
+                </div>
 
-                  {/* Key Finding */}
-                  <div className="bg-gradient-to-r from-blue-900 to-blue-800 rounded-xl p-6 text-white mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle className="w-5 h-5" />
-                      <h4 className="text-sm font-semibold">Key Anomaly Detected</h4>
-                    </div>
-                    <p className="text-base leading-relaxed">
-                      {hcpId === "1" 
-                        ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
-                        : "Agents detected 75% patient abandonment rate correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 4 patient cohorts."}
-                    </p>
-                  </div>
-
-                  {/* Human Approval */}
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600">
-                      Signal correlation complete. Approve to proceed with causal investigation.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setStage1Complete(true);
-                        setWizardStage(2);
-                      }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                      data-testid="button-approve-stage1"
-                    >
-                      Approve & Continue
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                {/* Human Approval */}
+                <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
+                  <Button
+                    onClick={() => {
+                      setStage1Complete(true);
+                      setWizardStage(2);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    data-testid="button-approve-stage1"
+                  >
+                    Continue
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
             )}
 
-            {/* STAGE 2: Plan & Investigate Causality */}
+            {/* STAGE 2: Plan & Investigate Causality - Apple Style */}
             {wizardStage === 2 && (
-              <Card className="border-2 border-purple-600 shadow-lg mb-8">
-                <CardContent className="p-10">
-                  <div className="flex items-start gap-6 mb-8">
-                    <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-                      <Search className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-2xl font-semibold text-gray-900">Plan & Investigate Causality</h3>
-                        <Badge className="bg-purple-600 text-white">Family 2</Badge>
-                      </div>
-                      <p className="text-base text-gray-600 leading-relaxed">
-                        Agents decompose causal investigation into competing hypotheses, gather multi-signal evidence, and test each hypothesis systematically to eliminate confirmation bias.
-                      </p>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 mb-8">
+                <div className="flex items-start gap-8 mb-12">
+                  <div className="w-20 h-20 rounded-full bg-gray-50 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-100">
+                    <Search className="w-9 h-9 text-gray-900" />
                   </div>
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+                      Plan & Investigate Causality
+                    </h2>
+                    <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl">
+                      Agents decompose causal investigation into competing hypotheses, gather multi-signal evidence, and test each systematically to eliminate confirmation bias.
+                    </p>
+                  </div>
+                </div>
 
                   {/* Hypothesis Summary */}
                   <div className="mb-6">
@@ -523,137 +518,100 @@ export default function HCPDetail() {
                     </Dialog>
                   </div>
 
-                  {/* Root Cause Finding */}
-                  <div className="bg-gradient-to-r from-purple-900 to-purple-800 rounded-xl p-6 text-white mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Target className="w-5 h-5" />
-                      <h4 className="text-sm font-semibold">Root Causes Validated</h4>
-                    </div>
-                    <p className="text-base leading-relaxed">
-                      {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven hypotheses with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence: {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map(h => h.text.split(' - ')[0]).join(", ")}
-                    </p>
-                  </div>
+                {/* Root Cause Finding */}
+                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                  <p className="text-base text-gray-900 leading-relaxed">
+                    {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven hypotheses with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence: {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map(h => h.text.split(' - ')[0]).join(", ")}
+                  </p>
+                </div>
 
-                  {/* Human Approval */}
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600">
-                      Causal investigation complete. Approve to synthesize recommendations.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setStage2Complete(true);
-                        setWizardStage(3);
-                      }}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                      data-testid="button-approve-stage2"
-                    >
-                      Approve & Continue
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                {/* Human Approval */}
+                <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
+                  <Button
+                    onClick={() => {
+                      setStage2Complete(true);
+                      setWizardStage(3);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    data-testid="button-approve-stage2"
+                  >
+                    Continue
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
             )}
 
-            {/* STAGE 3: Synthesize & Reflect */}
+            {/* STAGE 3: Synthesize & Reflect - Apple Style */}
             {wizardStage === 3 && (
-              <Card className="border-2 border-emerald-600 shadow-lg mb-8">
-                <CardContent className="p-10">
-                  <div className="flex items-start gap-6 mb-8">
-                    <div className="w-16 h-16 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-2xl font-semibold text-gray-900">Synthesize & Reflect</h3>
-                        <Badge className="bg-emerald-600 text-white">Family 3</Badge>
-                      </div>
-                      <p className="text-base text-gray-600 leading-relaxed">
-                        Agents synthesize recommendations from three independent sources (RL-based NBA Engine, business rules, LLM reasoning), then reflect and critique the ensemble before final recommendation.
-                      </p>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 mb-8">
+                <div className="flex items-start gap-8 mb-12">
+                  <div className="w-20 h-20 rounded-full bg-gray-50 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-100">
+                    <Sparkles className="w-9 h-9 text-gray-900" />
                   </div>
-
-                  {/* Ensemble Synthesis */}
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Ensemble Recommendation Synthesis</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3 p-4 bg-emerald-50 rounded-lg">
-                        <Brain className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">RL-based NBA Engine</p>
-                          <p className="text-xs text-gray-600">Suggests {hcpId === "1" ? "efficacy repositioning + safety protocol" : "PA fast-track + copay foundation enrollment"} based on historical outcomes</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-4 bg-emerald-50 rounded-lg">
-                        <Activity className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">Business Rules Engine</p>
-                          <p className="text-xs text-gray-600">Validates {hcpId === "1" ? "REMS compliance + formulary approval" : "payer coverage requirements + reimbursement pathways"}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-4 bg-emerald-50 rounded-lg">
-                        <Lightbulb className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">LLM Contextual Reasoning</p>
-                          <p className="text-xs text-gray-600">Synthesizes {hcpId === "1" ? "clinical evidence + KOL positioning" : "payer negotiation strategy + MSL deployment timing"}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Self-Reflection */}
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Self-Reflection & Critique</h4>
-                    <ul className="text-sm text-gray-700 space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>All three recommendation sources aligned on primary intervention strategy</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>Evidence-to-action mapping validated with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                        <span>Temporal urgency: immediate intervention required within {hcpId === "1" ? "14" : "7"} days</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Final Recommendation */}
-                  <div className="bg-gradient-to-r from-emerald-900 to-emerald-800 rounded-xl p-6 text-white mb-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-5 h-5" />
-                      <h4 className="text-sm font-semibold">Ensemble Recommendation</h4>
-                    </div>
-                    <p className="text-base leading-relaxed">
-                      {hcpId === "1" 
-                        ? "Deploy 3-pronged strategy: (1) MSL-led safety protocol education, (2) Efficacy repositioning based on ORION-Y data, (3) KOL collaboration for clinical best practices. Traditional tools would miss the dual-causality pattern requiring coordinated safety + efficacy response."
-                        : "Deploy urgent access intervention: (1) PA escalation SWAT team with 48hr SLA, (2) Auto-enroll eligible patients in $0 copay foundation, (3) Specialty pharmacy fast-track with 3-day fulfillment, (4) Deploy reimbursement specialist. Traditional tools would flag Rx decline but miss the multi-payer policy causality requiring coordinated access strategy."}
+                  <div className="flex-1">
+                    <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+                      Synthesize & Reflect
+                    </h2>
+                    <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl">
+                      Agents synthesize recommendations from three independent sources (RL Engine, business rules, LLM reasoning), then reflect and critique the ensemble.
                     </p>
                   </div>
+                </div>
 
-                  {/* Human Final Approval */}
-                  <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-600">
-                      Review complete ensemble recommendation and approve to unlock deep dive analysis.
-                    </p>
-                    <Button
-                      onClick={() => {
-                        setStage3Complete(true);
-                        setHypothesisConfirmed(true);
-                        setWizardStage('complete');
-                      }}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      data-testid="button-approve-stage3"
-                    >
-                      Approve Recommendation
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
+                {/* Ensemble Synthesis */}
+                <div className="mb-12">
+                  <h3 className="text-base font-semibold text-gray-900 mb-6">Ensemble Recommendation Synthesis</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-4 py-3">
+                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 mb-1">RL-based NBA Engine</p>
+                        <p className="text-sm text-gray-600 font-light">Suggests {hcpId === "1" ? "efficacy repositioning + safety protocol" : "PA fast-track + copay foundation enrollment"} based on historical outcomes</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4 py-3">
+                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 mb-1">Business Rules Engine</p>
+                        <p className="text-sm text-gray-600 font-light">Validates {hcpId === "1" ? "REMS compliance + formulary approval" : "payer coverage requirements + reimbursement pathways"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-4 py-3">
+                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 mb-1">LLM Contextual Reasoning</p>
+                        <p className="text-sm text-gray-600 font-light">Synthesizes {hcpId === "1" ? "clinical evidence + KOL positioning" : "payer negotiation strategy + MSL deployment timing"}</p>
+                      </div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {/* Final Recommendation */}
+                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                  <p className="text-base text-gray-900 leading-relaxed">
+                    {hcpId === "1" 
+                      ? "Deploy 3-pronged strategy: (1) MSL-led safety protocol education, (2) Efficacy repositioning based on ORION-Y data, (3) KOL collaboration for clinical best practices. Traditional tools would miss the dual-causality pattern requiring coordinated safety + efficacy response."
+                      : "Deploy urgent access intervention: (1) PA escalation SWAT team with 48hr SLA, (2) Auto-enroll eligible patients in $0 copay foundation, (3) Specialty pharmacy fast-track with 3-day fulfillment, (4) Deploy reimbursement specialist. Traditional tools would flag Rx decline but miss the multi-payer policy causality requiring coordinated access strategy."}
+                  </p>
+                </div>
+
+                {/* Human Final Approval */}
+                <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
+                  <Button
+                    onClick={() => {
+                      setStage3Complete(true);
+                      setHypothesisConfirmed(true);
+                      setWizardStage('complete');
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    data-testid="button-approve-stage3"
+                  >
+                    Approve Recommendation
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
             )}
 
             {/* DEEP DIVE: Timeline Chart - Only after confirmation */}
