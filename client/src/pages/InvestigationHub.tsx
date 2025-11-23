@@ -223,7 +223,10 @@ export default function InvestigationHub() {
 
   const allHypotheses: HypothesisResult[] = investigationResults?.allHypotheses || [];
   const provenHypotheses = investigationResults?.provenHypotheses || [];
-  const ruledOut = investigationResults?.ruledOut || [];
+  // Calculate ruledOut from allHypotheses with correct verdict values
+  const ruledOut = allHypotheses.filter(h => 
+    h.evidence.verdict === 'disproven' || h.evidence.verdict === 'unlikely'
+  );
 
   const toggleHypothesis = (id: string) => {
     const newSelected = new Set(selectedHypotheses);
@@ -331,7 +334,7 @@ export default function InvestigationHub() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
                         {hcp?.name || `HCP ${hcpId}`} shows prescription switching from Onco-Pro to competitors
                       </h3>
-                      <div className="grid grid-cols-3 gap-4 mt-6">
+                      <div className="grid grid-cols-2 gap-4 mt-6">
                         <div>
                           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Patients</div>
                           <div className="text-2xl font-semibold text-gray-900">{patients?.length || 0}</div>
@@ -341,10 +344,6 @@ export default function InvestigationHub() {
                           <div className="text-2xl font-semibold text-gray-900">
                             {patients?.filter((p: any) => p.switchedDate).length || 0}
                           </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Risk Score</div>
-                          <div className="text-2xl font-semibold text-gray-900">{hcp?.riskScore || 0}</div>
                         </div>
                       </div>
                     </div>
