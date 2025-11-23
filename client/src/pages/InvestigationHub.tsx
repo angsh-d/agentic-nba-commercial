@@ -110,6 +110,20 @@ export default function InvestigationHub() {
     enabled: !!hcpId,
   });
 
+  // Load patient cohort data for dynamic breakdown
+  const { data: patients } = useQuery({
+    queryKey: [`patients-${hcpId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/patients`);
+      if (!response.ok) {
+        console.error(`Failed to fetch patients for HCP ${hcpId}:`, response.status);
+        return [];
+      }
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
   // Populate investigation results from existing data
   useEffect(() => {
     if (existingResults?.hasInvestigation && !investigationResults) {
@@ -301,69 +315,96 @@ export default function InvestigationHub() {
               </Card>
             </div>
 
-            {/* Causal Drivers Summary */}
-            {provenHypotheses.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-6">
-                  Causal Drivers Discovered
-                </h2>
-                <Card className="border-2 border-gray-900 bg-gray-50">
-                  <CardContent className="p-8">
-                    <div className="mb-6">
-                      <p className="text-base text-gray-700 font-light leading-relaxed">
-                        Investigation revealed <strong className="text-gray-900">two distinct, evidence-driven switching patterns</strong> across different patient cohorts — not a single "competitor threat":
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-6">
-                      <div className="bg-white rounded-lg p-6 border border-gray-200">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
-                            Young RCC Cohort
-                          </Badge>
-                        </div>
-                        <div className="text-3xl font-semibold text-gray-900 mb-2">5</div>
-                        <div className="text-sm text-gray-600 mb-4">patients switched July-Aug</div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
-                        <div className="text-sm text-gray-700">ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55</div>
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <div className="text-xs font-semibold text-gray-900">Driver: Efficacy Signal</div>
-                        </div>
+            {/* Causal Drivers Summary - Dynamic based on actual patient data */}
+            {provenHypotheses.length > 0 && patients && patients.length > 0 && (() => {
+              // Calculate cohort breakdown dynamically
+              const youngRccPatients = patients.filter((p: any) => p.cohort === 'young_rcc' && p.switchedDate);
+              const cvRiskPatients = patients.filter((p: any) => p.cohort === 'cv_risk' && p.switchedDate);
+              const stablePatients = patients.filter((p: any) => p.cohort === 'stable' && !p.switchedDate);
+              
+              const hasMultipleCohorts = (youngRccPatients.length > 0 && cvRiskPatients.length > 0) || 
+                                        (youngRccPatients.length > 0 && stablePatients.length > 0) ||
+                                        (cvRiskPatients.length > 0 && stablePatients.length > 0);
+              
+              // Only show if we have multiple distinct cohorts
+              if (!hasMultipleCohorts) return null;
+              
+              return (
+                <div className="mb-12">
+                  <div className="flex items-center gap-3 mb-6">
+                    <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
+                      Causal Drivers Discovered
+                    </h2>
+                    <Badge className="bg-gray-900 text-white text-xs px-2.5 py-1">
+                      What Traditional NBAs Missed
+                    </Badge>
+                  </div>
+                  <Card className="border-2 border-gray-900 bg-gray-50">
+                    <CardContent className="p-8">
+                      <div className="mb-6">
+                        <p className="text-base text-gray-700 font-light leading-relaxed">
+                          Investigation revealed <strong className="text-gray-900">
+                            {youngRccPatients.length > 0 && cvRiskPatients.length > 0 ? 'two' : 'multiple'} distinct, evidence-driven switching patterns
+                          </strong> across different patient cohorts — not a single "competitor threat":
+                        </p>
                       </div>
+                      <div className="grid grid-cols-3 gap-6">
+                        {youngRccPatients.length > 0 && (
+                          <div className="bg-white rounded-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
+                                Young RCC Cohort
+                              </Badge>
+                            </div>
+                            <div className="text-3xl font-semibold text-gray-900 mb-2">{youngRccPatients.length}</div>
+                            <div className="text-sm text-gray-600 mb-4">patients switched July-Aug</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                            <div className="text-sm text-gray-700">ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55</div>
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <div className="text-xs font-semibold text-gray-900">Driver: Efficacy Signal</div>
+                            </div>
+                          </div>
+                        )}
 
-                      <div className="bg-white rounded-lg p-6 border border-gray-200">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
-                            CV-Risk Cohort
-                          </Badge>
-                        </div>
-                        <div className="text-3xl font-semibold text-gray-900 mb-2">4</div>
-                        <div className="text-sm text-gray-600 mb-4">patients switched September</div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
-                        <div className="text-sm text-gray-700">Cardiac AEs (Aug) + Onco-Rival safety webinar (Aug 30)</div>
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <div className="text-xs font-semibold text-gray-900">Driver: Safety Signal</div>
-                        </div>
-                      </div>
+                        {cvRiskPatients.length > 0 && (
+                          <div className="bg-white rounded-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
+                                CV-Risk Cohort
+                              </Badge>
+                            </div>
+                            <div className="text-3xl font-semibold text-gray-900 mb-2">{cvRiskPatients.length}</div>
+                            <div className="text-sm text-gray-600 mb-4">patients switched September</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                            <div className="text-sm text-gray-700">Cardiac AEs (Aug) + Onco-Rival safety webinar (Aug 30)</div>
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <div className="text-xs font-semibold text-gray-900">Driver: Safety Signal</div>
+                            </div>
+                          </div>
+                        )}
 
-                      <div className="bg-white rounded-lg p-6 border border-gray-200">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600 border-gray-300">
-                            Stable Cohort
-                          </Badge>
-                        </div>
-                        <div className="text-3xl font-semibold text-gray-900 mb-2">3</div>
-                        <div className="text-sm text-gray-600 mb-4">patients remained on Onco-Pro</div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Why No Switch?</div>
-                        <div className="text-sm text-gray-700">Neither efficacy signal (wrong indication) nor safety concern (no CV risk) applied</div>
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <div className="text-xs font-semibold text-gray-900">Driver: None (Strategic Switching)</div>
-                        </div>
+                        {stablePatients.length > 0 && (
+                          <div className="bg-white rounded-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600 border-gray-300">
+                                Stable Cohort
+                              </Badge>
+                            </div>
+                            <div className="text-3xl font-semibold text-gray-900 mb-2">{stablePatients.length}</div>
+                            <div className="text-sm text-gray-600 mb-4">patients remained on Onco-Pro</div>
+                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Why No Switch?</div>
+                            <div className="text-sm text-gray-700">Neither efficacy signal (wrong indication) nor safety concern (no CV risk) applied</div>
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <div className="text-xs font-semibold text-gray-900">Driver: None (Strategic Switching)</div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })()}
 
             {/* Hypothesis Analysis: Three-Phase Framework */}
             <div className="mb-8">

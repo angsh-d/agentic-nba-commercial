@@ -220,8 +220,13 @@ export default function HCPDetail() {
                 Traditional NBA Alert
               </h2>
               <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                Surface-Level View
+                Rule-Based Approach
               </Badge>
+              {hasInvestigation && isConfirmed && (
+                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2.5 py-1">
+                  Insufficient
+                </Badge>
+              )}
             </div>
             <Card className="border border-gray-300 bg-gray-50">
               <CardContent className="p-8">
@@ -252,11 +257,19 @@ export default function HCPDetail() {
               </CardContent>
             </Card>
             {hasInvestigation && isConfirmed && (
-              <div className="mt-6 p-4 bg-white border-l-4 border-gray-900">
-                <p className="text-sm text-gray-700">
-                  <strong className="text-gray-900">⚠️ Why This Failed:</strong> This one-size-fits-all approach missed the underlying causal story. 
-                  Autonomous investigation revealed <strong>two distinct switching patterns across different patient cohorts</strong> driven by separate clinical triggers — not a single "competitor threat."
-                </p>
+              <div className="mt-6 p-6 bg-white border-l-4 border-red-600">
+                <div className="flex items-start gap-3">
+                  <div className="text-2xl">⚠️</div>
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-900 mb-2">What This One-Size-Fits-All Approach Missed</h3>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Traditional rule-based NBA systems treat all switching as a monolithic "competitor threat" event. 
+                      Autonomous causal investigation revealed <strong className="text-gray-900">two distinct, independent switching patterns</strong> across different patient cohorts, 
+                      each driven by separate clinical triggers (efficacy signal vs. safety signal) requiring <strong>fundamentally different interventions</strong>. 
+                      A generic "lunch-and-learn" would have failed to address either root cause effectively.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
