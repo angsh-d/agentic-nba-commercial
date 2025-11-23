@@ -11,13 +11,18 @@ import {
   CheckCircle2, 
   XCircle,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  Search,
+  Lightbulb,
+  FlaskConical,
+  Target
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
 
 interface Hypothesis {
   id: string;
@@ -119,6 +124,39 @@ export default function InvestigationHub() {
         console.error(`Failed to fetch patients for HCP ${hcpId}:`, response.status);
         return [];
       }
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
+  // Load HCP data for basic info
+  const { data: hcp } = useQuery({
+    queryKey: [`hcp-${hcpId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}`);
+      if (!response.ok) throw new Error("Failed to fetch HCP");
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
+  // Load clinical events for cohort chart
+  const { data: clinicalEvents = [] } = useQuery({
+    queryKey: [`clinical-events-${hcpId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/clinical-events`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
+  // Load prescription history for cohort chart
+  const { data: prescriptionHistory = [] } = useQuery({
+    queryKey: [`prescription-history-${hcpId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/prescription-history`);
+      if (!response.ok) return [];
       return response.json();
     },
     enabled: !!hcpId,
@@ -272,142 +310,136 @@ export default function InvestigationHub() {
 
         {/* Results */}
         {investigationResults && (
-          <div className="space-y-12">
-            {/* Summary */}
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="border border-gray-200 bg-white">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Total Hypotheses
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {allHypotheses.length}
+          <div className="space-y-16">
+            {/* PHASE 1: DISCOVERY */}
+            <section data-testid="phase-discovery">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold">
+                  1
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Discovery</h2>
+                  <p className="text-sm text-gray-600 font-light mt-1">Switching pattern detected</p>
+                </div>
+              </div>
+
+              <Card className="border border-gray-200 bg-gray-50">
+                <CardContent className="p-8">
+                  <div className="flex items-start gap-6">
+                    <Search className="w-12 h-12 text-gray-900 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {hcp?.name || `HCP ${hcpId}`} shows prescription switching from Onco-Pro to competitors
+                      </h3>
+                      <div className="grid grid-cols-3 gap-4 mt-6">
+                        <div>
+                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Patients</div>
+                          <div className="text-2xl font-semibold text-gray-900">{patients?.length || 0}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Switched</div>
+                          <div className="text-2xl font-semibold text-gray-900">
+                            {patients?.filter((p: any) => p.switchedDate).length || 0}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Risk Score</div>
+                          <div className="text-2xl font-semibold text-gray-900">{hcp?.riskScore || 0}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
+            </section>
 
-              <Card className="border border-gray-200 bg-white">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Proven
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {provenHypotheses.length}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* PHASE 2: CAUSAL INVESTIGATION */}
+            <section data-testid="phase-investigation">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold">
+                  2
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Causal Investigation</h2>
+                  <p className="text-sm text-gray-600 font-light mt-1">
+                    "Switching in month X → what triggers around that timeframe?"
+                  </p>
+                </div>
+              </div>
 
-              <Card className="border border-gray-200 bg-white">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Ruled Out
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-semibold text-gray-900">
-                    {ruledOut.length}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              {/* Summary Stats */}
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                <Card className="border border-gray-200 bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Total Hypotheses
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-semibold text-gray-900">
+                      {allHypotheses.length}
+                    </div>
+                  </CardContent>
+                </Card>
 
-            {/* Causal Drivers Summary - Dynamic based on actual patient data */}
-            {provenHypotheses.length > 0 && patients && patients.length > 0 && (() => {
-              // Calculate cohort breakdown dynamically
-              const youngRccPatients = patients.filter((p: any) => p.cohort === 'young_rcc' && p.switchedDate);
-              const cvRiskPatients = patients.filter((p: any) => p.cohort === 'cv_risk' && p.switchedDate);
-              const stablePatients = patients.filter((p: any) => p.cohort === 'stable' && !p.switchedDate);
-              
-              const hasMultipleCohorts = (youngRccPatients.length > 0 && cvRiskPatients.length > 0) || 
-                                        (youngRccPatients.length > 0 && stablePatients.length > 0) ||
-                                        (cvRiskPatients.length > 0 && stablePatients.length > 0);
-              
-              // Only show if we have multiple distinct cohorts
-              if (!hasMultipleCohorts) return null;
-              
-              return (
-                <div className="mb-12">
-                  <div className="flex items-center gap-3 mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                      Causal Drivers Discovered
-                    </h2>
-                    <Badge className="bg-gray-900 text-white text-xs px-2.5 py-1">
-                      What Traditional NBAs Missed
-                    </Badge>
-                  </div>
-                  <Card className="border-2 border-gray-900 bg-gray-50">
-                    <CardContent className="p-8">
-                      <div className="mb-6">
-                        <p className="text-base text-gray-700 font-light leading-relaxed">
-                          Investigation revealed <strong className="text-gray-900">
-                            {youngRccPatients.length > 0 && cvRiskPatients.length > 0 ? 'two' : 'multiple'} distinct, evidence-driven switching patterns
-                          </strong> across different patient cohorts — not a single "competitor threat":
+                <Card className="border border-gray-200 bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Proven
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-semibold text-gray-900">
+                      {provenHypotheses.length}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border border-gray-200 bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      Ruled Out
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-semibold text-gray-900">
+                      {ruledOut.length}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Temporal Correlation Reasoning */}
+              <Card className="border border-gray-900 bg-white mb-8">
+                <CardContent className="p-8">
+                  <div className="flex items-start gap-4">
+                    <Lightbulb className="w-10 h-10 text-gray-900 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        LLM Temporal Correlation Analysis
+                      </h3>
+                      <div className="space-y-3 text-sm text-gray-700 font-light leading-relaxed">
+                        <p>
+                          <strong>Question:</strong> Patients switched in July-September 2025. 
+                          What clinical events, conferences, or competitor activities occurred around those months?
+                        </p>
+                        <p>
+                          <strong>Discovery Process:</strong> Agent searches across disconnected data sources:
+                          prescription history, clinical event calendars, adverse event reports, conference schedules, 
+                          competitor marketing activities.
+                        </p>
+                        <p>
+                          <strong>Pattern Recognition:</strong> Multiple competing hypotheses generated and tested against evidence,
+                          not a single pre-determined assumption.
                         </p>
                       </div>
-                      <div className="grid grid-cols-3 gap-6">
-                        {youngRccPatients.length > 0 && (
-                          <div className="bg-white rounded-lg p-6 border border-gray-200">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
-                                Young RCC Cohort
-                              </Badge>
-                            </div>
-                            <div className="text-3xl font-semibold text-gray-900 mb-2">{youngRccPatients.length}</div>
-                            <div className="text-sm text-gray-600 mb-4">patients switched July-Aug</div>
-                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
-                            <div className="text-sm text-gray-700">ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55</div>
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <div className="text-xs font-semibold text-gray-900">Driver: Efficacy Signal</div>
-                            </div>
-                          </div>
-                        )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                        {cvRiskPatients.length > 0 && (
-                          <div className="bg-white rounded-lg p-6 border border-gray-200">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
-                                CV-Risk Cohort
-                              </Badge>
-                            </div>
-                            <div className="text-3xl font-semibold text-gray-900 mb-2">{cvRiskPatients.length}</div>
-                            <div className="text-sm text-gray-600 mb-4">patients switched September</div>
-                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
-                            <div className="text-sm text-gray-700">Cardiac AEs (Aug) + Onco-Rival safety webinar (Aug 30)</div>
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <div className="text-xs font-semibold text-gray-900">Driver: Safety Signal</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {stablePatients.length > 0 && (
-                          <div className="bg-white rounded-lg p-6 border border-gray-200">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600 border-gray-300">
-                                Stable Cohort
-                              </Badge>
-                            </div>
-                            <div className="text-3xl font-semibold text-gray-900 mb-2">{stablePatients.length}</div>
-                            <div className="text-sm text-gray-600 mb-4">patients remained on Onco-Pro</div>
-                            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Why No Switch?</div>
-                            <div className="text-sm text-gray-700">Neither efficacy signal (wrong indication) nor safety concern (no CV risk) applied</div>
-                            <div className="mt-3 pt-3 border-t border-gray-200">
-                              <div className="text-xs font-semibold text-gray-900">Driver: None (Strategic Switching)</div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })()}
-
-            {/* Hypothesis Analysis: Three-Phase Framework */}
-            <div className="mb-8">
+              {/* Hypothesis Cards: Three-Phase Framework */}
+              <div className="mb-8">
               <div className="flex items-center gap-6 mb-8">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">1</div>
@@ -510,21 +542,151 @@ export default function InvestigationHub() {
               ))}
               </div>
             </div>
+            </section>
 
-            {/* Human Confirmation Section */}
-            {provenHypotheses.length > 0 && (
-              <Card className="border border-gray-900 bg-white">
-                <CardHeader className="border-b border-gray-200">
-                  <div className="flex items-center gap-3">
-                    <UserCheck className="w-5 h-5 text-gray-900" />
+            {/* PHASE 3: COHORT VALIDATION */}
+            {provenHypotheses.length > 0 && patients && patients.length > 0 && (() => {
+              // Calculate cohort breakdown dynamically
+              const youngRccPatients = patients.filter((p: any) => p.cohort === 'young_rcc' && p.switchedDate);
+              const cvRiskPatients = patients.filter((p: any) => p.cohort === 'cv_risk' && p.switchedDate);
+              const stablePatients = patients.filter((p: any) => p.cohort === 'stable' && !p.switchedDate);
+              
+              const hasMultipleCohorts = (youngRccPatients.length > 0 && cvRiskPatients.length > 0) || 
+                                        (youngRccPatients.length > 0 && stablePatients.length > 0) ||
+                                        (cvRiskPatients.length > 0 && stablePatients.length > 0);
+              
+              // Only show if we have multiple distinct cohorts
+              if (!hasMultipleCohorts) return null;
+              
+              return (
+                <section data-testid="phase-validation">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold">
+                      3
+                    </div>
                     <div>
-                      <CardTitle className="text-xl">Review & Confirm Root Causes</CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Select proven hypotheses you agree with before generating strategies
+                      <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Cohort Validation</h2>
+                      <p className="text-sm text-gray-600 font-light mt-1">
+                        Validating discovered causal patterns across patient cohorts
                       </p>
                     </div>
                   </div>
-                </CardHeader>
+
+                  {/* Causal Drivers Summary */}
+                  <div className="mb-12">
+                    <div className="flex items-center gap-3 mb-6">
+                      <h3 className="text-xl font-semibold text-gray-900 tracking-tight">
+                        Proven Causal Drivers
+                      </h3>
+                      <Badge className="bg-gray-900 text-white text-xs px-2.5 py-1">
+                        What Traditional NBAs Missed
+                      </Badge>
+                    </div>
+                    <Card className="border-2 border-gray-900 bg-gray-50">
+                      <CardContent className="p-8">
+                        <div className="mb-6">
+                          <p className="text-base text-gray-700 font-light leading-relaxed">
+                            Investigation revealed <strong className="text-gray-900">
+                              {youngRccPatients.length > 0 && cvRiskPatients.length > 0 ? 'two' : 'multiple'} distinct, evidence-driven switching patterns
+                            </strong> across different patient cohorts — not a single "competitor threat":
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-6">
+                          {youngRccPatients.length > 0 && (
+                            <div className="bg-white rounded-lg p-6 border border-gray-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
+                                  Young RCC Cohort
+                                </Badge>
+                              </div>
+                              <div className="text-3xl font-semibold text-gray-900 mb-2">{youngRccPatients.length}</div>
+                              <div className="text-sm text-gray-600 mb-4">patients switched July-Aug</div>
+                              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                              <div className="text-sm text-gray-700">ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55</div>
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <div className="text-xs font-semibold text-gray-900">Driver: Efficacy Signal</div>
+                              </div>
+                            </div>
+                          )}
+
+                          {cvRiskPatients.length > 0 && (
+                            <div className="bg-white rounded-lg p-6 border border-gray-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
+                                  CV-Risk Cohort
+                                </Badge>
+                              </div>
+                              <div className="text-3xl font-semibold text-gray-900 mb-2">{cvRiskPatients.length}</div>
+                              <div className="text-sm text-gray-600 mb-4">patients switched September</div>
+                              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                              <div className="text-sm text-gray-700">Cardiac AEs (Aug) + Onco-Rival safety webinar (Aug 30)</div>
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <div className="text-xs font-semibold text-gray-900">Driver: Safety Signal</div>
+                              </div>
+                            </div>
+                          )}
+
+                          {stablePatients.length > 0 && (
+                            <div className="bg-white rounded-lg p-6 border border-gray-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600 border-gray-300">
+                                  Stable Cohort
+                                </Badge>
+                              </div>
+                              <div className="text-3xl font-semibold text-gray-900 mb-2">{stablePatients.length}</div>
+                              <div className="text-sm text-gray-600 mb-4">patients remained on Onco-Pro</div>
+                              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Why No Switch?</div>
+                              <div className="text-sm text-gray-700">Neither efficacy signal (wrong indication) nor safety concern (no CV risk) applied</div>
+                              <div className="mt-3 pt-3 border-t border-gray-200">
+                                <div className="text-xs font-semibold text-gray-900">Driver: None (Strategic Switching)</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Cohort Switching Timeline Chart */}
+                  {prescriptionHistory && prescriptionHistory.length > 0 && (
+                    <CohortSwitchingChart
+                      patients={patients}
+                      clinicalEvents={clinicalEvents}
+                      prescriptionHistory={prescriptionHistory}
+                      productName="Onco-Pro"
+                    />
+                  )}
+                </section>
+              );
+            })()}
+
+            {/* PHASE 4: STRATEGIES */}
+            {provenHypotheses.length > 0 && (
+              <section data-testid="phase-strategies">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-semibold">
+                    4
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Generate Strategies</h2>
+                    <p className="text-sm text-gray-600 font-light mt-1">
+                      Confirm proven hypotheses and generate tailored NBAs
+                    </p>
+                  </div>
+                </div>
+
+                <Card className="border border-gray-900 bg-white">
+                  <CardHeader className="border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <UserCheck className="w-5 h-5 text-gray-900" />
+                      <div>
+                        <CardTitle className="text-xl">Review & Confirm Root Causes</CardTitle>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Select proven hypotheses you agree with before generating strategies
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {/* Hypothesis Selection */}
@@ -592,6 +754,7 @@ export default function InvestigationHub() {
                   </div>
                 </CardContent>
               </Card>
+              </section>
             )}
           </div>
         )}
