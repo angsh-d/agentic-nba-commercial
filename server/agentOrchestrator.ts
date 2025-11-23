@@ -950,6 +950,208 @@ OUTPUT (JSON):
 // ============================================================================
 
 /**
+ * DAILY MONITORING STRATEGY
+ * 
+ * This system is designed for continuous risk monitoring and stratification
+ * using autonomous AI agents that detect, correlate, and explain prescription
+ * switching patterns. In production, this should run as a scheduled background job.
+ * 
+ * RECOMMENDED IMPLEMENTATION APPROACH:
+ * 
+ * 1. **Scheduled Background Job** (Daily 2 AM UTC):
+ *    - Use cron job, cloud scheduler (AWS EventBridge, GCP Cloud Scheduler), or task queue
+ *    - Call POST /api/signals/batch endpoint with minRiskScore threshold
+ *    - Process all HCPs with riskScore >= 50 (configurable)
+ * 
+ * 2. **Execution Flow**:
+ *    Phase 1 - Signal Detection (Parallel):
+ *      - For each high-risk HCP, run detectSignalsForHcp()
+ *      - Store detected signals in database
+ *      - Can run in parallel with worker pool (e.g., 10 concurrent workers)
+ * 
+ *    Phase 2 - Correlation Discovery (Once):
+ *      - After all HCPs processed, run discoverCorrelations()
+ *      - Analyzes ALL active signals across HCPs
+ *      - Discovers global temporal patterns
+ *      - Updates signalCorrelations table
+ * 
+ *    Phase 3 - Narrative Generation (Parallel):
+ *      - For each HCP with new signals, run generateRiskInsight()
+ *      - Creates AI-generated explanations
+ *      - Stores in aiInsights table with expiration (e.g., 7 days)
+ * 
+ * 3. **Performance Optimization**:
+ *    - Batch Azure OpenAI calls where possible
+ *    - Use database transactions for atomic operations
+ *    - Implement retry logic with exponential backoff
+ *    - Cache frequently accessed data (e.g., global correlations)
+ * 
+ * 4. **Monitoring & Alerting**:
+ *    - Track job execution time and success rate
+ *    - Alert on failures or anomalies (e.g., >20% failure rate)
+ *    - Log signal detection counts and correlation discoveries
+ *    - Monitor Azure OpenAI token usage and costs
+ * 
+ * 5. **Data Lifecycle Management**:
+ *    - Archive old signals (>90 days) to cold storage
+ *    - Expire stale AI insights based on expiresAt timestamp
+ *    - Prune dismissed signals and inactive correlations
+ * 
+ * 6. **Incremental Processing**:
+ *    - Process only HCPs with new data since last run
+ *    - Use watermark timestamps to track last processing time
+ *    - Re-run correlation discovery when signal volume > threshold
+ * 
+ * EXAMPLE CRON SETUP (Node.js):
+ * 
+ * ```javascript
+ * import cron from 'node-cron';
+ * 
+ * // Run daily at 2 AM UTC
+ * cron.schedule('0 2 * * *', async () => {
+ *   try {
+ *     const response = await fetch('http://localhost:5000/api/signals/batch', {
+ *       method: 'POST',
+ *       headers: { 'Content-Type': 'application/json' },
+ *       body: JSON.stringify({ minRiskScore: 50 })
+ *     });
+ *     const result = await response.json();
+ *     console.log(`Signal detection completed: ${result.processed} HCPs processed`);
+ *   } catch (error) {
+ *     console.error('Signal detection job failed:', error);
+ *     // Send alert to monitoring system
+ *   }
+ * });
+ * ```
+ * 
+ * ALTERNATIVE: Message Queue Architecture (AWS SQS Example):
+ * 
+ * ```javascript
+ * import { SQSClient, SendMessageCommand, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk/client-sqs';
+ * 
+ * const sqsClient = new SQSClient({ region: 'us-east-1' });
+ * const QUEUE_URL = process.env.SIGNAL_DETECTION_QUEUE_URL;
+ * 
+ * // Producer: Enqueue HCPs for processing (runs daily)
+ * async function enqueueSignalDetectionJobs() {
+ *   const highRiskHcps = await storage.getHighRiskHcps(50);
+ *   
+ *   for (const hcp of highRiskHcps) {
+ *     try {
+ *       await sqsClient.send(new SendMessageCommand({
+ *         QueueUrl: QUEUE_URL,
+ *         MessageBody: JSON.stringify({
+ *           hcpId: hcp.id,
+ *           name: hcp.name,
+ *           riskScore: hcp.switchRiskScore,
+ *           timestamp: new Date().toISOString()
+ *         }),
+ *         MessageAttributes: {
+ *           priority: {
+ *             DataType: 'Number',
+ *             StringValue: hcp.switchRiskScore >= 80 ? '1' : '2' // High priority for critical risk
+ *           }
+ *         }
+ *       }));
+ *     } catch (error) {
+ *       console.error(`Failed to enqueue HCP ${hcp.id}:`, error);
+ *       // Send alert to monitoring system (e.g., PagerDuty, Datadog)
+ *       await sendAlert('signal_detection_enqueue_failed', { hcpId: hcp.id, error });
+ *     }
+ *   }
+ * }
+ * 
+ * // Consumer: Worker process that consumes queue messages
+ * async function processSignalDetectionQueue() {
+ *   while (true) {
+ *     try {
+ *       // Long-polling (wait up to 20 seconds for messages)
+ *       const response = await sqsClient.send(new ReceiveMessageCommand({
+ *         QueueUrl: QUEUE_URL,
+ *         MaxNumberOfMessages: 10, // Process up to 10 HCPs in parallel
+ *         WaitTimeSeconds: 20,
+ *         VisibilityTimeout: 300 // 5 minutes to process before message becomes visible again
+ *       }));
+ * 
+ *       if (!response.Messages || response.Messages.length === 0) {
+ *         continue; // No messages, keep polling
+ *       }
+ * 
+ *       // Process messages in parallel
+ *       await Promise.allSettled(
+ *         response.Messages.map(async (message) => {
+ *           try {
+ *             const payload = JSON.parse(message.Body);
+ *             const { hcpId, name, riskScore } = payload;
+ * 
+ *             console.log(`Processing HCP ${hcpId} (${name}, risk: ${riskScore})`);
+ * 
+ *             // Run signal detection pipeline
+ *             await detectSignalsForHcp(hcpId);
+ *             await generateRiskInsight(hcpId);
+ * 
+ *             // Delete message from queue (processed successfully)
+ *             await sqsClient.send(new DeleteMessageCommand({
+ *               QueueUrl: QUEUE_URL,
+ *               ReceiptHandle: message.ReceiptHandle
+ *             }));
+ * 
+ *             console.log(`Successfully processed HCP ${hcpId}`);
+ * 
+ *           } catch (error) {
+ *             console.error(`Failed to process message:`, error);
+ *             // Message will become visible again after VisibilityTimeout
+ *             // SQS DLQ will catch messages that fail repeatedly
+ *             await sendAlert('signal_detection_processing_failed', { 
+ *               messageId: message.MessageId,
+ *               error: error.message 
+ *             });
+ *           }
+ *         })
+ *       );
+ * 
+ *     } catch (error) {
+ *       console.error('Queue polling error:', error);
+ *       await sleep(5000); // Wait 5 seconds before retrying
+ *     }
+ *   }
+ * }
+ * 
+ * // Helper: Send alert to monitoring system
+ * async function sendAlert(eventType, metadata) {
+ *   // Integration with PagerDuty, Datadog, CloudWatch, etc.
+ *   console.error(`ALERT [${eventType}]:`, JSON.stringify(metadata));
+ *   
+ *   // Example: POST to webhook
+ *   await fetch(process.env.ALERT_WEBHOOK_URL, {
+ *     method: 'POST',
+ *     headers: { 'Content-Type': 'application/json' },
+ *     body: JSON.stringify({
+ *       severity: 'error',
+ *       event: eventType,
+ *       timestamp: new Date().toISOString(),
+ *       metadata
+ *     })
+ *   });
+ * }
+ * 
+ * // After all HCP messages processed, run global correlation discovery
+ * // This can be triggered by a separate scheduled job that runs after queue drains
+ * cron.schedule('0 4 * * *', async () => {
+ *   await discoverCorrelations();
+ *   console.log('Global correlation discovery completed');
+ * });
+ * ```
+ * 
+ * BENEFITS OF MESSAGE QUEUE APPROACH:
+ * - Horizontal scaling: Run multiple worker processes in parallel
+ * - Fault tolerance: Failed messages automatically retry via DLQ
+ * - Priority processing: High-risk HCPs processed first
+ * - Visibility timeout: Prevents duplicate processing
+ * - Cost efficiency: Only pay for processing time, not idle workers
+ */
+
+/**
  * ObservationAgent: Detects weak signals from prescription data
  * Monitors: Rx anomalies, trend changes, clustering patterns
  */
