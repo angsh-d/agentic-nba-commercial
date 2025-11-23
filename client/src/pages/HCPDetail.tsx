@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
-import { EnsembleNBAPanel } from "@/components/EnsembleNBAPanel";
 import { ComparativePrescriptionTrends } from "@/components/ComparativePrescriptionTrends";
 import {
   ArrowLeft,
@@ -39,12 +38,6 @@ interface InvestigationResults {
   isConfirmed?: boolean;
 }
 
-interface NBAResults {
-  hasResults: boolean;
-  session?: any;
-  nba?: any;
-}
-
 async function fetchHCP(id: string): Promise<HCP> {
   const response = await fetch(`/api/hcps/${id}`);
   if (!response.ok) throw new Error("Failed to fetch HCP");
@@ -60,12 +53,6 @@ async function fetchPrescriptionHistory(hcpId: string) {
 async function fetchInvestigationResults(hcpId: string): Promise<InvestigationResults> {
   const response = await fetch(`/api/ai/investigation-results/${hcpId}`);
   if (!response.ok) throw new Error("Failed to fetch investigation results");
-  return response.json();
-}
-
-async function fetchNBAResults(hcpId: string): Promise<NBAResults> {
-  const response = await fetch(`/api/ai/nba-results/${hcpId}`);
-  if (!response.ok) throw new Error("Failed to fetch NBA results");
   return response.json();
 }
 
@@ -121,18 +108,6 @@ export default function HCPDetail() {
     queryKey: ["investigation-results", hcpId],
     queryFn: () => fetchInvestigationResults(hcpId!),
     enabled: !!hcpId,
-  });
-
-  const { data: nbaResults } = useQuery({
-    queryKey: ["nba-results", hcpId],
-    queryFn: () => fetchNBAResults(hcpId!),
-    enabled: !!hcpId,
-    // Poll every 3 seconds if investigation is confirmed but NBA not yet generated
-    refetchInterval: (query) => {
-      const currentData = query.state.data as NBAResults | undefined;
-      const isGenerating = investigationResults?.isConfirmed && !currentData?.nba;
-      return isGenerating ? 3000 : false;
-    },
   });
 
   const { data: prescriptionTrends = [] } = useQuery({
@@ -296,40 +271,32 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Strategy Recommendations - Show if investigation is confirmed */}
+        {/* Strategy Recommendations CTA */}
         {canShowStrategies && (
-          <div id="strategies" className="mb-12 scroll-mt-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
-              AI-Generated Strategy Recommendations
-            </h2>
-            
-            {nbaResults?.nba ? (
-              <EnsembleNBAPanel 
-                nba={nbaResults.nba} 
-                provenHypotheses={confirmedHypotheses}
-              />
-            ) : (
-              <Card className="border border-gray-200 bg-gray-50">
-                <CardContent className="p-16 text-center">
-                  <Brain className="w-16 h-16 text-gray-400 mx-auto mb-8 animate-pulse" />
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">
-                    Generating Strategies...
-                  </h3>
-                  <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-base font-light leading-relaxed">
-                    Our AI agents are analyzing the confirmed root causes and generating personalized strategy recommendations across three sources: RL-based patterns, compliance rules, and autonomous AI reasoning.
-                  </p>
-                  <div className="flex items-center justify-center gap-3 text-sm text-gray-500">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-8 font-light">
-                    This typically takes 30-60 seconds. Page will auto-refresh when complete.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <Card className="border border-gray-200 bg-gray-50">
+            <CardContent className="p-12">
+              <div className="text-center max-w-xl mx-auto">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-900 rounded-full mb-6">
+                  <Brain className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-3 tracking-tight">
+                  AI Strategies Ready
+                </h3>
+                <p className="text-base text-gray-600 mb-8 font-light leading-relaxed">
+                  View your personalized ensemble strategy recommendations generated from proven root causes
+                </p>
+                <Link href={`/hcp/${hcpId}/strategies`}>
+                  <Button 
+                    className="bg-gray-900 hover:bg-gray-800 text-white"
+                    data-testid="button-view-strategies"
+                  >
+                    View Strategy Recommendations
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Placeholder - Investigation or confirmation needed for strategies */}
