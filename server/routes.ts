@@ -5,7 +5,7 @@ import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwit
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
 import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery } from "./aiService";
-import { agentOrchestrator } from "./agentOrchestrator";
+import { agentOrchestrator, detectSignalsForHcp, discoverCorrelations, generateRiskInsight } from "./agentOrchestrator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // HCP routes
@@ -647,6 +647,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to fetch session details:", error);
       res.status(500).json({ error: "Failed to fetch session details" });
+    }
+  });
+
+  // ============================================================================
+  // SIGNAL DETECTION ROUTES
+  // ============================================================================
+
+  // Trigger on-demand signal detection for a specific HCP
+  app.post("/api/signals/detect/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      
+      // Run all three agents in sequence
+      await detectSignalsForHcp(hcpId);
+      await discoverCorrelations();
+      await generateRiskInsight(hcpId);
+      
+      // Retrieve the generated insights
+      const signals = await storage.getDetectedSignals(hcpId);
+      const insight = await storage.getLatestAiInsight(hcpId);
+      
+      res.json({
+        success: true,
+        signalsDetected: signals.length,
+        insight,
+      });
+    } catch (error) {
+      console.error("Signal detection failed:", error);
+      res.status(500).json({ 
+        error: "Failed to detect signals",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
+  // Get all signals and insights for an HCP
+  app.get("/api/signals/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      
+      const signals = await storage.getDetectedSignals(hcpId);
+      const insights = await storage.getAiInsights(hcpId);
+      const latestInsight = await storage.getLatestAiInsight(hcpId);
+      
+      res.json({
+        signals,
+        insights,
+        latestInsight,
+      });
+    } catch (error) {
+      console.error("Failed to retrieve signals:", error);
+      res.status(500).json({ error: "Failed to retrieve signals" });
+    }
+  });
+
+  // Batch process signal detection for all high-risk HCPs
+  app.post("/api/signals/batch", async (req, res) => {
+    try {
+      const { minRiskScore = 50 } = req.body;
+      
+      // Get high-risk HCPs
+      const highRiskHcps = await storage.getHighRiskHcps(minRiskScore);
+      
+      // Process each HCP in sequence (in production, this would be a background job)
+      const results = [];
+      for (const hcp of highRiskHcps) {
+        try {
+          await detectSignalsForHcp(hcp.id);
+          await generateRiskInsight(hcp.id);
+          results.push({ hcpId: hcp.id, success: true });
+        } catch (error) {
+          console.error(`Failed to process HCP ${hcp.id}:`, error);
+          results.push({ 
+            hcpId: hcp.id, 
+            success: false, 
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+      
+      // Run global correlation discovery once
+      await discoverCorrelations();
+      
+      res.json({
+        success: true,
+        processed: results.length,
+        results,
+      });
+    } catch (error) {
+      console.error("Batch signal detection failed:", error);
+      res.status(500).json({ 
+        error: "Failed to run batch signal detection",
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  });
+
+  // Get all active signal correlations
+  app.get("/api/signals/correlations", async (req, res) => {
+    try {
+      const correlations = await storage.getAllActiveCorrelations();
+      res.json(correlations);
+    } catch (error) {
+      console.error("Failed to retrieve correlations:", error);
+      res.status(500).json({ error: "Failed to retrieve correlations" });
     }
   });
 
