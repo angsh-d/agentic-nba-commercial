@@ -14,7 +14,8 @@ import {
   Info,
   Eye,
   Activity,
-  FileText
+  FileText,
+  Brain
 } from "lucide-react";
 import {
   Dialog,
@@ -135,13 +136,13 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
             <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader className="border-b border-gray-100 pb-6">
+        <DialogContent className="max-w-2xl">
+        <DialogHeader className="pb-6">
           <DialogTitle className="text-2xl font-semibold text-gray-900 mb-3">
             {headline}
           </DialogTitle>
           {/* Summary Metrics */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 mb-4">
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-semibold text-gray-900">{totalSignals}</span>
               <span className="text-sm text-gray-500">signals</span>
@@ -150,214 +151,47 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               <span className="text-3xl font-semibold text-blue-600">{avgSignalStrength}</span>
               <span className="text-sm text-gray-500">avg strength</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-gray-900">{insight.confidenceScore}%</span>
-              <span className="text-sm text-gray-500">confidence</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-600">Confidence:</span>
+              <span className="text-2xl font-semibold text-gray-900">{insight.confidenceScore}%</span>
             </div>
           </div>
-          <DialogDescription className="sr-only">
-            AI-generated risk insight
+          <DialogDescription className="text-base text-gray-700 leading-relaxed">
+            {fullNarrative}
           </DialogDescription>
         </DialogHeader>
         
-        <div className="py-6 space-y-8">
-          {/* Investigation Journey - 3 Steps */}
-          <div className="space-y-6">
-            {/* Step 1: Signal Detection */}
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <Search className="w-5 h-5 text-blue-600" />
-              </div>
+        <div className="space-y-6 py-6">
+          {/* Quick Summary */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="text-base font-semibold text-gray-900 mb-1">Signal Detection</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Detected {totalSignals} correlated signals across prescription history, clinical events, and peer networks
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2: Pattern Recognition */}
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-gray-900 mb-1">Temporal Analysis</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Cross-referenced 12 patients over 6 months revealing dual switching clusters post-ASCO conference
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3: Synthesis */}
-            <div className="flex gap-4">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                <Target className="w-5 h-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-gray-900 mb-1">Multi-Hypothesis Investigation</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Identified dual independent drivers: efficacy concerns in young RCC cohort + safety mitigation in CV-risk patients
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Multi-Signal Synthesis</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  Detected {totalSignals} correlated signals across prescription history and clinical events, revealing dual switching drivers through temporal pattern analysis.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Multi-Signal Timeline Chart */}
-          <div className="border-t border-gray-100 pt-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Temporal Signal Correlation</h3>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  data={[
-                    { month: "Jan", oncoPro: 98, nephroX: 42, label: "Jan" },
-                    { month: "Feb", oncoPro: 102, nephroX: 41, label: "Feb" },
-                    { month: "Mar", oncoPro: 100, nephroX: 43, label: "Mar" },
-                    { month: "Apr", oncoPro: 99, nephroX: 42, label: "Apr" },
-                    { month: "May", oncoPro: 101, nephroX: 44, label: "May" },
-                    { month: "Jun", oncoPro: 92, nephroX: 50, label: "Jun", conference: true },
-                    { month: "Jul", oncoPro: 80, nephroX: 60, label: "Jul" },
-                    { month: "Aug", oncoPro: 68, nephroX: 72, label: "Aug", adverseEvents: true },
-                    { month: "Sep", oncoPro: 56, nephroX: 80, label: "Sep" },
-                    { month: "Oct", oncoPro: 48, nephroX: 86, label: "Oct" }
-                  ]}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="label" 
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
-                    axisLine={{ stroke: '#d1d5db' }}
-                  />
-                  <YAxis 
-                    label={{ value: 'Rx Volume (Indexed)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }}
-                    tick={{ fill: '#6b7280', fontSize: 12 }}
-                    axisLine={{ stroke: '#d1d5db' }}
-                  />
-                  <RechartsTooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
-                  />
-                  
-                  {/* Onco-Pro Rx Decline */}
-                  <Line 
-                    type="monotone" 
-                    dataKey="oncoPro" 
-                    stroke="#2563eb" 
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#2563eb' }}
-                    name="Onco-Pro"
-                  />
-                  
-                  {/* Nephro-X Rx Increase */}
-                  <Line 
-                    type="monotone" 
-                    dataKey="nephroX" 
-                    stroke="#9333ea" 
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#9333ea' }}
-                    name="Nephro-X"
-                  />
-                  
-                  {/* Signal 2: ASCO Conference (Jun) */}
-                  <ReferenceLine 
-                    x="Jun" 
-                    stroke="#dc2626" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                  >
-                    <ChartLabel 
-                      value="ASCO" 
-                      position="top" 
-                      style={{ fill: '#dc2626', fontSize: 11, fontWeight: 600 }}
-                      offset={10}
-                    />
-                  </ReferenceLine>
-                  
-                  {/* Signal 3: Adverse Events Cluster (Aug) */}
-                  <ReferenceLine 
-                    x="Aug" 
-                    stroke="#ea580c" 
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                  >
-                    <ChartLabel 
-                      value="Adverse Events" 
-                      position="top" 
-                      style={{ fill: '#ea580c', fontSize: 11, fontWeight: 600 }}
-                      offset={10}
-                    />
-                  </ReferenceLine>
-                </LineChart>
-              </ResponsiveContainer>
-              
-              {/* Legend */}
-              <div className="flex items-center justify-center gap-6 mt-4 text-xs flex-wrap">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 bg-blue-600" />
-                  <span className="text-gray-700">Onco-Pro</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 bg-purple-600" />
-                  <span className="text-gray-700">Nephro-X</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
-                  <span className="text-gray-700">ASCO Conference (Signal 2)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-0.5 border-t-2 border-dashed border-orange-600" />
-                  <span className="text-gray-700">Adverse Events (Signal 3)</span>
-                </div>
+          {/* View Details Button */}
+          <button
+            onClick={() => {
+              window.location.href = `/hcp/${hcpId}`;
+            }}
+            className="w-full flex items-center justify-between px-6 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-colors group"
+            data-testid="view-full-investigation"
+          >
+            <div className="flex items-center gap-3">
+              <Brain className="w-5 h-5" />
+              <div className="text-left">
+                <div className="font-semibold">View Full Investigation</div>
+                <div className="text-sm text-gray-300">See timeline, patient cohorts, and detailed analysis</div>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-3 leading-relaxed">
-              <strong>Temporal Correlation:</strong> Steady volumes Jan-May, then Onco-Pro declines post-ASCO (Jun) while Nephro-X gains share. Decline continues post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
-            </p>
-          </div>
-
-          {/* Signal Evidence */}
-          <details className="group">
-            <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 py-3 border-t border-gray-100">
-              <span>View Signal Evidence ({totalSignals})</span>
-              <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
-            </summary>
-            <div className="space-y-3 pt-3">
-              <TooltipProvider>
-                {signalData.signals.map((signal) => (
-                  <div key={signal.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900 capitalize">
-                          {signal.signalType.replace(/_/g, ' ')}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-medium text-blue-600">
-                            {signal.signalStrength}/100
-                          </span>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Info className="w-3.5 h-3.5 text-gray-400 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                              <p className="text-xs">
-                                <strong>Signal Strength:</strong> Autonomous agents evaluated this signal based on change magnitude, temporal consistency, statistical significance, and data quality. Higher scores indicate stronger evidence of switching behavior.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-600">{signal.signalDescription}</p>
-                    </div>
-                  </div>
-                ))}
-              </TooltipProvider>
-            </div>
-          </details>
+            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </DialogContent>
     </Dialog>

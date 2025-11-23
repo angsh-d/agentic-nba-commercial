@@ -10,8 +10,14 @@ import {
   MapPin,
   ChevronRight,
   Lightbulb,
-  UserCheck
+  UserCheck,
+  Eye,
+  Activity,
+  Sparkles,
+  Search,
+  Target
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 
@@ -209,6 +215,186 @@ export default function HCPDetail() {
               hcpName={hcp.name}
               prescriptionData={prescriptionTrends}
             />
+          </div>
+        )}
+
+        {/* Multi-Signal Investigation */}
+        {hcpId === "1" && (
+          <div className="mb-24">
+            <div className="mb-8">
+              <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
+                Multi-Signal Investigation
+              </h2>
+              <p className="text-base text-gray-600 leading-relaxed max-w-3xl">
+                AI agents detected 3 correlated signals across prescription history and clinical events, revealing dual switching drivers through temporal pattern analysis.
+              </p>
+            </div>
+
+            {/* Investigation Journey Steps */}
+            <Card className="border border-gray-200 mb-8">
+              <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Investigation Journey</h3>
+                <div className="space-y-6">
+                  {/* Step 1 */}
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                      <Eye className="w-5.5 h-5.5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Signal Detection</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        <strong>Observer Agent:</strong> Detected 3 correlated signals across prescription history, clinical events, and peer networks
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                      <Activity className="w-5.5 h-5.5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Temporal Correlation</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        <strong>Correlator Agent:</strong> Cross-referenced 12 patients over 6 months revealing dual switching clusters post-ASCO conference
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                      <Target className="w-5.5 h-5.5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Multi-Hypothesis Investigation</h4>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        <strong>Planner & Gatherer Agents:</strong> Identified dual independent drivers: efficacy concerns in young RCC cohort + safety mitigation in CV-risk patients
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Timeline Chart */}
+            <Card className="border border-gray-200">
+              <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Temporal Signal Correlation</h3>
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <ResponsiveContainer width="100%" height={350}>
+                    <LineChart
+                      data={[
+                        { month: "Jan", oncoPro: 98, nephroX: 42, label: "Jan" },
+                        { month: "Feb", oncoPro: 102, nephroX: 41, label: "Feb" },
+                        { month: "Mar", oncoPro: 100, nephroX: 43, label: "Mar" },
+                        { month: "Apr", oncoPro: 99, nephroX: 42, label: "Apr" },
+                        { month: "May", oncoPro: 101, nephroX: 44, label: "May" },
+                        { month: "Jun", oncoPro: 92, nephroX: 50, label: "Jun", conference: true },
+                        { month: "Jul", oncoPro: 80, nephroX: 60, label: "Jul" },
+                        { month: "Aug", oncoPro: 68, nephroX: 72, label: "Aug", adverseEvents: true },
+                        { month: "Sep", oncoPro: 56, nephroX: 80, label: "Sep" },
+                        { month: "Oct", oncoPro: 48, nephroX: 86, label: "Oct" }
+                      ]}
+                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis 
+                        dataKey="label" 
+                        tick={{ fill: '#6b7280', fontSize: 12 }}
+                        axisLine={{ stroke: '#d1d5db' }}
+                      />
+                      <YAxis 
+                        label={{ value: 'Rx Volume (Indexed)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }}
+                        tick={{ fill: '#6b7280', fontSize: 12 }}
+                        axisLine={{ stroke: '#d1d5db' }}
+                      />
+                      <RechartsTooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white', 
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '12px'
+                        }}
+                      />
+                      
+                      {/* Onco-Pro Rx Decline */}
+                      <Line 
+                        type="monotone" 
+                        dataKey="oncoPro" 
+                        stroke="#2563eb" 
+                        strokeWidth={3}
+                        dot={{ r: 5, fill: '#2563eb' }}
+                        name="Onco-Pro"
+                      />
+                      
+                      {/* Nephro-X Rx Increase */}
+                      <Line 
+                        type="monotone" 
+                        dataKey="nephroX" 
+                        stroke="#9333ea" 
+                        strokeWidth={3}
+                        dot={{ r: 5, fill: '#9333ea' }}
+                        name="Nephro-X"
+                      />
+                      
+                      {/* Signal 2: ASCO Conference (Jun) */}
+                      <ReferenceLine 
+                        x="Jun" 
+                        stroke="#dc2626" 
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                      >
+                        <ChartLabel 
+                          value="ASCO Conference" 
+                          position="top" 
+                          style={{ fill: '#dc2626', fontSize: 11, fontWeight: 600 }}
+                          offset={10}
+                        />
+                      </ReferenceLine>
+                      
+                      {/* Signal 3: Adverse Events Cluster (Aug) */}
+                      <ReferenceLine 
+                        x="Aug" 
+                        stroke="#ea580c" 
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                      >
+                        <ChartLabel 
+                          value="Adverse Events" 
+                          position="top" 
+                          style={{ fill: '#ea580c', fontSize: 11, fontWeight: 600 }}
+                          offset={10}
+                        />
+                      </ReferenceLine>
+                    </LineChart>
+                  </ResponsiveContainer>
+                  
+                  {/* Legend */}
+                  <div className="flex items-center justify-center gap-6 mt-6 text-xs flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-0.5 bg-blue-600" />
+                      <span className="text-gray-700">Onco-Pro</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-0.5 bg-purple-600" />
+                      <span className="text-gray-700">Nephro-X (Competitor)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
+                      <span className="text-gray-700">ASCO Conference</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-0.5 border-t-2 border-dashed border-orange-600" />
+                      <span className="text-gray-700">Adverse Events</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-6 leading-relaxed">
+                  <strong className="text-gray-900">Temporal Correlation:</strong> Steady volumes Jan-May, then Onco-Pro declines post-ASCO (Jun) while Nephro-X gains share. Decline continues post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
