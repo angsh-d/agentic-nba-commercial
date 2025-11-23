@@ -59,107 +59,108 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
   const ensembleStrategies: EnsembleStrategy[] = [
     {
       id: "rl_strategy",
-      title: "Data-Driven Engagement (RL-Based)",
+      title: "Risk Stratification & Appropriate Use (RL-Based)",
       source: "RL",
       description:
-        "Based on historical patterns from similar HCPs, schedule in-person visit with clinical trial data package focusing on RCC efficacy subgroup analysis.",
+        "Based on patterns from similar post-AE situations: Deploy cardiac risk stratification tool to identify patients who can SAFELY continue Onco-Pro. Focus on the stable cohort (25% of panel) who lack CV risk factors and fall outside the young RCC subgroup where competitor showed superiority.",
       pros: [
-        "Highest historical success rate (73% retention improvement)",
-        "Proven approach with similar HCPs",
-        "Clear implementation playbook",
+        "Clinically appropriate - respects evidence-based switches",
+        "Prevents unnecessary switches in stable patients",
+        "Demonstrates commitment to patient safety over market share",
       ],
       cons: [
-        "May not address underlying safety concerns",
-        "Resource intensive (requires field team availability)",
+        "Accepts loss of young RCC and CV-risk cohorts",
+        "Requires medical review for remaining patients",
       ],
-      confidenceScore: 78,
-      estimatedImpact: "Medium-High: 60-70% chance of preventing further switches",
-      resourcesRequired: "1 field rep, clinical data package, 2 hours",
+      confidenceScore: 82,
+      estimatedImpact: "Medium: 70-80% retention of clinically appropriate patients (stable cohort)",
+      resourcesRequired: "Risk stratification tool, cardiac screening protocol, 1 field rep",
       timeToImplement: "1-2 weeks",
     },
     {
       id: "rules_strategy",
-      title: "Compliance-Based Safety Response (Rule-Based)",
+      title: "Safety Monitoring & Value-Add Services (Rule-Based)",
       source: "Rules",
       description:
-        "Per company guidelines for cardiac AE clusters: Trigger Medical Affairs safety review, prepare REMS communication, schedule pharmacovigilance briefing with HCP.",
+        "Per company guidelines: Offer comprehensive cardiac monitoring support for patients who remain on Onco-Pro (baseline ECG, QTc tracking, cardiology co-management pathway). Provide patient support services at no cost: nurse navigator for side effect management, adherence program, 24/7 clinical support hotline.",
       pros: [
-        "Ensures regulatory compliance",
-        "Addresses safety signal proactively",
-        "Demonstrates corporate responsibility",
+        "Provides tangible clinical value beyond the drug itself",
+        "Demonstrates genuine commitment to patient safety",
+        "Supports HCP in managing appropriate patients confidently",
+        "Builds long-term collaborative relationship",
       ],
       cons: [
-        "May reinforce safety concerns",
-        "Slower timeline (requires medical review)",
-        "Doesn't address efficacy perception gap",
+        "Resource intensive (ongoing monitoring and support costs)",
+        "Focused solely on retention of appropriate patients, not market expansion",
       ],
-      confidenceScore: 85,
-      estimatedImpact: "Low-Medium: Prevents litigation risk, but may not retain patients",
-      resourcesRequired: "Medical Affairs team, safety data, compliance review",
-      timeToImplement: "2-4 weeks (regulatory timeline)",
+      confidenceScore: 88,
+      estimatedImpact: "Medium-High: Safely retains appropriate patients, prevents future AEs through monitoring",
+      resourcesRequired: "Cardiology consultation network, nurse navigator team, patient support infrastructure",
+      timeToImplement: "2-3 weeks (protocol development and team training)",
     },
     {
       id: "ai_strategy",
-      title: `Causal-Driven Dual Intervention${hasProvenHypotheses ? " (Proven: " + provenCauses + ")" : ""} (AI-Generated)`,
+      title: `Evidence-Informed Appropriate Use Strategy${hasProvenHypotheses ? " (Proven: " + provenCauses + ")" : ""} (AI-Generated)`,
       source: "AI",
       description: hasProvenHypotheses 
-        ? `Based on proven causal factors (${provenCauses}): ${nba.action}`
-        : nba.action,
+        ? `Causal analysis shows switches were evidence-based (ASCO efficacy data for young RCC, cardiac AEs for CV-risk). Strategy: ACCEPT these clinically appropriate switches. FOCUS on stable cohort (3 patients, 25% of panel) with targeted education on appropriate patient selection, cardiac risk screening, and monitoring protocols. POSITION for future: discuss next-generation products, combination therapy trials, and expanded indications where our portfolio has advantages.`
+        : `Accept evidence-based switches in young RCC and CV-risk cohorts. Focus retention efforts on stable patients through risk stratification and safety monitoring. Position for future opportunities in combination therapy and next-gen products.`,
       pros: hasProvenHypotheses
         ? [
-            `Directly addresses proven causal factors: ${provenCauses}`,
-            "Tailored to specific cohort vulnerabilities identified through multi-hypothesis testing",
-            "Proactive intervention based on autonomous causal discovery",
-            `Evidence confidence: ${provenHypotheses[0]?.evidence?.finalConfidence || 0}%`,
+            `Clinically defensible - respects proven causal factors: ${provenCauses}`,
+            "Builds trust by acknowledging legitimate clinical concerns rather than fighting evidence",
+            "Focuses resources on winnable opportunities (stable cohort)",
+            `Evidence-based approach with ${provenHypotheses[0]?.evidence?.finalConfidence || 0}% confidence`,
+            "Positions for long-term relationship vs. short-term market share defense",
           ]
         : [
-            "Addresses identified causal factors",
-            "Tailored to specific cohort vulnerabilities",
-            "Proactive rather than reactive",
-            "Leverages recent timing",
+            "Clinically appropriate and ethical",
+            "Builds long-term HCP trust",
+            "Focuses on appropriate patient selection",
+            "Forward-looking strategy",
           ],
       cons: [
-        "Novel approach without historical precedent",
-        "Requires cross-functional coordination (MSL + Safety)",
-        "Higher resource commitment",
+        "Accepts permanent loss of young RCC and CV-risk cohorts to competitor",
+        "Requires difficult internal conversation about product limitations",
+        "Lower immediate market share impact",
       ],
-      confidenceScore: hasProvenHypotheses 
-        ? Math.min(95, nba.confidenceScore + 10)
-        : nba.confidenceScore,
-      estimatedImpact: nba.expectedOutcome,
-      resourcesRequired: "MSL, Medical Affairs, clinical data, safety documentation",
-      timeToImplement: nba.timeframe,
+      confidenceScore: hasProvenHypotheses ? 91 : 85,
+      estimatedImpact: "Medium: Retains 70-80% of appropriate patients, preserves HCP relationship for future products",
+      resourcesRequired: "MSL for future positioning, cardiac screening tools, patient selection guidelines",
+      timeToImplement: "2-3 weeks (educational materials development)",
     },
     {
       id: "ensemble_strategy",
-      title: `Hybrid Multi-Channel Strategy${hasProvenHypotheses ? " (Validated by Causal AI)" : ""} (Ensemble Recommendation)`,
+      title: `Integrated Appropriate Use & Future Positioning${hasProvenHypotheses ? " (Validated by Causal AI)" : ""} (Ensemble Recommendation)`,
       source: "Ensemble",
       description: hasProvenHypotheses
-        ? `Multi-pronged intervention targeting proven causes (${provenCauses}): PHASE 1 (Week 1): MSL immediate outreach addressing proven efficacy concerns. PHASE 2 (Week 2): Medical Affairs safety briefing for validated risk cohorts. PHASE 3 (Week 3-4): Follow-up field visit with integrated value proposition.`
-        : "PHASE 1 (Week 1): MSL immediate outreach with ASCO post-conference analysis for RCC cohort. PHASE 2 (Week 2): Medical Affairs safety briefing for CV-risk patients with cardiac monitoring protocol. PHASE 3 (Week 3-4): Follow-up field visit with integrated efficacy + safety value proposition.",
+        ? `Evidence-based phased approach respecting proven causes (${provenCauses}): PHASE 1 (Week 1): Offer comprehensive support package - deploy cardiac risk stratification tool and monitoring protocol for stable cohort (3 patients), provide patient selection guidelines and support services at no cost. PHASE 2 (Week 2-3): Ensure smooth implementation - field rep check-in to confirm tools are useful, gather feedback, address any barriers to optimal patient care. PHASE 3 (Week 4): MSL visit to discuss future collaboration opportunities - next-gen products, combination therapy trials (Onco-Pro + immunotherapy), expanded indications, investigator-initiated research. Build long-term scientific partnership.`
+        : "PHASE 1 (Week 1): Offer cardiac risk tools and monitoring protocols for appropriate patients. PHASE 2 (Week 2-3): Field rep support for implementation. PHASE 3 (Week 4): MSL future portfolio discussion on next-gen products and combination therapies.",
       pros: hasProvenHypotheses
         ? [
-            `Validated by autonomous causal discovery (${provenHypotheses.length} proven hypotheses)`,
-            "Addresses multiple proven causal pathways simultaneously",
-            "Phased approach aligned with causal evidence strength",
-            `Highest confidence: ${Math.max(...provenHypotheses.map(h => h.evidence?.finalConfidence || 0))}% evidence backing`,
+            `Clinically and ethically sound - validated by ${provenHypotheses.length} proven causal hypotheses`,
+            "Provides genuine clinical value through risk tools and support services",
+            "Supports HCP in managing stable cohort appropriately and safely",
+            `Evidence confidence: ${Math.max(...provenHypotheses.map(h => h.evidence?.finalConfidence || 0))}%`,
+            "Positions for long-term scientific collaboration and future product adoption",
+            "Respects physician autonomy and evidence-based decision making",
           ]
         : [
-            "Combines strengths of all approaches",
-            "Addresses multiple causal pathways simultaneously",
-            "Phased approach reduces resource spike",
-            "Highest theoretical impact",
+            "Clinically appropriate and genuinely supportive",
+            "Combines practical tools with future opportunities",
+            "Phased approach allows HCP to adopt at own pace",
+            "Long-term strategic partnership focus",
           ],
       cons: [
-        "Most complex to execute",
-        "Requires exceptional coordination",
-        "Highest resource commitment",
+        "Accepts immediate market share loss in two cohorts (young RCC, CV-risk)",
+        "Requires organizational commitment to value-based relationships over transactional sales",
+        "Return on investment measured over longer timeframe (6-12 months)",
       ],
-      confidenceScore: hasProvenHypotheses ? 92 : 89,
+      confidenceScore: hasProvenHypotheses ? 93 : 89,
       estimatedImpact:
-        "High: 75-85% chance of preventing further switches across all cohorts",
+        "High: 80-90% retention of appropriate patients + strong foundation for future product adoption",
       resourcesRequired:
-        "MSL, Medical Affairs, Field Rep, clinical + safety data packages",
+        "Cardiac risk stratification tool, patient support services, field rep, MSL for future collaboration",
       timeToImplement: "3-4 weeks (phased rollout)",
     },
   ];
@@ -321,52 +322,52 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
             </div>
             <StrategyCard strategy={aiStrategy} />
             
-            {/* Tactical Breakdown for Tumor Board Strategy */}
-            {aiStrategy.description.toLowerCase().includes('tumor board') && (
+            {/* Tactical Breakdown for Risk Stratification Strategy */}
+            {hasProvenHypotheses && (
               <div className="mt-6">
                 <Card className="border border-gray-300 bg-gray-50">
                   <CardHeader>
                     <CardTitle className="text-base font-semibold text-gray-900">
-                      Tumor Board Tactical Elements
+                      Implementation Details
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          Format
+                          Patient Cohort Focus
                         </div>
-                        <div className="text-sm text-gray-900">60-90 minute CME-aligned session</div>
+                        <div className="text-sm text-gray-900">Stable cohort (3 patients, 25% of panel)</div>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          Cardiology Expert
+                          Risk Stratification
                         </div>
-                        <div className="text-sm text-gray-900">Co-management for CV-risk safety concerns</div>
+                        <div className="text-sm text-gray-900">Cardiac screening tool + baseline ECG/QTc</div>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          Peer KOL
+                          Monitoring Protocol
                         </div>
-                        <div className="text-sm text-gray-900">Present nuanced trial subgroup data</div>
+                        <div className="text-sm text-gray-900">Cardiology co-management pathway</div>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          Case Review
+                          Patient Support
                         </div>
-                        <div className="text-sm text-gray-900">8-12 patient cases, pre-pulled charts</div>
+                        <div className="text-sm text-gray-900">Nurse navigator, adherence programs</div>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          Protocol
+                          Future Positioning
                         </div>
-                        <div className="text-sm text-gray-900">Cardiac monitoring + consult workflow</div>
+                        <div className="text-sm text-gray-900">Next-gen products, combination trials</div>
                       </div>
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                          PA Support
+                          Clinical Integrity
                         </div>
-                        <div className="text-sm text-gray-900">Fast-track team, &lt;10 business day SLA</div>
+                        <div className="text-sm text-gray-900">Acknowledge evidence-based switches</div>
                       </div>
                     </div>
                   </CardContent>
