@@ -275,16 +275,16 @@ export default function HCPDetail() {
                   <ResponsiveContainer width="100%" height={350}>
                     <LineChart
                       data={[
-                        { month: "Jan", oncoPro: 98, nephroX: 42, label: "Jan" },
-                        { month: "Feb", oncoPro: 102, nephroX: 41, label: "Feb" },
-                        { month: "Mar", oncoPro: 100, nephroX: 43, label: "Mar" },
-                        { month: "Apr", oncoPro: 99, nephroX: 42, label: "Apr" },
-                        { month: "May", oncoPro: 101, nephroX: 44, label: "May" },
-                        { month: "Jun", oncoPro: 92, nephroX: 50, label: "Jun", conference: true },
-                        { month: "Jul", oncoPro: 80, nephroX: 60, label: "Jul" },
-                        { month: "Aug", oncoPro: 68, nephroX: 72, label: "Aug", adverseEvents: true },
-                        { month: "Sep", oncoPro: 56, nephroX: 80, label: "Sep" },
-                        { month: "Oct", oncoPro: 48, nephroX: 86, label: "Oct" }
+                        { month: "Jan", oncoPro: 12, nephroX: 0, label: "Jan" },
+                        { month: "Feb", oncoPro: 12, nephroX: 0, label: "Feb" },
+                        { month: "Mar", oncoPro: 12, nephroX: 0, label: "Mar" },
+                        { month: "Apr", oncoPro: 12, nephroX: 0, label: "Apr" },
+                        { month: "May", oncoPro: 12, nephroX: 0, label: "May" },
+                        { month: "Jun", oncoPro: 11, nephroX: 1, label: "Jun", conference: true },
+                        { month: "Jul", oncoPro: 7, nephroX: 5, label: "Jul" },
+                        { month: "Aug", oncoPro: 5, nephroX: 7, label: "Aug", adverseEvents: true },
+                        { month: "Sep", oncoPro: 3, nephroX: 9, label: "Sep" },
+                        { month: "Oct", oncoPro: 3, nephroX: 9, label: "Oct" }
                       ]}
                       margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                     >
@@ -295,9 +295,10 @@ export default function HCPDetail() {
                         axisLine={{ stroke: '#d1d5db' }}
                       />
                       <YAxis 
-                        label={{ value: 'Rx Volume (Indexed)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }}
+                        label={{ value: 'Patient Count', angle: -90, position: 'insideLeft', style: { fill: '#6b7280', fontSize: 12 } }}
                         tick={{ fill: '#6b7280', fontSize: 12 }}
                         axisLine={{ stroke: '#d1d5db' }}
+                        domain={[0, 12]}
                       />
                       <RechartsTooltip 
                         contentStyle={{ 
@@ -381,7 +382,7 @@ export default function HCPDetail() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-6 leading-relaxed">
-                  <strong className="text-gray-900">Temporal Correlation:</strong> Steady volumes Jan-May, then Onco-Pro declines post-ASCO (Jun) while Nephro-X gains share. Decline continues post-adverse events (Aug) with inverse competitor growth — demonstrating competitive switching across patient cohorts.
+                  <strong className="text-gray-900">Temporal Correlation:</strong> All 12 patients on Onco-Pro Jan-May, then switching begins post-ASCO (Jun). By October, 9 patients switched to Nephro-X while 3 remained on Onco-Pro — demonstrating 75% switching rate across dual patient cohorts.
                 </p>
               </CardContent>
             </Card>
