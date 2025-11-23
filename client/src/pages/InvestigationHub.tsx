@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -89,6 +89,38 @@ export default function InvestigationHub() {
   const [selectedHypotheses, setSelectedHypotheses] = useState<Set<string>>(new Set());
   const [smeNotes, setSmeNotes] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Load existing investigation results on mount
+  const { data: existingResults } = useQuery({
+    queryKey: [`investigation-results-${hcpId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/ai/investigation-results/${hcpId}`);
+      if (!response.ok) return null;
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
+  // Populate investigation results from existing data
+  useEffect(() => {
+    if (existingResults?.hasInvestigation && !investigationResults) {
+      setInvestigationResults({
+        allHypotheses: existingResults.allHypotheses || [],
+        provenHypotheses: existingResults.provenHypotheses || [],
+        ruledOut: (existingResults.allHypotheses || []).filter(
+          (h: any) => h.evidence.verdict === 'ruled_out'
+        ),
+      });
+      
+      // Auto-select proven hypotheses if not yet confirmed
+      if (!existingResults.isConfirmed && existingResults.provenHypotheses) {
+        const provenIds = new Set(
+          existingResults.provenHypotheses.map((h: any) => h.hypothesis.id)
+        );
+        setSelectedHypotheses(provenIds);
+      }
+    }
+  }, [existingResults, investigationResults]);
 
   const investigateMutation = useMutation({
     mutationFn: () => triggerInvestigation(Number(hcpId)),
