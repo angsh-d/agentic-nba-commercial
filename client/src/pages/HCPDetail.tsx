@@ -212,7 +212,7 @@ export default function HCPDetail() {
         {hcpId === "1" && (
           <div className="mb-24">
             <div className="mb-8">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-3 mb-8">
                 <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
                   Multi-Signal Investigation
                 </h2>
@@ -220,9 +220,6 @@ export default function HCPDetail() {
                   Agent-Discovered
                 </Badge>
               </div>
-              <p className="text-base text-gray-600 leading-relaxed max-w-3xl">
-                Autonomous agents dynamically discovered these 3 correlated signals and dual switching drivers—not from predefined rules, but by analyzing actual patterns in the data.
-              </p>
             </div>
 
             {/* Investigation Context */}
