@@ -9,8 +9,17 @@ import {
   Target,
   Search,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Zap
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -30,9 +39,36 @@ interface HCP {
   createdAt: string;
 }
 
+interface AiInsight {
+  id: number;
+  hcpId: number;
+  insightType: string;
+  narrative: string;
+  keySignals: string[];
+  confidenceScore: number;
+  generatedAt: string;
+  expiresAt: string | null;
+}
+
+interface SignalData {
+  signals: Array<{
+    id: number;
+    signalType: string;
+    signalStrength: number;
+    detectedAt: string;
+  }>;
+  latestInsight: AiInsight | null;
+}
+
 async function fetchHCPs(): Promise<HCP[]> {
   const response = await fetch("/api/hcps");
   if (!response.ok) throw new Error("Failed to fetch HCPs");
+  return response.json();
+}
+
+async function fetchSignalData(hcpId: number): Promise<SignalData> {
+  const response = await fetch(`/api/signals/${hcpId}`);
+  if (!response.ok) throw new Error("Failed to fetch signal data");
   return response.json();
 }
 
@@ -42,6 +78,104 @@ function getRiskBadge(tier: string, score: number) {
   if (tier === "medium" || score >= 40) 
     return <Badge className="bg-gray-600 text-white text-xs px-2.5 py-0.5">Medium Risk</Badge>;
   return <Badge className="bg-gray-300 text-gray-700 text-xs px-2.5 py-0.5">Low Risk</Badge>;
+}
+
+function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number }) {
+  // Only fetch signal data for HCPs with risk score > 0
+  const { data: signalData } = useQuery({
+    queryKey: ["signals", hcpId],
+    queryFn: () => fetchSignalData(hcpId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: riskScore > 0, // Only fetch if HCP has risk
+  });
+
+  if (!signalData?.latestInsight || !signalData?.signals?.length) return null;
+
+  const insight = signalData.latestInsight;
+  const totalSignals = signalData.signals.length;
+  const avgSignalStrength = signalData.signals.length > 0
+    ? Math.round(signalData.signals.reduce((sum, s) => sum + s.signalStrength, 0) / signalData.signals.length)
+    : 0;
+
+  // Extract headline from narrative (first line if separated by double newline)
+  const narrativeLines = insight.narrative.split('\n\n').filter(line => line.trim());
+  const headline = narrativeLines.length > 1 
+    ? narrativeLines[0] 
+    : insight.narrative.substring(0, 80) + (insight.narrative.length > 80 ? '...' : '');
+  const fullNarrative = narrativeLines.length > 1 
+    ? narrativeLines.slice(1).join('\n\n') 
+    : insight.narrative;
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          onClick={(e) => e.stopPropagation()}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors text-xs font-medium border border-blue-200 hover:border-blue-300"
+          data-testid={`ai-insight-badge-${hcpId}`}
+        >
+          <Zap className="w-3.5 h-3.5" />
+          <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
+        </button>
+      </DialogTrigger>
+      <DialogContent 
+        className="max-w-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold text-gray-900">
+            {headline}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            AI-generated risk insight
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 pt-2">
+          {/* Metrics */}
+          <div className="flex items-center gap-6 pb-4 border-b border-gray-200">
+            <div className="text-center">
+              <div className="text-2xl font-semibold text-gray-900">{totalSignals}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Signals Detected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold text-blue-600">{avgSignalStrength}/10</div>
+              <div className="text-xs text-gray-500 mt-0.5">Avg Strength</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-semibold text-gray-900">{insight.confidenceScore}%</div>
+              <div className="text-xs text-gray-500 mt-0.5">Confidence</div>
+            </div>
+          </div>
+
+          {/* Narrative */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">Analysis</h4>
+            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {fullNarrative}
+            </p>
+          </div>
+
+          {/* Signal Types */}
+          {signalData.signals.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Detected Signals</h4>
+              <div className="flex flex-wrap gap-2">
+                {signalData.signals.map((signal) => (
+                  <Badge
+                    key={signal.id}
+                    className="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 font-normal"
+                  >
+                    {signal.signalType.replace(/_/g, ' ')} ({signal.signalStrength}/10)
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export default function Home() {
@@ -232,11 +366,14 @@ export default function Home() {
                               {hcp.switchRiskScore}
                             </div>
                             <div className="text-xs text-gray-500 mb-1.5">risk score</div>
-                            {hcp.switchRiskScore === 0 ? (
-                              <Badge className="bg-gray-200 text-gray-700 text-xs px-2.5 py-0.5">Stable</Badge>
-                            ) : (
-                              getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)
-                            )}
+                            <div className="flex items-center gap-2 justify-end">
+                              {hcp.switchRiskScore === 0 ? (
+                                <Badge className="bg-gray-200 text-gray-700 text-xs px-2.5 py-0.5">Stable</Badge>
+                              ) : (
+                                getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)
+                              )}
+                              <AIInsightBadge hcpId={hcp.id} riskScore={hcp.switchRiskScore} />
+                            </div>
                           </div>
                           
                           <ChevronRight className="w-5 h-5 text-gray-400" />
