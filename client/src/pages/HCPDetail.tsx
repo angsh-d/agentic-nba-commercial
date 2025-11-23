@@ -292,12 +292,7 @@ export default function HCPDetail() {
             {/* Timeline Chart */}
             <Card className="border border-gray-200">
               <CardContent className="p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Temporal Signal Correlation</h3>
-                  <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
-                    Representative Data
-                  </Badge>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Temporal Signal Correlation</h3>
                 <div className="bg-gray-50 rounded-lg p-6">
                   <ResponsiveContainer width="100%" height={350}>
                     <LineChart
