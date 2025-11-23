@@ -75,53 +75,61 @@ export default function Home() {
             </p>
             
             {/* Agent Icons */}
-            <div className="flex items-center justify-center gap-5 mb-16">
+            <div className="flex items-center justify-center gap-6 mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.4 }}
+                whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="text-center"
               >
-                <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-1.5 shadow-lg">
-                  <Target className="w-7 h-7 text-white" />
+                <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
+                  <Target className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-500 font-medium">Planner</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Planner</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
+                whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="text-center"
               >
-                <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-1.5 shadow-lg">
-                  <Search className="w-7 h-7 text-white" />
+                <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
+                  <Search className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-500 font-medium">Gatherer</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Gatherer</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
+                whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="text-center"
               >
-                <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mb-1.5 shadow-lg">
-                  <Sparkles className="w-7 h-7 text-white" />
+                <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
+                  <Sparkles className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-500 font-medium">Synthesizer</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Synthesizer</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4 }}
+                whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 className="text-center"
               >
-                <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-1.5 shadow-lg">
-                  <CheckCircle2 className="w-7 h-7 text-white" />
+                <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
+                  <CheckCircle2 className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-500 font-medium">Reflector</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Reflector</div>
               </motion.div>
             </div>
             
