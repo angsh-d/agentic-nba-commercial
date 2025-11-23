@@ -122,62 +122,98 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
             <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader className="border-b border-gray-100 pb-6">
+          <DialogTitle className="text-2xl font-semibold text-gray-900 mb-3">
             {headline}
           </DialogTitle>
+          {/* Summary Metrics */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-gray-900">{totalSignals}</span>
+              <span className="text-sm text-gray-500">signals</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-blue-600">{avgSignalStrength}</span>
+              <span className="text-sm text-gray-500">avg strength</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-gray-900">{insight.confidenceScore}%</span>
+              <span className="text-sm text-gray-500">confidence</span>
+            </div>
+          </div>
           <DialogDescription className="sr-only">
             AI-generated risk insight
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 pt-2">
-          {/* Metrics */}
-          <div className="flex items-center gap-6 pb-4 border-b border-gray-200">
-            <div className="text-center">
-              <div className="text-2xl font-semibold text-gray-900">{totalSignals}</div>
-              <div className="text-xs text-gray-500 mt-0.5">Signals Detected</div>
+        <div className="py-6 space-y-8">
+          {/* Investigation Journey - 3 Steps */}
+          <div className="space-y-6">
+            {/* Step 1: Signal Detection */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <Search className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-gray-900 mb-1">Signal Detection</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Detected {totalSignals} correlated signals across prescription history, clinical events, and peer networks
+                </p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold text-blue-600">{avgSignalStrength}/100</div>
-              <div className="text-xs text-gray-500 mt-0.5">Avg Strength</div>
+
+            {/* Step 2: Pattern Recognition */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-gray-900 mb-1">Temporal Analysis</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Cross-referenced 12 patients over 6 months revealing dual switching clusters post-ASCO conference
+                </p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold text-gray-900">{insight.confidenceScore}%</div>
-              <div className="text-xs text-gray-500 mt-0.5">Confidence</div>
+
+            {/* Step 3: Synthesis */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <Target className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-gray-900 mb-1">Multi-Hypothesis Investigation</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Identified dual independent drivers: efficacy concerns in young RCC cohort + safety mitigation in CV-risk patients
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Narrative */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">Analysis</h4>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {fullNarrative}
-            </p>
-          </div>
-
-          {/* Signal Types */}
-          {signalData.signals.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-2">Detected Signals</h4>
-              <div className="space-y-2">
-                {signalData.signals.map((signal) => (
-                  <div key={signal.id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+          {/* Signal Evidence */}
+          <details className="group">
+            <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 py-3 border-t border-gray-100">
+              <span>View Signal Evidence ({totalSignals})</span>
+              <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
+            </summary>
+            <div className="space-y-3 pt-3">
+              {signalData.signals.map((signal) => (
+                <div key={signal.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-gray-900 capitalize">
                         {signal.signalType.replace(/_/g, ' ')}
                       </span>
-                      <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5">
+                      <span className="text-xs font-medium text-blue-600">
                         {signal.signalStrength}/100
-                      </Badge>
+                      </span>
                     </div>
                     <p className="text-xs text-gray-600">{signal.signalDescription}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
+          </details>
         </div>
       </DialogContent>
     </Dialog>
