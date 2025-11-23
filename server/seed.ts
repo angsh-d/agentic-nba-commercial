@@ -13,6 +13,15 @@ export async function seedDatabase() {
       engagementLevel: "high",
     });
 
+    const drMichaelChen = await storage.createHcp({
+      name: "Dr. Michael Chen",
+      specialty: "Oncologist",
+      hospital: "Dana-Farber Cancer Institute",
+      territory: "Boston Metro",
+      lastVisitDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      engagementLevel: "high",
+    });
+
     const drWilson = await storage.createHcp({
       name: "Dr. James Wilson",
       specialty: "Hematologist",
@@ -20,15 +29,6 @@ export async function seedDatabase() {
       territory: "North Manhattan",
       lastVisitDate: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
       engagementLevel: "medium",
-    });
-
-    const drChen = await storage.createHcp({
-      name: "Dr. Emily Chen",
-      specialty: "Oncologist",
-      hospital: "NY Presbyterian",
-      territory: "North Manhattan",
-      lastVisitDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      engagementLevel: "high",
     });
 
     console.log("✅ HCPs seeded");
@@ -441,16 +441,6 @@ export async function seedDatabase() {
       status: "pending",
     });
 
-    await storage.createNba({
-      hcpId: drChen.id,
-      action: "Invite to Symposium",
-      actionType: "event",
-      priority: "Low",
-      reason: "High engagement with recent webinar content.",
-      aiInsight: "Dr. Chen is showing high interest in immunotherapy combinations.",
-      status: "pending",
-    });
-
     // Seed Territory Plan
     await storage.createTerritoryPlan({
       territory: "North Manhattan",
@@ -479,17 +469,6 @@ export async function seedDatabase() {
           reasoning: "Low engagement with recent dosing update.",
           action: "Send 'Simplified Dosing' Draft",
           status: "ready",
-        },
-        {
-          time: "01:00 PM",
-          type: "meeting",
-          title: "Lunch: Dr. Emily Chen",
-          hcpId: drChen.id,
-          location: "The Modern, NYC",
-          priority: "High",
-          reasoning: "Key Opinion Leader (KOL) development.",
-          action: "Discuss Immunotherapy Symposium",
-          status: "confirmed",
         },
       ],
     });
@@ -528,34 +507,6 @@ export async function seedDatabase() {
       productName: "Onco-Pro",
       productCategory: "Targeted Therapy",
       prescriptionCount: 20,
-      month: "2025-10",
-      isOurProduct: 1,
-    });
-
-    await storage.createPrescriptionHistory({
-      hcpId: drChen.id,
-      patientId: null,
-      productName: "Onco-Pro",
-      productCategory: "Immunotherapy",
-      prescriptionCount: 35,
-      month: "2025-08",
-      isOurProduct: 1,
-    });
-    await storage.createPrescriptionHistory({
-      hcpId: drChen.id,
-      patientId: null,
-      productName: "Onco-Pro",
-      productCategory: "Immunotherapy",
-      prescriptionCount: 38,
-      month: "2025-09",
-      isOurProduct: 1,
-    });
-    await storage.createPrescriptionHistory({
-      hcpId: drChen.id,
-      patientId: null,
-      productName: "Onco-Pro",
-      productCategory: "Immunotherapy",
-      prescriptionCount: 42,
       month: "2025-10",
       isOurProduct: 1,
     });
@@ -659,16 +610,6 @@ export async function seedDatabase() {
 
     // === HCP 2: DR. MICHAEL CHEN - PATIENT ACCESS BARRIER SCENARIO ===
     console.log("🏥 Seeding HCP 2: Dr. Michael Chen (Access Barrier Scenario)...");
-    
-    const drMichaelChen = await storage.createHcp({
-      name: "Dr. Michael Chen",
-      specialty: "Oncologist",
-      hospital: "Dana-Farber Cancer Institute",
-      territory: "Boston Metro",
-      lastVisitDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      engagementLevel: "high",
-    });
-
     console.log("✅ HCP 2 created");
 
     // COHORT 1: High Copay Shock Patients (4 patients) - $35 → $450 copay shock
