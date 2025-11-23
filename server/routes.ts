@@ -75,6 +75,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/hcps/:id/call-notes", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const callNotes = await storage.getCallNotesByHcp(id);
+      res.json(callNotes);
+    } catch (error) {
+      console.error("Failed to get call notes:", error);
+      res.status(500).json({ error: "Failed to retrieve call notes" });
+    }
+  });
+
+  app.get("/api/hcps/:id/payer-communications", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const payerCommunications = await storage.getPayerCommunicationsByHcp(id);
+      res.json(payerCommunications);
+    } catch (error) {
+      console.error("Failed to get payer communications:", error);
+      res.status(500).json({ error: "Failed to retrieve payer communications" });
+    }
+  });
+
   app.post("/api/hcps", async (req, res) => {
     try {
       const validatedData = insertHcpSchema.parse(req.body);
