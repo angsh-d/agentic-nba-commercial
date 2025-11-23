@@ -10,7 +10,8 @@ import {
   Search,
   Sparkles,
   CheckCircle2,
-  Zap
+  Zap,
+  Info
 } from "lucide-react";
 import {
   Dialog,
@@ -20,6 +21,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -197,21 +204,35 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
               <ChevronRight className="w-4 h-4 transition-transform group-open:rotate-90" />
             </summary>
             <div className="space-y-3 pt-3">
-              {signalData.signals.map((signal) => (
-                <div key={signal.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-900 capitalize">
-                        {signal.signalType.replace(/_/g, ' ')}
-                      </span>
-                      <span className="text-xs font-medium text-blue-600">
-                        {signal.signalStrength}/100
-                      </span>
+              <TooltipProvider>
+                {signalData.signals.map((signal) => (
+                  <div key={signal.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900 capitalize">
+                          {signal.signalType.replace(/_/g, ' ')}
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-blue-600">
+                            {signal.signalStrength}/100
+                          </span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="w-3.5 h-3.5 text-gray-400 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p className="text-xs">
+                                <strong>Signal Strength:</strong> Autonomous agents evaluated this signal based on change magnitude, temporal consistency, statistical significance, and data quality. Higher scores indicate stronger evidence of switching behavior.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-600">{signal.signalDescription}</p>
                     </div>
-                    <p className="text-xs text-gray-600">{signal.signalDescription}</p>
                   </div>
-                </div>
-              ))}
+                ))}
+              </TooltipProvider>
             </div>
           </details>
         </div>
