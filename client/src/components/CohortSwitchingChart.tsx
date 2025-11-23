@@ -9,6 +9,11 @@ interface Patient {
   switchedDate: string | null;
   age?: number;
   cancerType?: string;
+  switchReason?: string | null;
+  payer?: string | null;
+  priorAuthStatus?: string | null;
+  copayAmount?: number | null;
+  fulfillmentLagDays?: number | null;
 }
 
 interface ClinicalEvent {
@@ -76,42 +81,83 @@ export function CohortSwitchingChart({
   const startMonth = months[0] || "2025-04";
   const endMonth = months[months.length - 1] || "2025-09";
 
-  // Calculate cohort breakdowns with actual dates
+  // Detect cohort type dynamically
+  const uniqueCohorts = Array.from(new Set(patients.map(p => p.cohort)));
+  const isAccessBarrierScenario = uniqueCohorts.some(c => 
+    ['high_copay', 'pa_denied', 'fulfillment_delay', 'smooth_access'].includes(c)
+  );
+
+  // Calculate cohort breakdowns with actual dates (safety/efficacy scenario)
   const youngRccPatients = patients.filter(p => p.cohort === 'young_rcc');
   const cvRiskPatients = patients.filter(p => p.cohort === 'cv_risk');
   const stablePatients = patients.filter(p => p.cohort === 'stable');
+  
+  // Calculate cohort breakdowns (access barrier scenario)
+  const highCopayPatients = patients.filter(p => p.cohort === 'high_copay');
+  const paDeniedPatients = patients.filter(p => p.cohort === 'pa_denied');
+  const fulfillmentDelayPatients = patients.filter(p => p.cohort === 'fulfillment_delay');
+  const smoothAccessPatients = patients.filter(p => p.cohort === 'smooth_access');
 
   const youngRccSwitched = youngRccPatients.filter(p => p.switchedDate);
   const cvRiskSwitched = cvRiskPatients.filter(p => p.switchedDate);
   const stableRemained = stablePatients.filter(p => !p.switchedDate);
+  
+  // Access barrier cohort switched counts
+  const highCopaySwitched = highCopayPatients.filter(p => p.switchedDate);
+  const paDeniedSwitched = paDeniedPatients.filter(p => p.switchedDate);
+  const fulfillmentDelaySwitched = fulfillmentDelayPatients.filter(p => p.switchedDate);
+  const smoothAccessRemained = smoothAccessPatients.filter(p => !p.switchedDate);
 
   // Calculate actual switching timeframes
   const youngRccSwitchDates = youngRccSwitched.map(p => p.switchedDate!).sort();
   const cvRiskSwitchDates = cvRiskSwitched.map(p => p.switchedDate!).sort();
+  
+  // Access barrier switch dates
+  const highCopaySwitchDates = highCopaySwitched.map(p => p.switchedDate!).sort();
+  const paDeniedSwitchDates = paDeniedSwitched.map(p => p.switchedDate!).sort();
+  const fulfillmentDelaySwitchDates = fulfillmentDelaySwitched.map(p => p.switchedDate!).sort();
 
-  // Determine when switching started for each cohort
+  // Determine when switching started for each cohort (safety/efficacy)
   const youngRccFirstSwitch = youngRccSwitchDates[0];
   const youngRccLastSwitch = youngRccSwitchDates[youngRccSwitchDates.length - 1];
   const cvRiskFirstSwitch = cvRiskSwitchDates[0];
   const cvRiskLastSwitch = cvRiskSwitchDates[cvRiskSwitchDates.length - 1];
+  
+  // Determine when switching started for each cohort (access barriers)
+  const highCopayFirstSwitch = highCopaySwitchDates[0];
+  const highCopayLastSwitch = highCopaySwitchDates[highCopaySwitchDates.length - 1];
+  const paDeniedFirstSwitch = paDeniedSwitchDates[0];
+  const paDeniedLastSwitch = paDeniedSwitchDates[paDeniedSwitchDates.length - 1];
+  const fulfillmentDelayFirstSwitch = fulfillmentDelaySwitchDates[0];
+  const fulfillmentDelayLastSwitch = fulfillmentDelaySwitchDates[fulfillmentDelaySwitchDates.length - 1];
 
   // Find key events and calculate their positions
   const ascoEvent = clinicalEvents.find(e => e.eventType === 'conference' && e.eventTitle.includes('ASCO'));
   const cardiacEvents = clinicalEvents.filter(e => e.eventType === 'adverse_event');
   const firstCardiacEvent = cardiacEvents.sort((a, b) => a.eventDate.localeCompare(b.eventDate))[0];
+  const payerPolicyEvent = clinicalEvents.find(e => e.eventType === 'payer_policy_change');
+  const paBarrierEvent = clinicalEvents.find(e => e.eventType === 'access_barrier');
 
   const ascoPosition = ascoEvent ? getTimelinePosition(ascoEvent.eventDate, startMonth, endMonth) : null;
   const cardiacPosition = firstCardiacEvent ? getTimelinePosition(firstCardiacEvent.eventDate, startMonth, endMonth) : null;
+  const payerPolicyPosition = payerPolicyEvent ? getTimelinePosition(payerPolicyEvent.eventDate, startMonth, endMonth) : null;
   
-  // Calculate switching event positions
+  // Calculate switching event positions (safety/efficacy)
   const youngRccSwitchPosition = youngRccFirstSwitch ? getTimelinePosition(youngRccFirstSwitch, startMonth, endMonth) : null;
   const cvRiskSwitchPosition = cvRiskFirstSwitch ? getTimelinePosition(cvRiskFirstSwitch, startMonth, endMonth) : null;
+  
+  // Calculate switching event positions (access barriers)
+  const highCopaySwitchPosition = highCopayFirstSwitch ? getTimelinePosition(highCopayFirstSwitch, startMonth, endMonth) : null;
+  const paDeniedSwitchPosition = paDeniedFirstSwitch ? getTimelinePosition(paDeniedFirstSwitch, startMonth, endMonth) : null;
+  const fulfillmentDelaySwitchPosition = fulfillmentDelayFirstSwitch ? getTimelinePosition(fulfillmentDelayFirstSwitch, startMonth, endMonth) : null;
 
   const totalPatients = patients.length;
-  const totalSwitched = youngRccSwitched.length + cvRiskSwitched.length;
+  const totalSwitched = isAccessBarrierScenario 
+    ? highCopaySwitched.length + paDeniedSwitched.length + fulfillmentDelaySwitched.length
+    : youngRccSwitched.length + cvRiskSwitched.length;
   const switchRate = Math.round((totalSwitched / totalPatients) * 100);
 
-  // Format switching timeframes
+  // Format switching timeframes (safety/efficacy)
   const youngRccSwitchPeriod = youngRccFirstSwitch && youngRccLastSwitch
     ? (() => {
         const firstMonth = new Date(youngRccFirstSwitch).toLocaleDateString("en-US", { month: "short" });
@@ -127,6 +173,31 @@ export function CohortSwitchingChart({
         return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
       })()
     : "N/A";
+  
+  // Format switching timeframes (access barriers)
+  const highCopaySwitchPeriod = highCopayFirstSwitch && highCopayLastSwitch
+    ? (() => {
+        const firstMonth = new Date(highCopayFirstSwitch).toLocaleDateString("en-US", { month: "short" });
+        const lastMonth = new Date(highCopayLastSwitch).toLocaleDateString("en-US", { month: "short" });
+        return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
+      })()
+    : "N/A";
+    
+  const paDeniedSwitchPeriod = paDeniedFirstSwitch && paDeniedLastSwitch
+    ? (() => {
+        const firstMonth = new Date(paDeniedFirstSwitch).toLocaleDateString("en-US", { month: "short" });
+        const lastMonth = new Date(paDeniedLastSwitch).toLocaleDateString("en-US", { month: "short" });
+        return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
+      })()
+    : "N/A";
+    
+  const fulfillmentDelaySwitchPeriod = fulfillmentDelayFirstSwitch && fulfillmentDelayLastSwitch
+    ? (() => {
+        const firstMonth = new Date(fulfillmentDelayFirstSwitch).toLocaleDateString("en-US", { month: "short" });
+        const lastMonth = new Date(fulfillmentDelayLastSwitch).toLocaleDateString("en-US", { month: "short" });
+        return firstMonth === lastMonth ? firstMonth : `${firstMonth}-${lastMonth}`;
+      })()
+    : "N/A";
 
   return (
     <Card className="border border-gray-200 bg-white">
@@ -137,7 +208,9 @@ export function CohortSwitchingChart({
               {productName} Patient Cohort Switching Timeline
             </CardTitle>
             <p className="text-sm text-gray-500 mt-1">
-              Two distinct switching patterns across cohorts
+              {isAccessBarrierScenario 
+                ? "Patient access barriers drive coordinated switching events" 
+                : "Two distinct switching patterns across cohorts"}
             </p>
           </div>
           <div className="text-right">
@@ -293,6 +366,156 @@ export function CohortSwitchingChart({
                 <div className="absolute right-4 top-0 h-full flex items-center">
                   <div className="px-2 py-1 bg-gray-700 text-white rounded text-[10px] font-semibold">
                     {stableRemained.length}/{stablePatients.length} remained
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* High Copay Cohort Lane (Access Barriers) */}
+          {highCopayPatients.length > 0 && (
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-3">
+                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2.5 py-1">
+                  High Copay Cohort
+                </Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="w-4 h-4" />
+                  <span>{highCopayPatients.length} patients (copay shock $35→$450)</span>
+                </div>
+              </div>
+              <div className="relative h-16 bg-gray-100 rounded-lg border border-gray-200 overflow-visible">
+                <div className="absolute left-0 top-0 h-full flex items-center px-4">
+                  <div className="flex gap-1">
+                    {highCopayPatients.map((_, i) => (
+                      <div key={i} className="w-5 h-10 bg-red-600 rounded" title={`Patient ${i+1}`} />
+                    ))}
+                  </div>
+                </div>
+                {payerPolicyPosition !== null && (
+                  <div 
+                    className="absolute top-0 h-full border-l-2 border-dashed border-amber-600" 
+                    style={{ left: `${payerPolicyPosition}%` }}
+                  >
+                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-amber-700 whitespace-nowrap bg-white px-1 rounded">
+                      Payer Policy<br/>Aug 1
+                    </div>
+                  </div>
+                )}
+                {highCopaySwitchPosition !== null && highCopaySwitched.length > 0 && (
+                  <div 
+                    className="absolute top-0 h-full flex items-center" 
+                    style={{ left: `${highCopaySwitchPosition}%` }}
+                  >
+                    <div className="flex items-center gap-1 -ml-2">
+                      <ArrowDown className="w-4 h-4 text-red-900" />
+                      <div className="px-2 py-1 bg-red-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                        {highCopaySwitched.length} switched {highCopaySwitchPeriod}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* PA Denied Cohort Lane (Access Barriers) */}
+          {paDeniedPatients.length > 0 && (
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-3">
+                <Badge className="bg-amber-100 text-amber-900 border-amber-200 text-xs px-2.5 py-1">
+                  PA Denied Cohort
+                </Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="w-4 h-4" />
+                  <span>{paDeniedPatients.length} patients (step-edit rejections)</span>
+                </div>
+              </div>
+              <div className="relative h-16 bg-gray-100 rounded-lg border border-gray-200 overflow-visible">
+                <div className="absolute left-0 top-0 h-full flex items-center px-4">
+                  <div className="flex gap-1">
+                    {paDeniedPatients.map((_, i) => (
+                      <div key={i} className="w-5 h-10 bg-amber-600 rounded" title={`Patient ${i+1}`} />
+                    ))}
+                  </div>
+                </div>
+                {paDeniedSwitchPosition !== null && paDeniedSwitched.length > 0 && (
+                  <div 
+                    className="absolute top-0 h-full flex items-center" 
+                    style={{ left: `${paDeniedSwitchPosition}%` }}
+                  >
+                    <div className="flex items-center gap-1 -ml-2">
+                      <ArrowDown className="w-4 h-4 text-amber-900" />
+                      <div className="px-2 py-1 bg-amber-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                        {paDeniedSwitched.length} switched {paDeniedSwitchPeriod}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Fulfillment Delay Cohort Lane (Access Barriers) */}
+          {fulfillmentDelayPatients.length > 0 && (
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-3">
+                <Badge className="bg-orange-100 text-orange-900 border-orange-200 text-xs px-2.5 py-1">
+                  Fulfillment Delay Cohort
+                </Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="w-4 h-4" />
+                  <span>{fulfillmentDelayPatients.length} patients (pharmacy bottlenecks)</span>
+                </div>
+              </div>
+              <div className="relative h-16 bg-gray-100 rounded-lg border border-gray-200 overflow-visible">
+                <div className="absolute left-0 top-0 h-full flex items-center px-4">
+                  <div className="flex gap-1">
+                    {fulfillmentDelayPatients.map((_, i) => (
+                      <div key={i} className="w-5 h-10 bg-orange-600 rounded" title={`Patient ${i+1}`} />
+                    ))}
+                  </div>
+                </div>
+                {fulfillmentDelaySwitchPosition !== null && fulfillmentDelaySwitched.length > 0 && (
+                  <div 
+                    className="absolute top-0 h-full flex items-center" 
+                    style={{ left: `${fulfillmentDelaySwitchPosition}%` }}
+                  >
+                    <div className="flex items-center gap-1 -ml-2">
+                      <ArrowDown className="w-4 h-4 text-orange-900" />
+                      <div className="px-2 py-1 bg-orange-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                        {fulfillmentDelaySwitched.length} switched {fulfillmentDelaySwitchPeriod}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Smooth Access Cohort Lane (Access Barriers Control) */}
+          {smoothAccessPatients.length > 0 && (
+            <div className="relative">
+              <div className="flex items-center gap-4 mb-3">
+                <Badge variant="outline" className="text-xs px-2.5 py-1 text-gray-600 border-gray-300">
+                  Smooth Access Cohort
+                </Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Users className="w-4 h-4" />
+                  <span>{smoothAccessPatients.length} patients (no barriers)</span>
+                </div>
+              </div>
+              <div className="relative h-16 bg-gray-100 rounded-lg border border-gray-200">
+                <div className="absolute left-0 top-0 h-full flex items-center px-4">
+                  <div className="flex gap-1">
+                    {smoothAccessPatients.map((_, i) => (
+                      <div key={i} className="w-5 h-10 bg-emerald-600 rounded" title={`Patient ${i+1}`} />
+                    ))}
+                  </div>
+                </div>
+                <div className="absolute right-4 top-0 h-full flex items-center">
+                  <div className="px-2 py-1 bg-emerald-700 text-white rounded text-[10px] font-semibold">
+                    {smoothAccessRemained.length}/{smoothAccessPatients.length} remained
                   </div>
                 </div>
               </div>
