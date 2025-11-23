@@ -247,8 +247,85 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
   );
 }
 
+type AgentInfo = {
+  name: string;
+  icon: React.ReactNode;
+  description: string;
+  capabilities: string[];
+};
+
+const agentDetails: Record<string, AgentInfo> = {
+  observer: {
+    name: "Observer",
+    icon: <Eye className="w-6 h-6 text-blue-600" />,
+    description: "Detects individual signals across disconnected data sources",
+    capabilities: [
+      "Monitors prescription volume changes across drug categories",
+      "Identifies adverse event clusters in patient populations",
+      "Tracks clinical conference attendance and timing",
+      "Flags sudden behavioral pattern shifts"
+    ]
+  },
+  correlator: {
+    name: "Correlator",
+    icon: <Activity className="w-6 h-6 text-blue-600" />,
+    description: "Discovers temporal patterns and relationships between signals",
+    capabilities: [
+      "Correlates events across different time windows",
+      "Identifies statistical significance in pattern changes",
+      "Measures temporal consistency of behavioral shifts",
+      "Cross-references disconnected data points"
+    ]
+  },
+  planner: {
+    name: "Planner",
+    icon: <Target className="w-6 h-6 text-blue-600" />,
+    description: "Creates strategic investigation plans with defined goals",
+    capabilities: [
+      "Defines investigation hypotheses and success criteria",
+      "Prioritizes evidence gathering based on signal strength",
+      "Establishes causal investigation pathways",
+      "Sets confidence thresholds for recommendations"
+    ]
+  },
+  gatherer: {
+    name: "Gatherer",
+    icon: <Search className="w-6 h-6 text-blue-600" />,
+    description: "Collects and analyzes evidence from prescription history and clinical events",
+    capabilities: [
+      "Extracts prescription trend data across patient cohorts",
+      "Analyzes clinical event timing and impact",
+      "Identifies confounding variables and alternative explanations",
+      "Validates hypotheses against historical patterns"
+    ]
+  },
+  synthesizer: {
+    name: "Synthesizer",
+    icon: <Sparkles className="w-6 h-6 text-blue-600" />,
+    description: "Generates actionable Next Best Actions based on gathered evidence",
+    capabilities: [
+      "Synthesizes multi-signal findings into causal narratives",
+      "Recommends specific, contextual actions for field reps",
+      "Tailors messaging based on switching drivers",
+      "Prioritizes actions by impact potential"
+    ]
+  },
+  reflector: {
+    name: "Reflector",
+    icon: <CheckCircle2 className="w-6 h-6 text-blue-600" />,
+    description: "Validates recommendations and assesses confidence levels",
+    capabilities: [
+      "Evaluates evidence quality and completeness",
+      "Assigns confidence scores to recommendations",
+      "Identifies gaps in causal reasoning",
+      "Flags low-confidence hypotheses for review"
+    ]
+  }
+};
+
 export default function Home() {
   const [viewMode, setViewMode] = useState<"switch_risk" | "all">("switch_risk");
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   
   const { data: hcps = [], isLoading } = useQuery({
@@ -291,13 +368,21 @@ export default function Home() {
                   <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
                     <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Detect</div>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('observer')}
+                        data-testid="agent-observer"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Eye className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="text-sm text-gray-700 font-medium">Observer</div>
                       </div>
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('correlator')}
+                        data-testid="agent-correlator"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Activity className="w-5 h-5 text-blue-600" />
                         </div>
@@ -323,13 +408,21 @@ export default function Home() {
                   <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
                     <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Investigate</div>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('planner')}
+                        data-testid="agent-planner"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Target className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="text-sm text-gray-700 font-medium">Planner</div>
                       </div>
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('gatherer')}
+                        data-testid="agent-gatherer"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Search className="w-5 h-5 text-blue-600" />
                         </div>
@@ -355,13 +448,21 @@ export default function Home() {
                   <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
                     <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Act</div>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('synthesizer')}
+                        data-testid="agent-synthesizer"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Sparkles className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="text-sm text-gray-700 font-medium">Synthesizer</div>
                       </div>
-                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                      <div 
+                        className="flex items-center gap-3.5 group/item cursor-pointer"
+                        onClick={() => setSelectedAgent('reflector')}
+                        data-testid="agent-reflector"
+                      >
                         <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <CheckCircle2 className="w-5 h-5 text-blue-600" />
                         </div>
@@ -491,6 +592,41 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Agent Capability Modal */}
+      <Dialog open={selectedAgent !== null} onOpenChange={() => setSelectedAgent(null)}>
+        <DialogContent className="max-w-lg">
+          {selectedAgent && agentDetails[selectedAgent] && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    {agentDetails[selectedAgent].icon}
+                  </div>
+                  <DialogTitle className="text-xl font-semibold">
+                    {agentDetails[selectedAgent].name}
+                  </DialogTitle>
+                </div>
+                <DialogDescription className="text-base text-gray-700 leading-relaxed">
+                  {agentDetails[selectedAgent].description}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="mt-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Key Capabilities</h4>
+                <ul className="space-y-2.5">
+                  {agentDetails[selectedAgent].capabilities.map((capability, index) => (
+                    <li key={index} className="flex items-start gap-2.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 leading-relaxed">{capability}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
