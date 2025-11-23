@@ -1,5 +1,8 @@
 import { storage } from "./storage";
 import { runSwitchingDetectionForAllHCPs } from "./switchingDetection";
+import { db } from "../drizzle/db";
+import { hcps } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export async function seedDatabase() {
   try {
@@ -1396,6 +1399,82 @@ Questions: BCBS Provider Services 1-800-BCBS-PROV`,
     });
 
     console.log("✅ HCP 2 NBAs created (4 access-focused interventions)");
+
+    // === DETECTED SIGNALS FOR DR. MICHAEL CHEN ===
+    await storage.createDetectedSignal({
+      hcpId: drMichaelChen.id,
+      signalType: "rx_decline",
+      signalStrength: 88,
+      signalSource: "prescription_history",
+      signalDescription: "Onco-Pro prescriptions declined 44% following payer policy changes",
+      contextData: {
+        metric: "Onco-Pro prescriptions declined 44% (May: 45 → Oct: 25)",
+        timeframe: "6 months",
+        baseline: 45,
+        current: 25,
+        trigger: "Aug 1 payer formulary changes"
+      }
+    });
+
+    await storage.createDetectedSignal({
+      hcpId: drMichaelChen.id,
+      signalType: "access_barrier",
+      signalStrength: 92,
+      signalSource: "payer_communications",
+      signalDescription: "Multi-payer access barriers: tier changes, PA requirements, copay increases",
+      contextData: {
+        payers: ["United Healthcare", "Aetna", "Cigna"],
+        barriers: ["Tier 2→3 transition", "New step-edit PA", "$35→$450 copay"],
+        effectiveDate: "2025-08-01",
+        impact: "9/12 patients affected"
+      }
+    });
+
+    await storage.createDetectedSignal({
+      hcpId: drMichaelChen.id,
+      signalType: "cohort_switching",
+      signalStrength: 85,
+      signalSource: "patient_data",
+      signalDescription: "75% of patients switched due to access barriers across 3 cohorts",
+      contextData: {
+        totalPatients: 12,
+        switchedPatients: 9,
+        switchRate: 0.75,
+        cohorts: {
+          high_copay: "4/4 switched (100%)",
+          pa_denied: "3/3 switched (100%)",
+          fulfillment_delay: "2/2 switched (100%)",
+          smooth_access: "0/3 switched (0%)"
+        },
+        timeframe: "Aug-Oct 2025"
+      }
+    });
+
+    await storage.createAiInsight({
+      hcpId: drMichaelChen.id,
+      insightType: "risk_narrative",
+      confidenceScore: 92,
+      narrative: `Access Barrier-Driven Switching Crisis\n\nDr. Chen's prescribing behavior reveals systematic access barriers, not clinical dissatisfaction. Switching is concentrated among patients facing payer obstacles, while those with smooth access remain stable.\n\n**Root Cause**: August 1 multi-payer policy changes created perfect storm:\n• UHC/Aetna/Cigna moved Onco-Pro from Tier 2 → Tier 3 ($35 → $450 copay)\n• New step-edit prior authorization requirements\n• Specialty pharmacy network restrictions causing 14-day delays\n\n**Impact Analysis**:\n• High Copay Shock: 4/4 patients switched (100%) - unable to afford $450/month\n• PA Denials: 3/3 patients switched (100%) - step-edit rejections, no appeals support\n• Fulfillment Delays: 2/2 patients switched (100%) - competitor offers 3-day fills vs. 14-day\n• Smooth Access: 0/3 patients switched (0%) - no access issues, remained on Onco-Pro\n\n**Clinical Confidence**: Dr. Chen remains clinically confident in Onco-Pro. Call notes show frustration with "insurance barriers" and "administrative nightmare," not safety/efficacy concerns.\n\n**Prescription Trend**: 45 → 25 (-44%) over 6 months, with competitor rising 0 → 15 as patients seek accessible alternatives.`,
+      expiresAt: new Date("2025-12-31")
+    });
+
+    // Update Dr. Chen's risk score manually (switching detection algorithm missed the full 6-month trend)
+    await db
+      .update(hcps)
+      .set({
+        switchRiskScore: 92,
+        switchRiskTier: "critical",
+        switchRiskReasons: [
+          "Severe prescription decline (-44%) following payer policy changes",
+          "75% patient attrition due to access barriers",
+          "Multi-payer formulary deterioration across 3 major payers",
+          "Competitor gaining share (+infinite% from 0 baseline)"
+        ],
+        lastRiskUpdate: new Date(),
+      })
+      .where(eq(hcps.id, drMichaelChen.id));
+
+    console.log("✅ HCP 2 signals and risk score updated (92% critical risk)");
     
     console.log("✅ Database seeded successfully with rich multi-cohort scenario");
   } catch (error) {
