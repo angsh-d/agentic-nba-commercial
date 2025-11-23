@@ -141,12 +141,12 @@ export default function HCPDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
-            <div className="w-10 h-10 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-sm text-gray-500">Loading...</p>
+            <div className="w-12 h-12 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-6" />
+            <p className="text-base text-gray-500 font-light">Loading...</p>
           </div>
         </div>
       </div>
@@ -155,10 +155,10 @@ export default function HCPDetail() {
 
   if (!hcp) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="max-w-5xl mx-auto px-6 py-16">
-          <p className="text-center text-gray-500">Provider not found</p>
+        <div className="max-w-6xl mx-auto px-8 py-20">
+          <p className="text-center text-gray-500 font-light text-lg">Provider not found</p>
         </div>
       </div>
     );
@@ -177,15 +177,15 @@ export default function HCPDetail() {
                            confirmedHypotheses.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-8 py-20">
         {/* Back Button */}
         <Link href="/">
           <Button
             variant="ghost"
-            className="mb-8 -ml-3 text-gray-600 hover:text-gray-900 transition-colors text-sm"
+            className="mb-12 -ml-3 text-gray-500 hover:text-gray-900 transition-colors text-sm font-light"
             data-testid="button-back"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -194,17 +194,17 @@ export default function HCPDetail() {
         </Link>
 
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-start justify-between mb-6">
+        <div className="mb-20">
+          <div className="flex items-start justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-semibold text-gray-900 mb-2 tracking-tight">
+              <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight">
                 {hcp.name}
               </h1>
-              <div className="flex items-center gap-3 text-sm text-gray-500">
+              <div className="flex items-center gap-4 text-base text-gray-600 font-light">
                 <span>{hcp.specialty}</span>
                 <span className="w-1 h-1 rounded-full bg-gray-300" />
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" />
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" />
                   {hcp.hospital}
                 </span>
               </div>
@@ -212,7 +212,7 @@ export default function HCPDetail() {
 
             {hcp.switchRiskScore > 0 && (
               <div className="text-right">
-                <div className="text-5xl font-semibold text-gray-900 mb-2">
+                <div className="text-6xl font-semibold text-gray-900 mb-3 tracking-tight">
                   {hcp.switchRiskScore}
                 </div>
                 {getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)}
@@ -223,7 +223,7 @@ export default function HCPDetail() {
 
         {/* Comparative Prescription Trends */}
         {prescriptionTrends.length > 0 && (
-          <div className="mb-16">
+          <div className="mb-24">
             <ComparativePrescriptionTrends 
               hcpName={hcp.name}
               prescriptionData={prescriptionTrends}
@@ -232,8 +232,8 @@ export default function HCPDetail() {
         )}
 
         {/* Investigation CTA */}
-        <div className="mb-12">
-          <Card className="border border-gray-200 bg-white hover:border-gray-900 hover:shadow-md transition-all duration-200">
+        <div className="mb-20">
+          <Card className="border border-gray-200 bg-gray-50 hover:border-gray-900 hover:shadow-lg transition-all duration-200">
             <CardContent className="p-8">
               <div className="flex items-center justify-between">
                 <div className="flex-1">

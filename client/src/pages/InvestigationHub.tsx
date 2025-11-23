@@ -171,16 +171,16 @@ export default function InvestigationHub() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-8 py-20">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-20">
           <Link href={`/hcp/${hcpId}`}>
             <Button
               variant="ghost"
-              className="mb-6 -ml-3 text-gray-600 hover:text-gray-900 text-sm"
+              className="mb-12 -ml-3 text-gray-500 hover:text-gray-900 text-sm font-light"
               data-testid="button-back"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -188,36 +188,36 @@ export default function InvestigationHub() {
             </Button>
           </Link>
 
-          <div className="flex items-center gap-3 mb-2">
-            <Brain className="w-6 h-6 text-gray-900" />
-            <h1 className="text-4xl font-semibold text-gray-900 tracking-tight">
+          <div className="flex items-center gap-4 mb-4">
+            <Brain className="w-8 h-8 text-gray-900" />
+            <h1 className="text-5xl font-semibold text-gray-900 tracking-tight">
               Causal Investigation
             </h1>
           </div>
-          <p className="text-base text-gray-600 mt-2">
+          <p className="text-lg text-gray-600 mt-4 font-light">
             Multi-hypothesis autonomous reasoning with evidence discovery
           </p>
         </div>
 
         {/* Not Started */}
         {!investigationResults && !isInvestigating && (
-          <Card className="border border-gray-200 bg-white">
-            <CardContent className="p-12 text-center">
-              <Brain className="w-12 h-12 text-gray-400 mx-auto mb-6" />
-              <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+          <Card className="border border-gray-200 bg-gray-50">
+            <CardContent className="p-16 text-center">
+              <Brain className="w-16 h-16 text-gray-400 mx-auto mb-8" />
+              <h2 className="text-3xl font-semibold text-gray-900 mb-4 tracking-tight">
                 Ready to Investigate
               </h2>
-              <p className="text-gray-600 mb-8 max-w-2xl mx-auto text-sm">
+              <p className="text-gray-600 mb-10 max-w-2xl mx-auto text-base font-light leading-relaxed">
                 Generate competing hypotheses, gather evidence from multiple sources,
                 and identify proven causal factors behind switching behavior.
               </p>
               <Button
                 onClick={() => investigateMutation.mutate()}
-                className="bg-gray-900 hover:bg-gray-800 text-white"
+                className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-6 text-base"
                 data-testid="button-start-investigation"
               >
                 Start Investigation
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </CardContent>
           </Card>
@@ -225,27 +225,27 @@ export default function InvestigationHub() {
 
         {/* In Progress */}
         {isInvestigating && (
-          <Card className="border border-gray-200 bg-white">
-            <CardContent className="p-10">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
+          <Card className="border border-gray-200 bg-gray-50">
+            <CardContent className="p-12">
+              <div className="flex items-center gap-5 mb-8">
+                <div className="w-10 h-10 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-gray-900 tracking-tight">
                     Investigation in Progress
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-base text-gray-600 font-light mt-1">
                     Generating hypotheses and gathering evidence...
                   </p>
                 </div>
               </div>
-              <Progress value={66} className="h-1.5 bg-gray-100" />
+              <Progress value={66} className="h-2 bg-gray-100" />
             </CardContent>
           </Card>
         )}
 
         {/* Results */}
         {investigationResults && (
-          <div className="space-y-8">
+          <div className="space-y-12">
             {/* Summary */}
             <div className="grid grid-cols-3 gap-4">
               <Card className="border border-gray-200 bg-white">

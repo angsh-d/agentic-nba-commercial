@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Users,
   Calendar,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -178,33 +179,298 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
   const aiStrategy = ensembleStrategies.find(s => s.source === "AI");
   const ensembleStrategy = ensembleStrategies.find(s => s.source === "Ensemble");
 
+  const StrategyCard = ({ strategy }: { strategy: EnsembleStrategy }) => (
+    <Card
+      className={`cursor-pointer transition-all duration-200 h-full ${
+        selectedStrategy === strategy.id
+          ? "border-2 border-gray-900 shadow-lg"
+          : "border border-gray-200 hover:border-gray-400 hover:shadow-md"
+      }`}
+      onClick={() => setSelectedStrategy(strategy.id)}
+      data-testid={`strategy-card-${strategy.id}`}
+    >
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between mb-3">
+          {getSourceBadge(strategy.source)}
+          <div className="text-right">
+            <div className="text-3xl font-semibold text-gray-900 tracking-tight">
+              {strategy.confidenceScore}%
+            </div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide">
+              confidence
+            </div>
+          </div>
+        </div>
+        <CardTitle className="text-lg font-semibold leading-tight text-gray-900">
+          {strategy.title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-gray-700 leading-relaxed">
+          {strategy.description}
+        </p>
+
+        <div className="space-y-3 pt-2">
+          <div>
+            <h5 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
+              Strengths
+            </h5>
+            <ul className="space-y-1.5">
+              {strategy.pros.map((pro, idx) => (
+                <li
+                  key={idx}
+                  className="text-sm text-gray-600 flex items-start gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <span className="leading-relaxed">{pro}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h5 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
+              Considerations
+            </h5>
+            <ul className="space-y-1.5">
+              {strategy.cons.map((con, idx) => (
+                <li
+                  key={idx}
+                  className="text-sm text-gray-600 flex items-start gap-2"
+                >
+                  <span className="text-gray-400 mt-0.5">•</span>
+                  <span className="leading-relaxed">{con}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="pt-3 border-t border-gray-200 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Target className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">
+                {strategy.estimatedImpact}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-600">
+                {strategy.timeToImplement}
+              </span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-1 tracking-tight">
+      <div className="mb-8">
+        <h2 className="text-3xl font-semibold text-gray-900 mb-2 tracking-tight">
           Strategy Recommendations
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-base text-gray-600 font-light">
           Ensemble combining data-driven patterns, business rules, and AI reasoning
         </p>
       </div>
 
-      {/* Human-in-the-Loop Controls */}
-      <Card className="border border-gray-200 bg-white">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Users className="w-4 h-4" />
+      {/* Three Source Sections */}
+      <div className="space-y-16">
+        {/* RL-Based NBA Engine */}
+        {rlStrategy && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 tracking-tight mb-2">
+                RL-Based NBA Engine
+              </h3>
+              <p className="text-sm text-gray-600 font-light">
+                Data-driven recommendations from reinforcement learning trained on historical engagement patterns
+              </p>
+            </div>
+            <StrategyCard strategy={rlStrategy} />
+          </div>
+        )}
+
+        {/* Pre-defined Rules */}
+        {rulesStrategy && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 tracking-tight mb-2">
+                Pre-defined Rules
+              </h3>
+              <p className="text-sm text-gray-600 font-light">
+                Compliance-based protocols ensuring regulatory and safety standards
+              </p>
+            </div>
+            <StrategyCard strategy={rulesStrategy} />
+          </div>
+        )}
+
+        {/* Gen AI Suggestions */}
+        {aiStrategy && (
+          <div>
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 tracking-tight mb-2">
+                Gen AI Suggestions
+              </h3>
+              <p className="text-sm text-gray-600 font-light">
+                Autonomous causal reasoning tailored to proven hypotheses and specific HCP behavior
+              </p>
+            </div>
+            <StrategyCard strategy={aiStrategy} />
+          </div>
+        )}
+
+      </div>
+
+      {/* Ensemble Recommendation - Special Summary Section */}
+      {ensembleStrategy && (
+        <div className="border-t-2 border-gray-900 pt-16">
+          <div className="mb-8">
+            <h3 className="text-2xl font-semibold text-gray-900 tracking-tight mb-3">
+              Ensemble Recommendation
+            </h3>
+            <p className="text-base text-gray-600 font-light">
+              Integrated multi-channel strategy combining all three sources
+            </p>
+          </div>
+
+          <Card className="border-2 border-gray-900 bg-gray-50 shadow-xl">
+            <CardHeader className="pb-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Brain className="w-6 h-6 text-gray-900" />
+                  <CardTitle className="text-xl font-semibold text-gray-900">
+                    {ensembleStrategy.title}
+                  </CardTitle>
+                </div>
+                <div className="text-right">
+                  <div className="text-4xl font-semibold text-gray-900 tracking-tight">
+                    {ensembleStrategy.confidenceScore}%
+                  </div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    confidence
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-6">
+              {/* Multi-Phase Plan */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+                  Multi-Phase Implementation Plan
+                </h4>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {ensembleStrategy.description}
+                </p>
+              </div>
+
+              {/* Strengths & Considerations Grid */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+                    Strengths
+                  </h5>
+                  <ul className="space-y-2">
+                    {ensembleStrategy.pros.map((pro, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-600 flex items-start gap-2"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                        <span className="leading-relaxed">{pro}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-900 mb-3 uppercase tracking-wide">
+                    Considerations
+                  </h5>
+                  <ul className="space-y-2">
+                    {ensembleStrategy.cons.map((con, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-600 flex items-start gap-2"
+                      >
+                        <span className="text-gray-400 mt-0.5">•</span>
+                        <span className="leading-relaxed">{con}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Impact & Resources */}
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target className="w-4 h-4 text-gray-400" />
+                    <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                      Expected Impact
+                    </h5>
+                  </div>
+                  <p className="text-sm text-gray-900">
+                    {ensembleStrategy.estimatedImpact}
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                      Timeline
+                    </h5>
+                  </div>
+                  <p className="text-sm text-gray-900">
+                    {ensembleStrategy.timeToImplement}
+                  </p>
+                </div>
+                <div className="p-4 bg-white rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <h5 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                      Resources
+                    </h5>
+                  </div>
+                  <p className="text-sm text-gray-900">
+                    {ensembleStrategy.resourcesRequired}
+                  </p>
+                </div>
+              </div>
+
+              {/* Implement Button */}
+              <div className="pt-4">
+                <Button 
+                  onClick={() => setSelectedStrategy(ensembleStrategy.id)}
+                  className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 text-base"
+                  data-testid="button-implement-ensemble"
+                >
+                  Implement Ensemble Strategy
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Human-in-the-Loop Controls - moved to bottom */}
+      <Card className="border border-gray-200 bg-gray-50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Users className="w-5 h-5" />
             Human Preferences
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-gray-700">
                 Urgency Priority
               </label>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-sm">
                 {urgencyWeight[0]}%
               </Badge>
             </div>
@@ -215,17 +481,17 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
               step={10}
               className="w-full"
             />
-            <p className="text-xs text-gray-500 mt-1.5">
+            <p className="text-xs text-gray-500 mt-2 font-light">
               Higher = Prioritize faster implementation
             </p>
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-medium text-gray-700">
                 Risk Tolerance
               </label>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-sm">
                 {riskToleranceWeight[0]}%
               </Badge>
             </div>
@@ -236,105 +502,12 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
               step={10}
               className="w-full"
             />
-            <p className="text-xs text-gray-500 mt-1.5">
+            <p className="text-xs text-gray-500 mt-2 font-light">
               Higher = Allow novel approaches
             </p>
           </div>
         </CardContent>
       </Card>
-
-      {/* Strategy Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        {ensembleStrategies.map((strategy, index) => (
-          <motion.div
-            key={strategy.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card
-              className={`cursor-pointer transition-all duration-200 ${
-                selectedStrategy === strategy.id
-                  ? "border-2 border-gray-900 shadow-md"
-                  : "border border-gray-200 hover:border-gray-400"
-              }`}
-              onClick={() => setSelectedStrategy(strategy.id)}
-              data-testid={`strategy-card-${strategy.id}`}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between mb-2">
-                  {getSourceBadge(strategy.source)}
-                  <div className="text-right">
-                    <div className="text-2xl font-semibold text-gray-900">
-                      {strategy.confidenceScore}%
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      confidence
-                    </div>
-                  </div>
-                </div>
-                <CardTitle className="text-base font-semibold leading-snug">{strategy.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-gray-700 leading-relaxed mb-3">
-                  {strategy.description}
-                </p>
-
-                <div className="space-y-2">
-                  <div>
-                    <h5 className="text-xs font-semibold text-gray-700 mb-1">
-                      Pros
-                    </h5>
-                    <ul className="space-y-0.5">
-                      {strategy.pros.map((pro, idx) => (
-                        <li
-                          key={idx}
-                          className="text-xs text-gray-600 flex items-start gap-1.5"
-                        >
-                          <CheckCircle2 className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
-                          <span>{pro}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h5 className="text-xs font-semibold text-gray-700 mb-1">
-                      Cons
-                    </h5>
-                    <ul className="space-y-0.5">
-                      {strategy.cons.map((con, idx) => (
-                        <li
-                          key={idx}
-                          className="text-xs text-gray-600 flex items-start gap-1.5"
-                        >
-                          <span className="text-gray-400 mt-0.5">•</span>
-                          <span>{con}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-2 border-t border-gray-200 space-y-1">
-                    <div className="flex items-center gap-2 text-xs">
-                      <Target className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-600">
-                        {strategy.estimatedImpact}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Calendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-gray-600">
-                        {strategy.timeToImplement}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
 
       {/* Selected Strategy Details */}
       {selectedStrategyData && (
