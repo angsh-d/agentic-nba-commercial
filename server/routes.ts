@@ -308,18 +308,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Parse the proven hypotheses from session contextData
       const provenHypotheses = latestInvestigation.contextData?.provenHypotheses || [];
       const allHypotheses = latestInvestigation.contextData?.allHypotheses || [];
+      const confirmedHypotheses = latestInvestigation.contextData?.confirmedHypotheses || [];
+      const isConfirmed = latestInvestigation.contextData?.humanConfirmed || false;
       
       res.json({
         hasInvestigation: true,
         session: latestInvestigation,
         provenHypotheses,
         allHypotheses,
+        confirmedHypotheses,
+        isConfirmed,
         thoughts: sessionDetails.thoughts,
         actions: sessionDetails.actions,
       });
     } catch (error) {
       console.error("Failed to get investigation results:", error);
       res.status(500).json({ error: "Failed to retrieve investigation results" });
+    }
+  });
+
+  // Submit human confirmation of investigation hypotheses
+  app.post("/api/ai/confirm-investigation/:hcpId", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.hcpId);
+      const { confirmedHypotheses, smeNotes } = req.body;
+      
+      // Validation: Require at least one confirmed hypothesis
+      if (!confirmedHypotheses || confirmedHypotheses.length === 0) {
+        return res.status(400).json({ error: "At least one hypothesis must be confirmed" });
+      }
+      
+      // Get the most recent investigation session
+      const sessions = await storage.getAgentSessionsByHcp(hcpId);
+      const investigationSessions = sessions.filter(
+        s => s.goalType === 'causal_investigation' && s.status === 'completed'
+      );
+      
+      if (investigationSessions.length === 0) {
+        return res.status(404).json({ error: "No completed investigation found" });
+      }
+      
+      investigationSessions.sort((a, b) => 
+        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+      );
+      
+      const latestInvestigation = investigationSessions[0];
+      const provenHypotheses = latestInvestigation.contextData?.provenHypotheses || [];
+      
+      // Validation: Only allow confirmation of proven hypotheses
+      const provenIds = new Set(provenHypotheses.map((h: any) => h.hypothesis.id));
+      const invalidConfirmations = confirmedHypotheses.filter(
+        (h: any) => !provenIds.has(h.hypothesis.id)
+      );
+      
+      if (invalidConfirmations.length > 0) {
+        return res.status(400).json({ 
+          error: "Can only confirm hypotheses that were proven by investigation"
+        });
+      }
+      
+      // Store full hypothesis objects (not just IDs) so they can be retrieved later
+      await storage.updateAgentSession(latestInvestigation.id, {
+        contextData: {
+          ...latestInvestigation.contextData,
+          confirmedHypotheses: confirmedHypotheses, // Full hypothesis result objects
+          humanConfirmed: true,
+          smeNotes,
+          confirmedAt: new Date().toISOString(),
+        },
+      });
+      
+      res.json({ 
+        success: true,
+        confirmedCount: confirmedHypotheses.length,
+        message: "Investigation confirmed by SME"
+      });
+    } catch (error) {
+      console.error("Failed to confirm investigation:", error);
+      res.status(500).json({ error: "Failed to save confirmation" });
     }
   });
   

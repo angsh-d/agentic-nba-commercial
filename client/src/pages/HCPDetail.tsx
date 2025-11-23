@@ -9,7 +9,8 @@ import {
   Brain,
   MapPin,
   ChevronRight,
-  Lightbulb
+  Lightbulb,
+  UserCheck
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
@@ -33,6 +34,8 @@ interface InvestigationResults {
   session?: any;
   provenHypotheses?: any[];
   allHypotheses?: any[];
+  confirmedHypotheses?: any[];
+  isConfirmed?: boolean;
 }
 
 interface NBAResults {
@@ -150,11 +153,17 @@ export default function HCPDetail() {
     );
   }
 
-  const hasInvestigation = investigationResults?.hasInvestigation;
+  const hasInvestigation = investigationResults?.hasInvestigation || false;
   const provenHypotheses = investigationResults?.provenHypotheses || [];
+  const confirmedHypotheses = investigationResults?.confirmedHypotheses || [];
+  const isConfirmed = investigationResults?.isConfirmed || false;
   
-  // Only show strategies if investigation is complete AND has proven hypotheses
-  const canShowStrategies = hasInvestigation && provenHypotheses.length > 0;
+  // Only show strategies if investigation is confirmed by human AND has confirmed hypotheses
+  // Guard against undefined arrays and ensure at least one hypothesis is confirmed
+  const canShowStrategies = hasInvestigation && 
+                           isConfirmed && 
+                           Array.isArray(confirmedHypotheses) && 
+                           confirmedHypotheses.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -212,17 +221,21 @@ export default function HCPDetail() {
                     <h2 className="text-xl font-semibold text-gray-900">
                       Autonomous Causal Investigation
                     </h2>
-                    {hasInvestigation && (
+                    {hasInvestigation && !isConfirmed && (
+                      <Badge className="bg-gray-600 text-white text-xs px-2.5 py-0.5">
+                        Awaiting Confirmation
+                      </Badge>
+                    )}
+                    {isConfirmed && (
                       <Badge className="bg-gray-900 text-white text-xs px-2.5 py-0.5">
-                        Completed
+                        Confirmed
                       </Badge>
                     )}
                   </div>
                   <p className="text-sm text-gray-600 max-w-2xl">
-                    {hasInvestigation 
-                      ? `Investigation complete with ${provenHypotheses.length} proven ${provenHypotheses.length === 1 ? 'hypothesis' : 'hypotheses'}`
-                      : "AI-powered multi-hypothesis testing with evidence gathering to discover root causes of switching behavior"
-                    }
+                    {!hasInvestigation && "AI-powered multi-hypothesis testing with evidence gathering to discover root causes of switching behavior"}
+                    {hasInvestigation && !isConfirmed && `Investigation found ${provenHypotheses.length} proven ${provenHypotheses.length === 1 ? 'hypothesis' : 'hypotheses'} - review and confirm to generate strategies`}
+                    {isConfirmed && `${confirmedHypotheses.length} root ${confirmedHypotheses.length === 1 ? 'cause' : 'causes'} confirmed by SME`}
                   </p>
                 </div>
                 <Link href={`/hcp/${hcpId}/investigate`}>
@@ -230,7 +243,9 @@ export default function HCPDetail() {
                     className="bg-gray-900 hover:bg-gray-800 text-white"
                     data-testid="button-launch-investigation"
                   >
-                    {hasInvestigation ? "View Investigation" : "Launch Investigation"}
+                    {!hasInvestigation && "Launch Investigation"}
+                    {hasInvestigation && !isConfirmed && "Review & Confirm"}
+                    {isConfirmed && "View Investigation"}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>
@@ -262,34 +277,57 @@ export default function HCPDetail() {
             </h2>
             <EnsembleNBAPanel 
               nba={nbaResults.nba} 
-              provenHypotheses={provenHypotheses}
+              provenHypotheses={confirmedHypotheses}
             />
           </div>
         )}
 
-        {/* Placeholder - Investigation needed for strategies */}
-        {!hasInvestigation && hcp.switchRiskScore > 0 && (
+        {/* Placeholder - Investigation or confirmation needed for strategies */}
+        {!canShowStrategies && hcp.switchRiskScore > 0 && (
           <Card className="border border-gray-200 bg-white">
             <CardContent className="p-12">
               <div className="text-center max-w-xl mx-auto">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                   <Lightbulb className="w-8 h-8 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Complete Causal Investigation First
-                </h3>
-                <p className="text-sm text-gray-600 mb-6">
-                  AI-generated strategy recommendations will appear here after you complete the autonomous causal investigation to identify proven root causes of switching behavior.
-                </p>
-                <Link href={`/hcp/${hcpId}/investigate`}>
-                  <Button 
-                    className="bg-gray-900 hover:bg-gray-800 text-white"
-                    data-testid="button-start-investigation-cta"
-                  >
-                    <Brain className="w-4 h-4 mr-2" />
-                    Start Investigation
-                  </Button>
-                </Link>
+                {!hasInvestigation && (
+                  <>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Complete Causal Investigation First
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                      AI-generated strategy recommendations will appear after you complete the investigation and confirm root causes.
+                    </p>
+                    <Link href={`/hcp/${hcpId}/investigate`}>
+                      <Button 
+                        className="bg-gray-900 hover:bg-gray-800 text-white"
+                        data-testid="button-start-investigation-cta"
+                      >
+                        <Brain className="w-4 h-4 mr-2" />
+                        Start Investigation
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {hasInvestigation && !isConfirmed && (
+                  <>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Confirm Root Causes
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                      Investigation identified {provenHypotheses.length} proven {provenHypotheses.length === 1 ? 'hypothesis' : 'hypotheses'}. Review and confirm findings to generate AI strategies.
+                    </p>
+                    <Link href={`/hcp/${hcpId}/investigate`}>
+                      <Button 
+                        className="bg-gray-900 hover:bg-gray-800 text-white"
+                        data-testid="button-confirm-investigation-cta"
+                      >
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Review & Confirm
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>

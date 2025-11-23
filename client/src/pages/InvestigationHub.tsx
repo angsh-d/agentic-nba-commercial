@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   ArrowLeft, 
   Brain, 
   CheckCircle2, 
   XCircle,
-  ChevronRight
+  ChevronRight,
+  UserCheck
 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useRoute, Link } from "wouter";
+import { useRoute, Link, useLocation } from "wouter";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -52,6 +55,16 @@ async function triggerInvestigation(hcpId: number) {
   return response.json();
 }
 
+async function confirmInvestigation(hcpId: number, confirmedHypotheses: any[], smeNotes: string) {
+  const response = await fetch(`/api/ai/confirm-investigation/${hcpId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ confirmedHypotheses, smeNotes }),
+  });
+  if (!response.ok) throw new Error("Failed to confirm investigation");
+  return response.json();
+}
+
 function getVerdictBadge(verdict: string) {
   switch (verdict) {
     case "proven":
@@ -70,8 +83,12 @@ function getVerdictBadge(verdict: string) {
 export default function InvestigationHub() {
   const [, params] = useRoute("/hcp/:id/investigate");
   const hcpId = params?.id;
+  const [, setLocation] = useLocation();
   const [investigationResults, setInvestigationResults] = useState<any>(null);
   const [isInvestigating, setIsInvestigating] = useState(false);
+  const [selectedHypotheses, setSelectedHypotheses] = useState<Set<string>>(new Set());
+  const [smeNotes, setSmeNotes] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const investigateMutation = useMutation({
     mutationFn: () => triggerInvestigation(Number(hcpId)),
@@ -82,6 +99,9 @@ export default function InvestigationHub() {
     onSuccess: (data) => {
       setInvestigationResults(data.investigation);
       setIsInvestigating(false);
+      // Auto-select all proven hypotheses by default
+      const provenIds = new Set(data.investigation.provenHypotheses.map((h: any) => h.hypothesis.id));
+      setSelectedHypotheses(provenIds);
       toast.success(`${data.investigation.provenHypotheses.length} hypotheses proven`);
     },
     onError: () => {
@@ -90,9 +110,33 @@ export default function InvestigationHub() {
     },
   });
 
+  const confirmMutation = useMutation({
+    mutationFn: () => {
+      const confirmed = allHypotheses.filter(h => selectedHypotheses.has(h.hypothesis.id));
+      return confirmInvestigation(Number(hcpId), confirmed, smeNotes);
+    },
+    onSuccess: (data) => {
+      toast.success(`${data.confirmedCount} hypotheses confirmed`);
+      setLocation(`/hcp/${hcpId}`);
+    },
+    onError: () => {
+      toast.error("Failed to save confirmation");
+    },
+  });
+
   const allHypotheses: HypothesisResult[] = investigationResults?.allHypotheses || [];
   const provenHypotheses = investigationResults?.provenHypotheses || [];
   const ruledOut = investigationResults?.ruledOut || [];
+
+  const toggleHypothesis = (id: string) => {
+    const newSelected = new Set(selectedHypotheses);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedHypotheses(newSelected);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -299,25 +343,84 @@ export default function InvestigationHub() {
               ))}
             </div>
 
-            {/* CTA to NBA Strategy */}
+            {/* Human Confirmation Section */}
             {provenHypotheses.length > 0 && (
-              <Card className="border border-gray-900 bg-gray-900 text-white">
-                <CardContent className="p-8">
-                  <div className="flex items-center justify-between">
+              <Card className="border border-gray-900 bg-white">
+                <CardHeader className="border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <UserCheck className="w-5 h-5 text-gray-900" />
                     <div>
-                      <h3 className="text-lg font-semibold mb-1">
-                        View Ensemble NBA Strategies
-                      </h3>
-                      <p className="text-sm text-gray-300">
-                        See AI-generated recommendations based on proven hypotheses
+                      <CardTitle className="text-xl">Review & Confirm Root Causes</CardTitle>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Select proven hypotheses you agree with before generating strategies
                       </p>
                     </div>
-                    <Link href={`/hcp/${hcpId}`}>
-                      <Button variant="secondary" className="bg-white text-gray-900 hover:bg-gray-100">
-                        View Strategies
-                        <ChevronRight className="w-4 h-4 ml-1" />
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {/* Hypothesis Selection */}
+                    <div className="space-y-3">
+                      {provenHypotheses.map((result: HypothesisResult) => (
+                        <div
+                          key={result.hypothesis.id}
+                          className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg hover:border-gray-900 transition-colors"
+                          data-testid={`hypothesis-confirm-${result.hypothesis.id}`}
+                        >
+                          <Checkbox
+                            checked={selectedHypotheses.has(result.hypothesis.id)}
+                            onCheckedChange={() => toggleHypothesis(result.hypothesis.id)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-gray-900">{result.hypothesis.title}</h4>
+                              {getVerdictBadge(result.evidence.verdict)}
+                              <Badge variant="outline" className="text-xs">
+                                {result.evidence.finalConfidence}% confidence
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{result.hypothesis.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* SME Notes */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        SME Notes (Optional)
+                      </label>
+                      <Textarea
+                        placeholder="Add any additional context or notes about your confirmation..."
+                        value={smeNotes}
+                        onChange={(e) => setSmeNotes(e.target.value)}
+                        className="min-h-[80px] text-sm"
+                        data-testid="input-sme-notes"
+                      />
+                    </div>
+
+                    {/* Confirmation Actions */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                      <div className="text-sm text-gray-600">
+                        {selectedHypotheses.size} of {provenHypotheses.length} hypotheses selected
+                      </div>
+                      <Button
+                        onClick={() => confirmMutation.mutate()}
+                        disabled={selectedHypotheses.size === 0 || confirmMutation.isPending}
+                        className="bg-gray-900 hover:bg-gray-800 text-white"
+                        data-testid="button-confirm-hypotheses"
+                      >
+                        {confirmMutation.isPending ? (
+                          <>Confirming...</>
+                        ) : (
+                          <>
+                            Confirm & Generate Strategies
+                            <ChevronRight className="w-4 h-4 ml-1" />
+                          </>
+                        )}
                       </Button>
-                    </Link>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
