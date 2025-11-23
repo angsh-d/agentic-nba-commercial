@@ -517,7 +517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Find NBA created around the same time as this session
         const nbaTime = new Date(nba.generatedAt).getTime();
         const sessionTime = new Date(latestSession.startedAt).getTime();
-        return Math.abs(nbaTime - sessionTime) < 60000; // Within 1 minute
+        return Math.abs(nbaTime - sessionTime) < 120000; // Within 2 minutes (NBA generation can take 60-90 seconds)
       });
       
       res.json({
