@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
 import { ComparativePrescriptionTrends } from "@/components/ComparativePrescriptionTrends";
+import { HypothesisTreeView } from "@/components/HypothesisTreeView";
+import { MultiSignalEvidencePanel } from "@/components/MultiSignalEvidencePanel";
 import {
   ArrowLeft,
   Brain,
@@ -15,11 +17,13 @@ import {
   Activity,
   Sparkles,
   Search,
-  Target
+  Target,
+  CheckCircle2
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
+import { useState } from "react";
 
 interface HCP {
   id: number;
@@ -82,9 +86,94 @@ function getRiskBadge(tier: string, score: number) {
   return <Badge className="bg-gray-300 text-gray-700 text-xs px-2.5 py-0.5">Low Risk</Badge>;
 }
 
+// Hypothesis data for each HCP
+const getHypothesesForHcp = (hcpId: string) => {
+  if (hcpId === "1") {
+    // Dr. Sarah Smith - Safety/Efficacy hypotheses
+    return [
+      {
+        id: "safety_concerns",
+        text: "Safety Concerns - Adverse events driving switches in high-risk patients",
+        status: "proven" as const,
+        confidence: 90,
+        evidence: ["4 cardiac AEs in CV-risk patients (Aug-Sep)", "Proactive switches to mitigate risk", "Correlated with patient safety profile"]
+      },
+      {
+        id: "efficacy_data",
+        text: "New Efficacy Data - ASCO ORION-Y trial influenced young RCC patient switches",
+        status: "proven" as const,
+        confidence: 85,
+        evidence: ["5 young RCC patients switched within 3 weeks post-ASCO", "Superior PFS data for Onco-Rival", "Temporal correlation with June 15 conference"]
+      },
+      {
+        id: "access_barriers",
+        text: "Access Barriers - Payer or formulary changes limiting product availability",
+        status: "rejected" as const,
+        confidence: 15,
+        evidence: ["No formulary changes detected", "Stable payer mix", "No PA denials reported"]
+      },
+      {
+        id: "peer_influence",
+        text: "Peer Influence - KOL network driving prescribing changes",
+        status: "rejected" as const,
+        confidence: 20,
+        evidence: ["Pattern unique to Dr. Smith", "No territory-wide trend", "Independent clinical decision"]
+      },
+      {
+        id: "pricing",
+        text: "Pricing Pressure - Cost considerations affecting prescriptions",
+        status: "rejected" as const,
+        confidence: 10,
+        evidence: ["No patient copay complaints", "Insurance coverage stable", "No financial access issues"]
+      }
+    ];
+  } else if (hcpId === "2") {
+    // Dr. Michael Chen - Access Barrier hypotheses
+    return [
+      {
+        id: "access_barriers",
+        text: "Access Barriers - Multi-payer formulary changes blocking patient access",
+        status: "proven" as const,
+        confidence: 92,
+        evidence: ["Aug 1 tier changes across UHC/Aetna/Cigna", "9/12 patients hit access barriers", "Copay $35→$450, new PA requirements"]
+      },
+      {
+        id: "safety_concerns",
+        text: "Safety Concerns - Adverse events driving switches",
+        status: "rejected" as const,
+        confidence: 10,
+        evidence: ["No AE clusters detected", "Call notes show clinical confidence", "No safety-related switches"]
+      },
+      {
+        id: "efficacy_data",
+        text: "New Efficacy Data - Clinical trial results changing prescribing",
+        status: "rejected" as const,
+        confidence: 12,
+        evidence: ["No conference attendance in timeline", "No efficacy concerns in notes", "Switches isolated to access-blocked patients"]
+      },
+      {
+        id: "pricing",
+        text: "Pricing Pressure - Patient financial burden driving abandonment",
+        status: "proven" as const,
+        confidence: 88,
+        evidence: ["4/4 high copay patients switched (100%)", "$450/month copay shock", "Financial toxicity explicit in notes"]
+      },
+      {
+        id: "fulfillment",
+        text: "Fulfillment Delays - Specialty pharmacy lags causing switches",
+        status: "proven" as const,
+        confidence: 75,
+        evidence: ["2/2 delay patients switched (100%)", "14-day lags vs competitor 3-day", "Patient frustration documented"]
+      }
+    ];
+  }
+  return [];
+};
+
 export default function HCPDetail() {
   const [, params] = useRoute("/hcp/:id");
   const hcpId = params?.id;
+  const [hypothesisConfirmed, setHypothesisConfirmed] = useState(false);
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
@@ -107,6 +196,26 @@ export default function HCPDetail() {
   const { data: clinicalEvents = [] } = useQuery({
     queryKey: ["clinical-events", hcpId],
     queryFn: () => fetchClinicalEvents(hcpId!),
+    enabled: !!hcpId,
+  });
+
+  const { data: callNotes = [] } = useQuery({
+    queryKey: ["call-notes", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/call-notes`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
+  const { data: payerCommunications = [] } = useQuery({
+    queryKey: ["payer-communications", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/payer-communications`);
+      if (!response.ok) return [];
+      return response.json();
+    },
     enabled: !!hcpId,
   });
 
@@ -208,16 +317,16 @@ export default function HCPDetail() {
           </div>
         </div>
 
-        {/* Multi-Signal Investigation */}
-        {hcpId === "1" && (
+        {/* Hypothesis-First Investigation */}
+        {hcp.switchRiskScore > 0 && hcpId && (
           <div className="mb-24">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-8">
                 <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
-                  Multi-Signal Investigation
+                  Root Cause Investigation
                 </h2>
                 <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
-                  Agent-Discovered
+                  Agent-Driven
                 </Badge>
               </div>
             </div>
@@ -227,62 +336,59 @@ export default function HCPDetail() {
               <div className="flex items-start gap-3">
                 <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">How Agents Discovered This Pattern</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Autonomous Hypothesis Generation</h4>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Observer detected a 75% switching rate across 12 patients between June-October. 
-                    Correlator identified two distinct temporal clusters: 5 young RCC patients switching post-ASCO conference (June 15) and 4 CV-risk patients switching after cardiac adverse events (August). 
-                    Planner determined these represent independent causal pathways—one efficacy-driven, one safety-driven—rather than a single switching cause.
+                    Agents generated {getHypothesesForHcp(hcpId).length} competing hypotheses for the observed switching pattern, then systematically gathered evidence to prove or reject each one. This eliminates confirmation bias and ensures all causal pathways are explored before conclusions.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Investigation Journey Steps */}
+            {/* Hypothesis Tree */}
             <Card className="border border-gray-200 mb-8">
               <CardContent className="p-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Investigation Journey</h3>
-                <div className="space-y-6">
-                  {/* Step 1 */}
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                      <Eye className="w-5.5 h-5.5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Signal Detection</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        <strong>Observer Agent:</strong> Detected 3 correlated signals across prescription history, clinical events, and peer networks
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                      <Activity className="w-5.5 h-5.5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Temporal Correlation</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        <strong>Correlator Agent:</strong> Cross-referenced 12 patients over 6 months revealing dual switching clusters post-ASCO conference
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                      <Target className="w-5.5 h-5.5 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-base font-semibold text-gray-900 mb-1.5">Multi-Hypothesis Investigation</h4>
-                      <p className="text-sm text-gray-600 leading-relaxed">
-                        <strong>Planner & Gatherer Agents:</strong> Identified dual independent drivers: efficacy concerns in young RCC cohort + safety mitigation in CV-risk patients
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Competing Hypotheses</h3>
+                <HypothesisTreeView hypotheses={getHypothesesForHcp(hcpId)} />
               </CardContent>
             </Card>
+
+            {/* Multi-Signal Evidence Panel */}
+            <Card className="border border-gray-200 mb-8">
+              <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Cross-Signal Evidence</h3>
+                <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+                  Agents gathered evidence across prescription history, clinical events, call notes, and payer communications to validate each hypothesis.
+                </p>
+                <MultiSignalEvidencePanel 
+                  callNotes={callNotes} 
+                  payerCommunications={payerCommunications}
+                  patients={patients}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Proven Hypotheses Summary & Confirmation */}
+            {!hypothesisConfirmed && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-8">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Evidence-Supported Root Causes</h4>
+                    <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                      Agents gathered cross-signal evidence and identified {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven root causes for the switching pattern. Review the evidence above and confirm to proceed with detailed cohort analysis.
+                    </p>
+                    <Button
+                      onClick={() => setHypothesisConfirmed(true)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
+                      data-testid="button-confirm-hypothesis"
+                    >
+                      <ChevronRight className="w-4 h-4 mr-2" />
+                      Confirm & Proceed to Deep Dive Analysis
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Timeline Chart */}
             <Card className="border border-gray-200">
@@ -450,19 +556,21 @@ export default function HCPDetail() {
           </Card>
         </div>
 
-        {/* Cohort Analysis */}
-        {prescriptionHistory.length > 0 && (
+        {/* Cohort Analysis - Only after hypothesis confirmation */}
+        {prescriptionHistory.length > 0 && hypothesisConfirmed && (
           <div className="mb-20">
             <div className="flex items-center gap-3 mb-3">
               <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
                 Patient Cohort Analysis
               </h2>
               <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
-                Agent-Discovered
+                Deep Dive
               </Badge>
             </div>
             <p className="text-base text-gray-600 leading-relaxed max-w-3xl mb-8">
-              Agents identified two distinct patient cohorts with different switching drivers—young RCC patients responding to efficacy signals, and CV-risk patients responding to safety concerns.
+              {hcpId === "1" 
+                ? "Agents identified two distinct patient cohorts with different switching drivers—young RCC patients responding to efficacy signals, and CV-risk patients responding to safety concerns."
+                : "Agents identified distinct patient cohorts with different access barrier patterns—copay shock, PA denials, and fulfillment delays driving switches, while smooth-access patients remained stable."}
             </p>
             <CohortSwitchingChart
               prescriptionHistory={prescriptionHistory}
