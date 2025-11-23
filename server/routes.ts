@@ -513,12 +513,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the NBA created in this session
       const nbas = await storage.getNbasByHcp(hcpId);
-      const latestNba = nbas.find((nba: any) => {
+      let latestNba = nbas.find((nba: any) => {
         // Find NBA created around the same time as this session
         const nbaTime = new Date(nba.generatedAt).getTime();
         const sessionTime = new Date(latestSession.startedAt).getTime();
         return Math.abs(nbaTime - sessionTime) < 120000; // Within 2 minutes (NBA generation can take 60-90 seconds)
       });
+      
+      // If no NBA found for this session (e.g., session failed), show the most recent NBA available
+      if (!latestNba && nbas.length > 0) {
+        latestNba = nbas[0]; // NBAs are already sorted by generated_at DESC
+      }
       
       res.json({
         hasResults: true,
