@@ -278,116 +278,99 @@ export default function Home() {
               Autonomous agents detect signals, investigate causal drivers, and generate contextual Next Best Actions
             </p>
             
-            {/* Agent Icons - Two Rows */}
-            <div className="space-y-8 mb-16">
-              {/* Signal Detection Agents */}
-              <div>
-                <div className="text-xs text-gray-500 font-medium tracking-wide mb-4">Signal Detection</div>
-                <div className="flex items-center justify-center gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <Eye className="w-7 h-7 text-blue-600 relative z-10" />
+            {/* Agent Pipeline - Horizontal Flow */}
+            <div className="relative max-w-5xl mx-auto mb-16">
+              <div className="grid grid-cols-3 gap-8">
+                {/* Stage 1: Detect */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1, duration: 0.5 }}
+                  className="relative"
+                >
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
+                    <div className="text-sm font-semibold text-gray-900 mb-4">Detect</div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <Eye className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Observation</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <Activity className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Correlation</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Narrative</div>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Observation</div>
-                  </motion.div>
+                  </div>
+                  {/* Connector Arrow */}
+                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
+                    <ChevronRight className="w-8 h-8 text-blue-500/40" />
+                  </div>
+                </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <Activity className="w-7 h-7 text-blue-600 relative z-10" />
+                {/* Stage 2: Investigate */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="relative"
+                >
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
+                    <div className="text-sm font-semibold text-gray-900 mb-4">Investigate</div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <Target className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Planner</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <Search className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Gatherer</div>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Correlation</div>
-                  </motion.div>
+                  </div>
+                  {/* Connector Arrow */}
+                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
+                    <ChevronRight className="w-8 h-8 text-blue-500/40" />
+                  </div>
+                </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <FileText className="w-7 h-7 text-blue-600 relative z-10" />
+                {/* Stage 3: Act */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                >
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
+                    <div className="text-sm font-semibold text-gray-900 mb-4">Act</div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Synthesizer</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-xs text-gray-700">Reflector</div>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Narrative</div>
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Causal Analysis & NBA Agents */}
-              <div>
-                <div className="text-xs text-gray-500 font-medium tracking-wide mb-4">Causal Analysis & NBA Generation</div>
-                <div className="flex items-center justify-center gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <Target className="w-7 h-7 text-blue-600 relative z-10" />
-                    </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Planner</div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <Search className="w-7 h-7 text-blue-600 relative z-10" />
-                    </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Gatherer</div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <Sparkles className="w-7 h-7 text-blue-600 relative z-10" />
-                    </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Synthesizer</div>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7, duration: 0.4 }}
-                    whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                    className="text-center"
-                  >
-                    <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                      <CheckCircle2 className="w-7 h-7 text-blue-600 relative z-10" />
-                    </div>
-                    <div className="text-[10px] text-gray-600 font-medium tracking-wide">Reflector</div>
-                  </motion.div>
-                </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
             
