@@ -301,6 +301,70 @@ export default function InvestigationHub() {
               </Card>
             </div>
 
+            {/* Causal Drivers Summary */}
+            {provenHypotheses.length > 0 && (
+              <div className="mb-12">
+                <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-6">
+                  Causal Drivers Discovered
+                </h2>
+                <Card className="border-2 border-gray-900 bg-gray-50">
+                  <CardContent className="p-8">
+                    <div className="mb-6">
+                      <p className="text-base text-gray-700 font-light leading-relaxed">
+                        Investigation revealed <strong className="text-gray-900">two distinct, evidence-driven switching patterns</strong> across different patient cohorts — not a single "competitor threat":
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
+                            Young RCC Cohort
+                          </Badge>
+                        </div>
+                        <div className="text-3xl font-semibold text-gray-900 mb-2">5</div>
+                        <div className="text-sm text-gray-600 mb-4">patients switched July-Aug</div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                        <div className="text-sm text-gray-700">ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients &lt;55</div>
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="text-xs font-semibold text-gray-900">Driver: Efficacy Signal</div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
+                            CV-Risk Cohort
+                          </Badge>
+                        </div>
+                        <div className="text-3xl font-semibold text-gray-900 mb-2">4</div>
+                        <div className="text-sm text-gray-600 mb-4">patients switched September</div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Causal Trigger</div>
+                        <div className="text-sm text-gray-700">Cardiac AEs (Aug) + Onco-Rival safety webinar (Aug 30)</div>
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="text-xs font-semibold text-gray-900">Driver: Safety Signal</div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 text-gray-600 border-gray-300">
+                            Stable Cohort
+                          </Badge>
+                        </div>
+                        <div className="text-3xl font-semibold text-gray-900 mb-2">3</div>
+                        <div className="text-sm text-gray-600 mb-4">patients remained on Onco-Pro</div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Why No Switch?</div>
+                        <div className="text-sm text-gray-700">Neither efficacy signal (wrong indication) nor safety concern (no CV risk) applied</div>
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="text-xs font-semibold text-gray-900">Driver: None (Strategic Switching)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
             {/* Hypothesis Analysis: Three-Phase Framework */}
             <div className="mb-8">
               <div className="flex items-center gap-6 mb-8">
@@ -320,7 +384,7 @@ export default function InvestigationHub() {
                 </div>
               </div>
               
-              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-6">Causal Hypotheses</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-6">Detailed Causal Hypotheses</h2>
               <div className="space-y-6">
               {allHypotheses.map((result: HypothesisResult, index: number) => (
                 <motion.div

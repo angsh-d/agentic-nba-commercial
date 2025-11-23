@@ -212,6 +212,56 @@ export default function HCPDetail() {
           </div>
         )}
 
+        {/* Traditional NBA Alert (Surface-Level View) */}
+        {hcp.switchRiskScore > 0 && (
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">
+                Traditional NBA Alert
+              </h2>
+              <Badge variant="outline" className="text-xs text-gray-600 border-gray-300">
+                Surface-Level View
+              </Badge>
+            </div>
+            <Card className="border border-gray-300 bg-gray-50">
+              <CardContent className="p-8">
+                <div className="grid grid-cols-4 gap-6 mb-8">
+                  <div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Risk Score</div>
+                    <div className="text-2xl font-semibold text-gray-900">{hcp.switchRiskScore}/100</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Engagement</div>
+                    <div className="text-2xl font-semibold text-gray-900 capitalize">{hcp.engagementLevel}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Institution</div>
+                    <div className="text-2xl font-semibold text-gray-900">Tier-1</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Competitor Share</div>
+                    <div className="text-2xl font-semibold text-gray-900">+15%</div>
+                  </div>
+                </div>
+                <div className="border-t border-gray-300 pt-6">
+                  <div className="text-sm text-gray-500 uppercase tracking-wide mb-2">Generic Recommendation</div>
+                  <p className="text-base text-gray-700 italic font-light">
+                    "Schedule clinical lunch-and-learn to review latest product efficacy data. Priority: Medium."
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            {hasInvestigation && isConfirmed && (
+              <div className="mt-6 p-4 bg-white border-l-4 border-gray-900">
+                <p className="text-sm text-gray-700">
+                  <strong className="text-gray-900">⚠️ Why This Failed:</strong> This one-size-fits-all approach missed the underlying causal story. 
+                  Autonomous investigation revealed <strong>two distinct switching patterns across different patient cohorts</strong> driven by separate clinical triggers — not a single "competitor threat."
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Investigation CTA */}
         <div className="mb-20">
           <Card className="border border-gray-200 bg-gray-50 hover:border-gray-900 hover:shadow-lg transition-all duration-200">

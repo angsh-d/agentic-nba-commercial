@@ -434,28 +434,37 @@ ${JSON.stringify(plan, null, 2)}
 EVIDENCE & CAUSAL ANALYSIS:
 ${JSON.stringify(evidence, null, 2)}
 
-TASK: Generate the single best Next Best Action with layered narrative explaining causal factors.
+CRITICAL REQUIREMENT: Your NBA must be COHORT-SPECIFIC and address BOTH causal drivers identified in the evidence.
 
-Your "aiInsight" field should be a NARRATIVE that:
-1. Explains distinct switching patterns across different patient cohorts
-2. Connects clinical events (conferences, adverse events) to behavioral changes
-3. Demonstrates evidence-based, strategic HCP decision-making
-4. Provides specific dates, percentages, and temporal correlations
-5. Shows how multiple causal factors drive different cohort behaviors
+If evidence shows TWO DISTINCT SWITCHING PATTERNS (e.g., efficacy-driven for young RCC + safety-driven for CV-risk patients), your action MUST:
+1. Be a DUAL-PURPOSE intervention that addresses both cohorts simultaneously
+2. Include specific tactical elements: CME-aligned format, cardiology expert, peer KOL, live case review, monitoring protocols, and operational support with SLAs
+3. Reference both cohorts explicitly in the action description
 
-Example narrative structure:
-"Dr. [Name]'s switching behavior reveals two distinct, evidence-driven patterns: First, following [EVENT] on [DATE], all patients in [COHORT A] systematically switched to [COMPETITOR], representing a [X]% shift driven by [CAUSAL FACTOR]. Second, after experiencing [EVENT CLUSTER] in [TIMEFRAME], [COHORT B] patients selectively migrated due to [SAFETY/EFFICACY CONCERN]. Notably, [COHORT C] patients remain on our drug, indicating strategic, not categorical switching."
+REQUIRED NBA FORMAT for dual-cohort switching:
+{
+  "action": "Host 60-90 minute CME-aligned Cardio-Oncology Tumor Board at [HOSPITAL] with: (1) Cardiology co-management expert to address CV-risk patient safety concerns, (2) Peer KOL to present nuanced [TRIAL NAME] subgroup data for [COHORT], (3) Review 8-12 live patient cases with pre-pulled charts, (4) Establish cardiac monitoring protocol and standing cardiology consult workflow, (5) Activate fast-track PA team with <10 business day SLA",
+  "actionType": "event",
+  "priority": "High",
+  "reason": "Two distinct causal drivers require cohort-specific dual intervention: efficacy signal for [COHORT A] + safety signal for [COHORT B]",
+  "aiInsight": "Dr. [Name]'s switching reveals two evidence-driven patterns: (1) [X] young RCC patients (ages [AGE RANGE]) switched [TIMEFRAME] following ASCO ORION-Y trial (Jun 15) showing 40% PFS benefit in patients <55—pure efficacy-driven adoption. (2) [Y] CV-risk patients (ages [AGE RANGE]) with cardiac comorbidities switched in September after experiencing [Z] cardiac AEs in August (QT prolongation, arrhythmia, chest pain) amplified by Onco-Rival safety webinar (Aug 30)—defensive safety-driven switching. Notably, [Z] stable cohort patients (bladder, ovarian, prostate) remain on Onco-Pro, confirming strategic not categorical switching. This dual-driver pattern requires a CME-aligned intervention combining cardiology co-management for CV safety AND peer-reviewed ORION-Y patient selection criteria for efficacy-appropriate young RCC use.",
+  "confidenceScore": 85,
+  "expectedOutcome": "Retain stable cohort, win back selective CV-risk patients via monitoring protocols, establish appropriate ORION-Y selection criteria for young RCC segment",
+  "timeframe": "Within 3 weeks"
+}
+
+If evidence shows only ONE cohort pattern, generate a standard targeted NBA.
 
 OUTPUT (JSON):
 {
   "thought": "Why this is the optimal action based on causal patterns...",
-  "action": "Specific action to take",
+  "action": "Specific cohort-aware action with tactical elements",
   "actionType": "meeting|email|call|event",
   "priority": "High|Medium|Low",
-  "reason": "Business justification with cohort-specific focus",
-  "aiInsight": "LAYERED NARRATIVE explaining causal factors, cohort patterns, temporal correlations, and strategic HCP behavior with specific dates and statistics",
+  "reason": "Business justification with explicit cohort drivers",
+  "aiInsight": "LAYERED NARRATIVE with cohort labels, specific dates, percentages, temporal correlations, and dual causal drivers",
   "confidenceScore": 85,
-  "expectedOutcome": "What we expect to achieve",
+  "expectedOutcome": "What we expect to achieve per cohort",
   "timeframe": "When to execute"
 }`;
     
@@ -705,15 +714,30 @@ PATIENT COHORTS:
 ${patients.slice(0, 6).map(p => `- ${p.patientCode}: Age ${p.age}, ${p.cancerType}, ${p.cohort} cohort, ${p.switchedDate ? 'Switched' : 'Stable'}`).join('\n')}
 
 TASK: Generate 3-5 COMPETING causal hypotheses that could explain the switching behavior.
+
+CRITICAL: If you see MULTIPLE PATIENT COHORTS (young_rcc, cv_risk, stable) in the data, generate COHORT-SPECIFIC hypotheses.
+- Label each hypothesis with the affected cohort: "[Young RCC] ...", "[CV-Risk] ...", "[Stable] ..."
+- Link each hypothesis to a specific causal trigger (conference, adverse event, etc.)
+- Explain WHY that trigger would affect THAT specific cohort
+
 Think like a detective: what are DIFFERENT possible root causes? Consider:
-- Conference/clinical trial data
-- Adverse events/safety signals
+- Conference/clinical trial data (efficacy-driven for specific indications)
+- Adverse events/safety signals (safety-driven for at-risk patients)
 - Competitor marketing/pricing
 - Payer/formulary changes
 - Peer influence
 - Patient population shifts
 
-For each hypothesis, predict what evidence we'd expect to find if it's true.
+EXAMPLE COHORT-SPECIFIC HYPOTHESES:
+{
+  "id": "H1",
+  "title": "[Young RCC Cohort] ASCO ORION-Y trial drove systematic efficacy-based adoption",
+  "description": "Young RCC patients (ages <55) switched following June 15 ASCO presentation showing 40% PFS benefit in this specific subgroup",
+  "causalChain": ["ASCO ORION-Y trial (Jun 15)", "40% PFS benefit in <55 age group", "Evidence-based efficacy signal", "Young RCC cohort switching (Jul-Aug)"],
+  "predictedPatterns": ["Switches cluster in July-Aug (post-conference)", "Only young_rcc cohort affected", "Temporal alignment with trial publication"],
+  "dataSourcesNeeded": ["ASCO conference schedule", "ORION-Y trial data", "Patient age/indication breakdown"],
+  "initialConfidence": 75
+}
 
 OUTPUT (JSON):
 {
@@ -721,15 +745,15 @@ OUTPUT (JSON):
   "hypotheses": [
     {
       "id": "H1",
-      "title": "Conference-Driven Efficacy Shift",
-      "description": "HCP attended medical conference presenting new efficacy data favoring competitor",
-      "causalChain": ["Conference attendance", "New trial data", "Updated treatment beliefs", "Patient switching"],
-      "predictedPatterns": ["Switches cluster after conference date", "Specific patient subtype affected", "Peer physicians show same pattern"],
-      "dataSourcesNeeded": ["Conference schedules", "Trial publications", "Peer prescribing data"],
-      "initialConfidence": 60
+      "title": "[Cohort Name] Specific causal trigger and mechanism",
+      "description": "Detailed explanation linking cause to specific patient cohort",
+      "causalChain": ["Event/Trigger", "Mechanism", "HCP decision", "Cohort-specific switching"],
+      "predictedPatterns": ["Temporal correlation", "Cohort selectivity", "Other observable patterns"],
+      "dataSourcesNeeded": ["Source 1", "Source 2"],
+      "initialConfidence": 60-90
     }
   ],
-  "rationale": "Why I generated these specific hypotheses..."
+  "rationale": "Why I generated these cohort-specific hypotheses..."
 }`;
     
     const response = await azureOpenAI.chat.completions.create({

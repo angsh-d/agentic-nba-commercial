@@ -320,6 +320,59 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
               </p>
             </div>
             <StrategyCard strategy={aiStrategy} />
+            
+            {/* Tactical Breakdown for Tumor Board Strategy */}
+            {aiStrategy.description.toLowerCase().includes('tumor board') && (
+              <div className="mt-6">
+                <Card className="border border-gray-300 bg-gray-50">
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold text-gray-900">
+                      Tumor Board Tactical Elements
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          Format
+                        </div>
+                        <div className="text-sm text-gray-900">60-90 minute CME-aligned session</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          Cardiology Expert
+                        </div>
+                        <div className="text-sm text-gray-900">Co-management for CV-risk safety concerns</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          Peer KOL
+                        </div>
+                        <div className="text-sm text-gray-900">Present nuanced trial subgroup data</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          Case Review
+                        </div>
+                        <div className="text-sm text-gray-900">8-12 patient cases, pre-pulled charts</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          Protocol
+                        </div>
+                        <div className="text-sm text-gray-900">Cardiac monitoring + consult workflow</div>
+                      </div>
+                      <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                          PA Support
+                        </div>
+                        <div className="text-sm text-gray-900">Fast-track team, &lt;10 business day SLA</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         )}
 
