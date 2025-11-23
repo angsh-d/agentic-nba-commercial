@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
 import { EnsembleNBAPanel } from "@/components/EnsembleNBAPanel";
+import { ComparativePrescriptionTrends } from "@/components/ComparativePrescriptionTrends";
 import {
   ArrowLeft,
   Brain,
@@ -128,6 +129,16 @@ export default function HCPDetail() {
     enabled: !!hcpId,
   });
 
+  const { data: prescriptionTrends = [] } = useQuery({
+    queryKey: ["prescription-trends", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/prescription-trends`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!hcpId,
+  });
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -209,6 +220,16 @@ export default function HCPDetail() {
             )}
           </div>
         </div>
+
+        {/* Comparative Prescription Trends */}
+        {prescriptionTrends.length > 0 && (
+          <div className="mb-16">
+            <ComparativePrescriptionTrends 
+              hcpName={hcp.name}
+              prescriptionData={prescriptionTrends}
+            />
+          </div>
+        )}
 
         {/* Investigation CTA */}
         <div className="mb-12">

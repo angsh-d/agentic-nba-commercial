@@ -172,8 +172,14 @@ export function EnsembleNBAPanel({ nba, provenHypotheses = [] }: EnsembleNBAPane
     return <Badge className="bg-gray-900 text-white text-xs px-2 py-0.5">{labels[source] || source}</Badge>;
   };
 
+  // Group strategies by source for clearer presentation
+  const rlStrategy = ensembleStrategies.find(s => s.source === "RL");
+  const rulesStrategy = ensembleStrategies.find(s => s.source === "Rules");
+  const aiStrategy = ensembleStrategies.find(s => s.source === "AI");
+  const ensembleStrategy = ensembleStrategies.find(s => s.source === "Ensemble");
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-1 tracking-tight">

@@ -380,7 +380,7 @@ export async function seedDatabase() {
       patientId: null,
       productName: "Onco-Pro",
       productCategory: "Immunotherapy",
-      prescriptionCount: 28,
+      prescriptionCount: 35,
       month: "2025-09",
       isOurProduct: 1,
       cohort: "stable",
@@ -390,19 +390,19 @@ export async function seedDatabase() {
       patientId: null,
       productName: "Onco-Rival",
       productCategory: "Immunotherapy",
-      prescriptionCount: 13,
+      prescriptionCount: 8,
       month: "2025-09",
       isOurProduct: 0,
       cohort: "young_rcc_cv_risk",
     });
 
-    // October 2025 - New equilibrium (only stable cohort remains)
+    // October 2025 - CRITICAL: Severe switching event (71% decline, 275% competitor increase, 25% market share)
     await storage.createPrescriptionHistory({
       hcpId: drSmith.id,
       patientId: null,
       productName: "Onco-Pro",
       productCategory: "Immunotherapy",
-      prescriptionCount: 25,
+      prescriptionCount: 10,
       month: "2025-10",
       isOurProduct: 1,
       cohort: "stable",
@@ -412,7 +412,7 @@ export async function seedDatabase() {
       patientId: null,
       productName: "Onco-Rival",
       productCategory: "Immunotherapy",
-      prescriptionCount: 15,
+      prescriptionCount: 30,
       month: "2025-10",
       isOurProduct: 0,
       cohort: "young_rcc_cv_risk",

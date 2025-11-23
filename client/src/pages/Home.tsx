@@ -61,13 +61,13 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight leading-tight">
-              AI-Powered Prescription Intelligence
+        <div className="max-w-7xl mx-auto px-8 py-32">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]">
+              Territory Intelligence
             </h1>
-            <p className="text-xl text-gray-600 mb-12 leading-relaxed">
-              Autonomous causal discovery detects switching patterns and delivers evidence-based Next Best Actions
+            <p className="text-2xl text-gray-600 mb-16 leading-relaxed font-light">
+              Autonomous AI agents discover why HCPs switch prescriptions and recommend the right action at the right time
             </p>
             
             {/* View Toggle */}

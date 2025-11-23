@@ -114,7 +114,7 @@ export default function InvestigationHub() {
       
       // Auto-select proven hypotheses if not yet confirmed
       if (!existingResults.isConfirmed && existingResults.provenHypotheses) {
-        const provenIds = new Set(
+        const provenIds = new Set<string>(
           existingResults.provenHypotheses.map((h: any) => h.hypothesis.id)
         );
         setSelectedHypotheses(provenIds);
@@ -132,7 +132,7 @@ export default function InvestigationHub() {
       setInvestigationResults(data.investigation);
       setIsInvestigating(false);
       // Auto-select all proven hypotheses by default
-      const provenIds = new Set(data.investigation.provenHypotheses.map((h: any) => h.hypothesis.id));
+      const provenIds = new Set<string>(data.investigation.provenHypotheses.map((h: any) => h.hypothesis.id));
       setSelectedHypotheses(provenIds);
       toast.success(`${data.investigation.provenHypotheses.length} hypotheses proven`);
     },
@@ -288,10 +288,27 @@ export default function InvestigationHub() {
               </Card>
             </div>
 
-            {/* Hypotheses List */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Hypotheses</h2>
+            {/* Hypothesis Analysis: Three-Phase Framework */}
+            <div className="mb-8">
+              <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">1</div>
+                  <span className="text-sm font-medium text-gray-700">Hypothesis</span>
+                </div>
+                <div className="text-gray-300">→</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">2</div>
+                  <span className="text-sm font-medium text-gray-700">Correlation</span>
+                </div>
+                <div className="text-gray-300">→</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold">3</div>
+                  <span className="text-sm font-medium text-gray-700">Causality</span>
+                </div>
+              </div>
               
+              <h2 className="text-2xl font-semibold text-gray-900 tracking-tight mb-6">Causal Hypotheses</h2>
+              <div className="space-y-6">
               {allHypotheses.map((result: HypothesisResult, index: number) => (
                 <motion.div
                   key={result.hypothesis.id}
@@ -373,6 +390,7 @@ export default function InvestigationHub() {
                   </Card>
                 </motion.div>
               ))}
+              </div>
             </div>
 
             {/* Human Confirmation Section */}

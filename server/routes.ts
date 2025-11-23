@@ -31,6 +31,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get comparative prescription trends with benchmarks
+  app.get("/api/hcps/:id/prescription-trends", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Get prescription history for this HCP
+      const history = await storage.getPrescriptionHistory(id);
+      
+      // Group by month and aggregate
+      const monthlyData = new Map<string, { ownDrug: number; competitorDrug: number }>();
+      
+      history.forEach((record: any) => {
+        const existing = monthlyData.get(record.month) || { ownDrug: 0, competitorDrug: 0 };
+        if (record.isOurProduct === 1) {
+          existing.ownDrug += record.prescriptionCount;
+        } else {
+          existing.competitorDrug += record.prescriptionCount;
+        }
+        monthlyData.set(record.month, existing);
+      });
+      
+      // Sort by month and convert to array
+      const sortedMonths = Array.from(monthlyData.keys()).sort();
+      const trends = sortedMonths.map(month => {
+        const data = monthlyData.get(month)!;
+        return {
+          month: month.substring(5), // Extract MM from YYYY-MM
+          ownDrug: data.ownDrug,
+          competitorDrug: data.competitorDrug,
+          // Synthetic benchmarks (in production, these would come from real aggregated data)
+          regionalBenchmarkOwn: 30,
+          regionalBenchmarkCompetitor: 12,
+          nationalBenchmarkOwn: 28,
+          nationalBenchmarkCompetitor: 10,
+        };
+      });
+      
+      res.json(trends);
+    } catch (error) {
+      console.error("Failed to get prescription trends:", error);
+      res.status(500).json({ error: "Failed to retrieve prescription trends" });
+    }
+  });
+
   app.post("/api/hcps", async (req, res) => {
     try {
       const validatedData = insertHcpSchema.parse(req.body);
