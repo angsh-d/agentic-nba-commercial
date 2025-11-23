@@ -65,6 +65,15 @@ async function confirmInvestigation(hcpId: number, confirmedHypotheses: any[], s
   return response.json();
 }
 
+async function triggerNBAGeneration(hcpId: number) {
+  const response = await fetch(`/api/ai/generate-nba/${hcpId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) throw new Error("Failed to trigger NBA generation");
+  return response.json();
+}
+
 function getVerdictBadge(verdict: string) {
   switch (verdict) {
     case "proven":
@@ -143,12 +152,16 @@ export default function InvestigationHub() {
   });
 
   const confirmMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const confirmed = allHypotheses.filter(h => selectedHypotheses.has(h.hypothesis.id));
-      return confirmInvestigation(Number(hcpId), confirmed, smeNotes);
+      const confirmResult = await confirmInvestigation(Number(hcpId), confirmed, smeNotes);
+      // Trigger NBA generation after confirmation
+      await triggerNBAGeneration(Number(hcpId));
+      return confirmResult;
     },
     onSuccess: (data) => {
-      toast.success(`${data.confirmedCount} hypotheses confirmed`);
+      toast.success(`${data.confirmedCount} hypotheses confirmed. Generating strategies...`);
+      // Redirect to HCP detail page where NBA panel will show
       setLocation(`/hcp/${hcpId}`);
     },
     onError: () => {
