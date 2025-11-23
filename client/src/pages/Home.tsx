@@ -11,7 +11,10 @@ import {
   Sparkles,
   CheckCircle2,
   Zap,
-  Info
+  Info,
+  Eye,
+  Activity,
+  FileText
 } from "lucide-react";
 import {
   Dialog,
@@ -272,7 +275,7 @@ export default function Home() {
               Territory Intelligence
             </h1>
             <p className="text-2xl text-gray-600 mb-12 leading-relaxed font-light">
-              Autonomous AI agents discover why HCPs switch prescriptions and recommend the right action at the right time
+              Multi-signal detection agents correlate disconnected data to reveal why HCPs switch prescriptions
             </p>
             
             {/* Agent Icons */}
@@ -286,9 +289,9 @@ export default function Home() {
               >
                 <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                  <Target className="w-7 h-7 text-blue-600 relative z-10" />
+                  <Eye className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Planner</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Observation</div>
               </motion.div>
 
               <motion.div
@@ -300,9 +303,9 @@ export default function Home() {
               >
                 <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                  <Search className="w-7 h-7 text-blue-600 relative z-10" />
+                  <Activity className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Gatherer</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Correlation</div>
               </motion.div>
 
               <motion.div
@@ -314,23 +317,9 @@ export default function Home() {
               >
                 <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                  <Sparkles className="w-7 h-7 text-blue-600 relative z-10" />
+                  <FileText className="w-7 h-7 text-blue-600 relative z-10" />
                 </div>
-                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Synthesizer</div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-                whileHover={{ y: -2, transition: { duration: 0.2 } }}
-                className="text-center"
-              >
-                <div className="relative w-14 h-14 rounded-[18px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-2 shadow-lg ring-1 ring-blue-500/20 overflow-hidden group cursor-pointer">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent" />
-                  <CheckCircle2 className="w-7 h-7 text-blue-600 relative z-10" />
-                </div>
-                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Reflector</div>
+                <div className="text-[10px] text-gray-600 font-medium tracking-wide">Narrative</div>
               </motion.div>
             </div>
             
