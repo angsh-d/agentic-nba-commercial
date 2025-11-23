@@ -292,7 +292,7 @@ export default function HCPDetail() {
 
         {/* Strategy Recommendations - Only show if investigation is complete with proven hypotheses */}
         {canShowStrategies && nbaResults?.nba && (
-          <div className="mb-12">
+          <div id="strategies" className="mb-12 scroll-mt-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
               AI-Generated Strategy Recommendations
             </h2>

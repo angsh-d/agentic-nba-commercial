@@ -161,8 +161,8 @@ export default function InvestigationHub() {
     },
     onSuccess: (data) => {
       toast.success(`${data.confirmedCount} hypotheses confirmed. Generating strategies...`);
-      // Redirect to HCP detail page where NBA panel will show
-      setLocation(`/hcp/${hcpId}`);
+      // Redirect to HCP detail page with hash to scroll to strategies section
+      setLocation(`/hcp/${hcpId}#strategies`);
     },
     onError: () => {
       toast.error("Failed to save confirmation");
