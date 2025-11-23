@@ -128,8 +128,9 @@ export default function HCPDetail() {
     queryFn: () => fetchNBAResults(hcpId!),
     enabled: !!hcpId,
     // Poll every 3 seconds if investigation is confirmed but NBA not yet generated
-    refetchInterval: () => {
-      const isGenerating = investigationResults?.isConfirmed && !nbaResults?.nba;
+    refetchInterval: (query) => {
+      const currentData = query.state.data as NBAResults | undefined;
+      const isGenerating = investigationResults?.isConfirmed && !currentData?.nba;
       return isGenerating ? 3000 : false;
     },
   });
