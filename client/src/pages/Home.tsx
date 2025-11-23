@@ -159,6 +159,28 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           </DialogDescription>
         </DialogHeader>
         
+        {/* Quick Signal Bullets */}
+        <div className="space-y-3 py-6 border-t border-gray-100">
+          <div className="flex items-start gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <span className="font-semibold text-gray-900">Prescription decline:</span> Onco-Pro dropped 70% over 3 months
+            </p>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <span className="font-semibold text-gray-900">Conference impact:</span> ASCO presentation triggered young patient switches
+            </p>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <span className="font-semibold text-gray-900">Safety events:</span> 4 cardiac events led to switches in at-risk patients
+            </p>
+          </div>
+        </div>
+        
         {/* Single Clear CTA */}
         <button
           onClick={() => {
