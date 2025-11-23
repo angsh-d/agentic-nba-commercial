@@ -152,6 +152,9 @@ export default function HCPDetail() {
 
   const hasInvestigation = investigationResults?.hasInvestigation;
   const provenHypotheses = investigationResults?.provenHypotheses || [];
+  
+  // Only show strategies if investigation is complete AND has proven hypotheses
+  const canShowStrategies = hasInvestigation && provenHypotheses.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -251,8 +254,8 @@ export default function HCPDetail() {
           </div>
         )}
 
-        {/* Strategy Recommendations - Only show if investigation is complete */}
-        {hasInvestigation && provenHypotheses.length > 0 && nbaResults?.nba && (
+        {/* Strategy Recommendations - Only show if investigation is complete with proven hypotheses */}
+        {canShowStrategies && nbaResults?.nba && (
           <div className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6 tracking-tight">
               AI-Generated Strategy Recommendations

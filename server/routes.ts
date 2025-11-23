@@ -287,7 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all sessions for this HCP
       const sessions = await storage.getAgentSessionsByHcp(hcpId);
       
-      // Filter for completed causal investigation sessions
+      // Filter for completed causal investigation sessions only
       const investigationSessions = sessions.filter(
         s => s.goalType === 'causal_investigation' && s.status === 'completed'
       );
@@ -295,6 +295,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (investigationSessions.length === 0) {
         return res.json({ hasInvestigation: false });
       }
+      
+      // Sort investigation sessions by startedAt DESC to get the most recent
+      investigationSessions.sort((a, b) => 
+        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+      );
       
       // Get the most recent completed investigation
       const latestInvestigation = investigationSessions[0];
