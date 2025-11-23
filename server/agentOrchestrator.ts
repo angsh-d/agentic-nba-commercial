@@ -1241,7 +1241,7 @@ Return your analysis as JSON matching the schema.`;
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 1.0,
       max_completion_tokens: 2000,
       response_format: { type: "json_object" },
     });
@@ -1465,7 +1465,7 @@ Return your analysis as JSON matching the schema.`;
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 1.0,
       max_completion_tokens: 2000,
       response_format: { type: "json_object" },
     });

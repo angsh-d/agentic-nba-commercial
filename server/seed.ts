@@ -565,6 +565,97 @@ export async function seedDatabase() {
     // Run switching detection
     console.log("🔍 Running switching detection analysis...");
     await runSwitchingDetectionForAllHCPs();
+
+    // Seed Signal Detection Data
+    console.log("🤖 Seeding AI signal detection data...");
+    
+    // Dr. Sarah Smith - Dual causal switching with high risk
+    await storage.createDetectedSignal({
+      hcpId: drSmith.id,
+      signalType: "rx_decline",
+      signalStrength: 85,
+      signalSource: "prescription_history",
+      signalDescription: "Onco-Pro prescriptions declined 70% over 3 months",
+      contextData: {
+        metric: "Onco-Pro prescriptions declined 70% (Aug: 28 → Oct: 8)",
+        timeframe: "3 months",
+        baseline: 28,
+        current: 8
+      }
+    });
+
+    await storage.createDetectedSignal({
+      hcpId: drSmith.id,
+      signalType: "event_attendance",
+      signalStrength: 75,
+      signalSource: "clinical_events",
+      signalDescription: "ASCO ORION-Y trial attendance correlated with patient switches",
+      contextData: {
+        event: "ASCO 2025 - ORION-Y Trial Presentation",
+        date: "2025-06-15",
+        correlation: "5 patients switched to Onco-Rival within 3 weeks post-event"
+      }
+    });
+
+    await storage.createDetectedSignal({
+      hcpId: drSmith.id,
+      signalType: "adverse_event_cluster",
+      signalStrength: 90,
+      signalSource: "clinical_events",
+      signalDescription: "Cluster of cardiac adverse events in CV risk patients",
+      contextData: {
+        aeType: "Cardiac adverse events",
+        count: 4,
+        timeframe: "Aug-Sep 2025",
+        patients: ["P004", "P005", "P006", "P007"]
+      }
+    });
+
+    await storage.createAiInsight({
+      hcpId: drSmith.id,
+      insightType: "risk_narrative",
+      confidenceScore: 92,
+      narrative: `Dual Switching Drivers Detected\n\nDr. Smith's prescribing behavior shows two distinct causal pathways:\n\n**Efficacy Concerns (Young RCC Cohort)**: Following the ASCO ORION-Y trial presentation (June 15), 5 young RCC patients (<55 years) switched from Onco-Pro to Onco-Rival within 3 weeks. The trial showed superior progression-free survival for Onco-Rival in this demographic.\n\n**Safety Concerns (CV Risk Cohort)**: Between August-September, 4 patients with cardiovascular risk factors experienced cardiac adverse events while on Onco-Pro. Dr. Smith proactively switched these patients to alternatives to mitigate safety risks.\n\n**Impact**: Onco-Pro prescriptions declined 70% (Aug: 28 → Oct: 8) while Onco-Rival prescriptions increased 180% (Aug: 10 → Oct: 28).`,
+      expiresAt: new Date("2025-10-22")
+    });
+
+    // Dr. Wilson - Moderate risk with peer influence
+    await storage.createDetectedSignal({
+      hcpId: drWilson.id,
+      signalType: "rx_decline",
+      signalStrength: 60,
+      signalSource: "prescription_history",
+      signalDescription: "Onco-Pro prescriptions declined 35% over 3 months",
+      contextData: {
+        metric: "Onco-Pro prescriptions declined 35% (Jul: 20 → Oct: 13)",
+        timeframe: "3 months",
+        baseline: 20,
+        current: 13
+      }
+    });
+
+    await storage.createDetectedSignal({
+      hcpId: drWilson.id,
+      signalType: "peer_influence",
+      signalStrength: 55,
+      signalSource: "peer_network",
+      signalDescription: "Territory-wide KOL switching pattern detected",
+      contextData: {
+        peers: ["Dr. Sarah Smith", "Dr. Robert Chang"],
+        territory: "North Manhattan",
+        observation: "Multiple KOLs in territory showing similar switching patterns"
+      }
+    });
+
+    await storage.createAiInsight({
+      hcpId: drWilson.id,
+      insightType: "risk_narrative",
+      confidenceScore: 78,
+      narrative: `Peer Influence Pattern\n\nDr. Wilson's prescribing changes appear influenced by peer behavior in the North Manhattan territory. Multiple key opinion leaders (KOLs) including Dr. Sarah Smith have reduced Onco-Pro prescriptions following recent clinical data.\n\n**Observation**: 35% decline in Onco-Pro prescriptions over 3 months, coinciding with territory-wide discussions about ORION-Y trial results.\n\n**Recommendation**: Schedule educational detailing session focusing on Onco-Pro's differentiated value proposition for his specific patient mix.`,
+      expiresAt: new Date("2025-10-22")
+    });
+
+    console.log("✅ Signal detection data seeded");
     
     console.log("✅ Database seeded successfully with rich multi-cohort scenario");
   } catch (error) {
