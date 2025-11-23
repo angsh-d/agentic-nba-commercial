@@ -136,63 +136,40 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
             <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
           </button>
         </DialogTrigger>
-        <DialogContent className="max-w-2xl">
-        <DialogHeader className="pb-6">
-          <DialogTitle className="text-2xl font-semibold text-gray-900 mb-3">
-            {headline}
+        <DialogContent className="max-w-xl border-0 shadow-2xl">
+        <DialogHeader className="space-y-6 pb-8">
+          <DialogTitle className="text-3xl font-semibold text-gray-900 tracking-tight leading-tight">
+            {headline.replace('Multi-Signal Synthesis Active:', '').trim()}
           </DialogTitle>
-          {/* Summary Metrics */}
-          <div className="flex items-center gap-8 mb-4">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-gray-900">{totalSignals}</span>
-              <span className="text-sm text-gray-500">signals</span>
+          
+          {/* Clean 2-Column Metrics */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-5xl font-semibold text-gray-900 mb-2">{totalSignals}</div>
+              <div className="text-sm text-gray-500 font-medium">Signals Detected</div>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-blue-600">{avgSignalStrength}</span>
-              <span className="text-sm text-gray-500">avg strength</span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg">
-              <span className="text-sm text-gray-600">Confidence:</span>
-              <span className="text-2xl font-semibold text-gray-900">{insight.confidenceScore}%</span>
-            </div>
-          </div>
-          <DialogDescription className="text-base text-gray-700 leading-relaxed">
-            {fullNarrative}
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-6 py-6">
-          {/* Quick Summary */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-gray-900 mb-2">Multi-Signal Synthesis</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Detected {totalSignals} correlated signals across prescription history and clinical events, revealing dual switching drivers through temporal pattern analysis.
-                </p>
-              </div>
+            <div className="bg-gray-50 rounded-2xl p-6">
+              <div className="text-5xl font-semibold text-gray-900 mb-2">{insight.confidenceScore}%</div>
+              <div className="text-sm text-gray-500 font-medium">Confidence</div>
             </div>
           </div>
 
-          {/* View Details Button */}
-          <button
-            onClick={() => {
-              window.location.href = `/hcp/${hcpId}`;
-            }}
-            className="w-full flex items-center justify-between px-6 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-colors group"
-            data-testid="view-full-investigation"
-          >
-            <div className="flex items-center gap-3">
-              <Brain className="w-5 h-5" />
-              <div className="text-left">
-                <div className="font-semibold">View Full Investigation</div>
-                <div className="text-sm text-gray-300">See timeline, patient cohorts, and detailed analysis</div>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+          <DialogDescription className="text-base text-gray-700 leading-relaxed pt-2">
+            AI agents identified switching patterns across multiple patient groups, each requiring a different approach.
+          </DialogDescription>
+        </DialogHeader>
+        
+        {/* Single Clear CTA */}
+        <button
+          onClick={() => {
+            window.location.href = `/hcp/${hcpId}`;
+          }}
+          className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-200 group shadow-sm hover:shadow-md"
+          data-testid="view-full-investigation"
+        >
+          <span className="text-base font-semibold">View Full Investigation</span>
+          <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
       </DialogContent>
     </Dialog>
     </div>
