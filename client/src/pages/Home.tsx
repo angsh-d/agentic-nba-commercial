@@ -278,42 +278,44 @@ export default function Home() {
               Autonomous agents detect signals, investigate causal drivers, and generate contextual Next Best Actions
             </p>
             
-            {/* Agent Pipeline - Horizontal Flow */}
-            <div className="relative max-w-5xl mx-auto mb-16">
-              <div className="grid grid-cols-3 gap-8">
+            {/* Agent Pipeline - Sleek Horizontal Flow */}
+            <div className="relative max-w-6xl mx-auto mb-20">
+              <div className="grid grid-cols-3 gap-6">
                 {/* Stage 1: Detect */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="relative"
+                  className="relative group"
                 >
-                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
-                    <div className="text-sm font-semibold text-gray-900 mb-4">Detect</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
+                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Detect</div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Eye className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Observation</div>
+                        <div className="text-sm text-gray-700 font-medium">Observation</div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Activity className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Correlation</div>
+                        <div className="text-sm text-gray-700 font-medium">Correlation</div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <FileText className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Narrative</div>
+                        <div className="text-sm text-gray-700 font-medium">Narrative</div>
                       </div>
                     </div>
                   </div>
-                  {/* Connector Arrow */}
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
-                    <ChevronRight className="w-8 h-8 text-blue-500/40" />
+                  {/* Sleek Connector */}
+                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
+                    <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
+                      <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
                   </div>
                 </motion.div>
 
@@ -322,28 +324,30 @@ export default function Home() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="relative"
+                  className="relative group"
                 >
-                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
-                    <div className="text-sm font-semibold text-gray-900 mb-4">Investigate</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
+                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Investigate</div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Target className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Planner</div>
+                        <div className="text-sm text-gray-700 font-medium">Planner</div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Search className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Gatherer</div>
+                        <div className="text-sm text-gray-700 font-medium">Gatherer</div>
                       </div>
                     </div>
                   </div>
-                  {/* Connector Arrow */}
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
-                    <ChevronRight className="w-8 h-8 text-blue-500/40" />
+                  {/* Sleek Connector */}
+                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
+                    <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
+                      <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
                   </div>
                 </motion.div>
 
@@ -352,21 +356,22 @@ export default function Home() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
+                  className="group"
                 >
-                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
-                    <div className="text-sm font-semibold text-gray-900 mb-4">Act</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                  <div className="bg-white rounded-[28px] p-8 shadow-sm border border-gray-200/80 hover:shadow-md transition-all duration-300">
+                    <div className="text-base font-semibold text-gray-900 mb-6 tracking-tight">Act</div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <Sparkles className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Synthesizer</div>
+                        <div className="text-sm text-gray-700 font-medium">Synthesizer</div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-3.5 group/item cursor-pointer">
+                        <div className="w-11 h-11 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:bg-blue-100 transition-colors">
                           <CheckCircle2 className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-xs text-gray-700">Reflector</div>
+                        <div className="text-sm text-gray-700 font-medium">Reflector</div>
                       </div>
                     </div>
                   </div>
