@@ -390,3 +390,55 @@ export const insertPayerCommunicationSchema = createInsertSchema(payerCommunicat
 export const selectPayerCommunicationSchema = createSelectSchema(payerCommunications);
 export type InsertPayerCommunication = z.infer<typeof insertPayerCommunicationSchema>;
 export type PayerCommunication = typeof payerCommunications.$inferSelect;
+
+// Generated Artifacts - AI-generated ready-to-use content (call scripts, email drafts, agendas)
+export const generatedArtifacts = pgTable("generated_artifacts", {
+  id: serial("id").primaryKey(),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  nbaId: integer("nba_id").references(() => nextBestActions.id), // Optional link to NBA
+  artifactType: text("artifact_type").notNull(), // "call_script", "email_draft", "meeting_agenda"
+  actionType: text("action_type").notNull(), // "meeting", "email", "call", "event"
+  title: text("title").notNull(), // e.g., "Call Script: Safety Data Review"
+  content: jsonb("content").notNull().$type<ArtifactContent>(), // Type-specific structured content
+  context: text("context"), // Background context used for generation
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+});
+
+export type ArtifactContent = CallScriptContent | EmailDraftContent | MeetingAgendaContent;
+
+export type CallScriptContent = {
+  type: "call_script";
+  opening: string;
+  keyPoints: string[];
+  objectionHandling: { objection: string; response: string }[];
+  closingStatement: string;
+  followUpAction: string;
+};
+
+export type EmailDraftContent = {
+  type: "email_draft";
+  subject: string;
+  greeting: string;
+  body: string[];
+  closing: string;
+  signature: string;
+  attachmentSuggestions?: string[];
+};
+
+export type MeetingAgendaContent = {
+  type: "meeting_agenda";
+  objective: string;
+  duration: string;
+  agenda: { time: string; topic: string; details: string }[];
+  keyMessages: string[];
+  materialsNeeded: string[];
+  desiredOutcome: string;
+};
+
+export const insertGeneratedArtifactSchema = createInsertSchema(generatedArtifacts).omit({ 
+  id: true, 
+  generatedAt: true 
+});
+export const selectGeneratedArtifactSchema = createSelectSchema(generatedArtifacts);
+export type InsertGeneratedArtifact = z.infer<typeof insertGeneratedArtifactSchema>;
+export type GeneratedArtifact = typeof generatedArtifacts.$inferSelect;

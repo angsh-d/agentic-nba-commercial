@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications, generatedArtifacts } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication, GeneratedArtifact, InsertGeneratedArtifact } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -84,6 +84,11 @@ export interface IStorage {
   // Payer Communication operations
   createPayerCommunication(communication: InsertPayerCommunication): Promise<PayerCommunication>;
   getPayerCommunicationsByHcp(hcpId: number): Promise<PayerCommunication[]>;
+  
+  // Generated Artifact operations
+  createGeneratedArtifact(artifact: InsertGeneratedArtifact): Promise<GeneratedArtifact>;
+  getArtifactsByHcp(hcpId: number): Promise<GeneratedArtifact[]>;
+  getArtifactsByNba(nbaId: number): Promise<GeneratedArtifact[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -428,6 +433,28 @@ export class DatabaseStorage implements IStorage {
       .from(payerCommunications)
       .where(sql`${payerCommunications.products} @> '["Onco-Pro"]'::jsonb`)
       .orderBy(desc(payerCommunications.receivedDate));
+  }
+  
+  // Generated Artifact operations
+  async createGeneratedArtifact(insertArtifact: InsertGeneratedArtifact): Promise<GeneratedArtifact> {
+    const results = await db.insert(generatedArtifacts).values(insertArtifact).returning();
+    return results[0];
+  }
+  
+  async getArtifactsByHcp(hcpId: number): Promise<GeneratedArtifact[]> {
+    return await db
+      .select()
+      .from(generatedArtifacts)
+      .where(eq(generatedArtifacts.hcpId, hcpId))
+      .orderBy(desc(generatedArtifacts.generatedAt));
+  }
+  
+  async getArtifactsByNba(nbaId: number): Promise<GeneratedArtifact[]> {
+    return await db
+      .select()
+      .from(generatedArtifacts)
+      .where(eq(generatedArtifacts.nbaId, nbaId))
+      .orderBy(desc(generatedArtifacts.generatedAt));
   }
 }
 
