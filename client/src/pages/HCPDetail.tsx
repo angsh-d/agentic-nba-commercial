@@ -189,7 +189,7 @@ export default function HCPDetail() {
   const [hypothesisConfirmed, setHypothesisConfirmed] = useState(false);
   
   // Wizard state management
-  const [wizardStage, setWizardStage] = useState<1 | 2 | 3 | 'complete'>(1);
+  const [wizardStage, setWizardStage] = useState<1 | 2 | 3 | 4>(1);
   const [stage1Complete, setStage1Complete] = useState(false);
   const [stage2Complete, setStage2Complete] = useState(false);
   const [stage3Complete, setStage3Complete] = useState(false);
@@ -520,7 +520,7 @@ export default function HCPDetail() {
               </div>
 
               {/* Progress Stepper - Apple Style */}
-              <div className="flex items-center justify-between max-w-2xl">
+              <div className="flex items-center justify-between max-w-3xl">
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                     wizardStage >= 1 ? 'bg-blue-600' : 'bg-gray-200'
@@ -546,6 +546,15 @@ export default function HCPDetail() {
                     <span className={`text-sm font-semibold ${wizardStage >= 3 ? 'text-white' : 'text-gray-500'}`}>3</span>
                   </div>
                   <span className={`text-xs mt-2 ${wizardStage >= 3 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Synthesize</span>
+                </div>
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 4 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    wizardStage >= 4 ? 'bg-blue-600' : 'bg-gray-200'
+                  } transition-colors`}>
+                    <span className={`text-sm font-semibold ${wizardStage >= 4 ? 'text-white' : 'text-gray-500'}`}>4</span>
+                  </div>
+                  <span className={`text-xs mt-2 ${wizardStage >= 4 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Execute</span>
                 </div>
               </div>
             </div>
@@ -2053,10 +2062,18 @@ export default function HCPDetail() {
 
                         if (!artifactRes.ok) throw new Error("Failed to generate artifact");
                         const newArtifact = await artifactRes.json();
-                        setArtifacts([newArtifact]);
-                        setStage3Complete(true);
+                        
+                        if (newArtifact) {
+                          setArtifacts([newArtifact]);
+                          setStage3Complete(true);
+                          setWizardStage(4);  // Navigate to Stage 4 only if artifact was successfully generated
+                        } else {
+                          throw new Error("No artifact returned");
+                        }
                       } catch (error) {
                         console.error("Artifact generation error:", error);
+                        // Clear any partial artifacts and stay on Stage 3
+                        setArtifacts([]);
                       } finally {
                         setGeneratingArtifact(false);
                       }
@@ -2078,12 +2095,68 @@ export default function HCPDetail() {
                     )}
                   </Button>
                 </div>
-                
-                {/* Display Generated Artifacts */}
-                {artifacts.length > 0 && (
-                  <div className="mt-12">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Generated Artifact</h3>
-                    <ArtifactDisplay artifacts={artifacts} />
+              </div>
+            )}
+
+            {/* Stage 4: Generated Artifact */}
+            {wizardStage === 4 && (
+              <div className="mb-16">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xl font-bold">
+                    4
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900">Execute</h2>
+                    <p className="text-sm text-gray-600 mt-1">Review and use your AI-generated artifact</p>
+                  </div>
+                </div>
+
+                {/* Display Generated Artifact or Error */}
+                {artifacts.length > 0 ? (
+                  <>
+                    {/* Success Message */}
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                          ✓
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-green-900 mb-1">Artifact Generated Successfully</h3>
+                          <p className="text-sm text-green-700">
+                            Your personalized {artifacts[0].artifactType === 'call_script' ? 'call script' : artifacts[0].artifactType === 'email_draft' ? 'email draft' : 'meeting agenda'} is ready.
+                            You can copy it, edit it, or use it directly in your outreach.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-6">Generated Artifact</h3>
+                      <ArtifactDisplay artifacts={artifacts} />
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <div className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                        !
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-red-900 mb-1">Generation Failed</h3>
+                        <p className="text-sm text-red-700 mb-4">
+                          Unable to generate artifact. Please try again or contact support.
+                        </p>
+                        <Button
+                          onClick={() => {
+                            setArtifacts([]);  // Clear failed artifacts to allow retry
+                            setWizardStage(3);
+                          }}
+                          className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                        >
+                          Return to Stage 3
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
