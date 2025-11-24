@@ -1353,26 +1353,162 @@ export default function HCPDetail() {
                   </div>
                 )}
 
-                {/* Hypothesis Summary - Only show after investigation completes */}
+                {/* Causal Graph Visualization - Only show after investigation completes */}
+                {stage2Progress === 100 && hcpId === "2" && (
+                  <div className="bg-white rounded-2xl border border-gray-200 p-10 mb-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-base font-semibold text-gray-900">Causal Analysis Graph</h3>
+                      <span className="text-xs text-gray-500">Evidence-based causal pathway</span>
+                    </div>
+
+                    <div className="relative">
+                      {/* Root Cause */}
+                      <div className="flex justify-center mb-8">
+                        <div className="bg-gray-50 border-2 border-gray-900 rounded-2xl px-6 py-4 shadow-sm">
+                          <p className="text-xs font-medium text-gray-600 mb-1">Root Cause</p>
+                          <p className="text-sm font-semibold text-gray-900">Aug 1st Multi-Payer Policy Changes</p>
+                          <p className="text-xs text-gray-600 mt-1">4 payers: UHC, Aetna, Cigna, BCBS</p>
+                        </div>
+                      </div>
+
+                      {/* Causal Arrows */}
+                      <div className="flex justify-center mb-6">
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="w-px h-8 bg-gray-400"></div>
+                          <div className="w-3 h-3 rotate-45 border-r-2 border-b-2 border-gray-400"></div>
+                        </div>
+                      </div>
+
+                      {/* Intermediate Effects - Access Barriers */}
+                      <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <p className="text-xs font-semibold text-gray-900">High Copay Shock</p>
+                          </div>
+                          <p className="text-xs text-gray-600">$35 → $450 copay</p>
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <p className="text-xs font-medium text-gray-900">4/4 patients (100%)</p>
+                            <p className="text-xs text-gray-500">Confidence: 88%</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <p className="text-xs font-semibold text-gray-900">PA Denials</p>
+                          </div>
+                          <p className="text-xs text-gray-600">Step-edit requirement</p>
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <p className="text-xs font-medium text-gray-900">3/3 patients (100%)</p>
+                            <p className="text-xs text-gray-500">Confidence: 92%</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <p className="text-xs font-semibold text-gray-900">Fulfillment Delays</p>
+                          </div>
+                          <p className="text-xs text-gray-600">3 days → 10-14 days</p>
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <p className="text-xs font-medium text-gray-900">2/2 patients (100%)</p>
+                            <p className="text-xs text-gray-500">Confidence: 75%</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Convergence Arrows */}
+                      <div className="flex justify-center mb-6">
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="w-px h-8 bg-gray-400"></div>
+                          <div className="w-3 h-3 rotate-45 border-r-2 border-b-2 border-gray-400"></div>
+                        </div>
+                      </div>
+
+                      {/* Final Outcome */}
+                      <div className="flex justify-center">
+                        <div className="bg-gray-900 border-2 border-gray-900 rounded-2xl px-6 py-4 shadow-sm">
+                          <p className="text-xs font-medium text-gray-400 mb-1">Final Outcome</p>
+                          <p className="text-sm font-semibold text-white">83% Patient Abandonment</p>
+                          <p className="text-xs text-gray-500 mt-1">10 of 12 patients switched to competitor</p>
+                        </div>
+                      </div>
+
+                      {/* Causal Strength Legend */}
+                      <div className="mt-8 pt-6 border-t border-gray-200">
+                        <p className="text-xs text-gray-600 text-center">
+                          <span className="font-semibold text-gray-900">Causal Pathway Validated:</span> Each intermediate barrier shows 75-92% confidence with 100% switch rates, establishing clear Aug 1st → access barriers → abandonment causality.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hypothesis Summary - Progressive Disclosure */}
                 {stage2Progress === 100 && (
                   <>
                     <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-4">Generated {getHypothesesForHcp(hcpId).length} Competing Hypotheses</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        {getHypothesesForHcp(hcpId).map((hyp) => (
-                          <div key={hyp.id} className={`p-4 rounded-lg border-2 ${hyp.status === "proven" ? "border-emerald-600 bg-emerald-50" : "border-gray-200 bg-gray-50"}`}>
-                            <div className="flex items-center gap-2 mb-2">
-                              {hyp.status === "proven" ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                              ) : (
-                                <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
-                              )}
-                              <p className="text-xs font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4">
+                        Hypothesis Testing Results
+                      </h4>
+
+                      {/* Proven Hypotheses - Always Expanded */}
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                          <p className="text-xs font-semibold text-gray-900">
+                            {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} Proven Hypotheses
+                          </p>
+                        </div>
+                        <div className="space-y-3">
+                          {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map((hyp) => (
+                            <div key={hyp.id} className="border border-gray-300 bg-gray-50 rounded-xl p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <p className="text-sm font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
+                                <span className="text-xs font-medium text-blue-700 px-2 py-0.5 bg-blue-50 rounded">
+                                  {hyp.confidence}% confidence
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-700 mb-3">{hyp.text.split(' - ')[1]}</p>
+                              <div className="bg-white rounded-lg p-3 space-y-1">
+                                <p className="text-xs font-medium text-gray-900 mb-1">Key Evidence:</p>
+                                {hyp.evidence.map((ev, idx) => (
+                                  <p key={idx} className="text-xs text-gray-600 pl-3">• {ev}</p>
+                                ))}
+                              </div>
                             </div>
-                            <p className="text-xs text-gray-600">{hyp.confidence}% confidence</p>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
+
+                      {/* Rejected Hypotheses - Collapsible */}
+                      <Accordion type="single" collapsible className="bg-white rounded-xl border border-gray-200">
+                        <AccordionItem value="rejected">
+                          <AccordionTrigger className="px-4 py-3 text-xs font-medium text-gray-900 hover:bg-gray-50">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full border-2 border-gray-400"></div>
+                              <span>{getHypothesesForHcp(hcpId).filter(h => h.status === "rejected").length} Rejected Hypotheses</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 pb-3 space-y-2">
+                            {getHypothesesForHcp(hcpId).filter(h => h.status === "rejected").map((hyp) => (
+                              <div key={hyp.id} className="border border-gray-200 bg-gray-50 rounded-lg p-3">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-xs font-semibold text-gray-700">{hyp.text.split(' - ')[0]}</p>
+                                  <span className="text-xs text-gray-500">{hyp.confidence}% confidence</span>
+                                </div>
+                                <p className="text-xs text-gray-500 mb-2">{hyp.text.split(' - ')[1]}</p>
+                                <div className="text-xs text-gray-500">
+                                  {hyp.evidence.map((ev, idx) => (
+                                    <p key={idx} className="pl-3">• {ev}</p>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     </div>
 
                     {/* Evidence Review */}
