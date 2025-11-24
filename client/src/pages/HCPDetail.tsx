@@ -413,7 +413,12 @@ export default function HCPDetail() {
                     <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 mb-1">Payer Communications</p>
-                      <p className="text-sm text-gray-600 font-light">Analyzed {payerCommunications.length} payer docs, {hcpId === "1" ? "no formulary changes" : "found Tier 3 policy change Aug 1"}</p>
+                      <p className="text-sm text-gray-600 font-light">
+                        Analyzed {payerCommunications.length} payer docs
+                        {payerCommunications.length > 0 && (
+                          <span>, found {payerCommunications.filter(pc => pc.documentType === 'tier_change' || pc.documentType === 'policy_change').length} policy changes</span>
+                        )}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 py-3">

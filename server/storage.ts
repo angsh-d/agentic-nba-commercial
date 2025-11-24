@@ -426,7 +426,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(payerCommunications)
-      .where(sql`${payerCommunications.products} && ARRAY['Onco-Pro']::text[]`)
+      .where(sql`${payerCommunications.products} @> '["Onco-Pro"]'::jsonb`)
       .orderBy(desc(payerCommunications.receivedDate));
   }
 }
