@@ -603,51 +603,143 @@ export default function HCPDetail() {
                   </div>
                 )}
 
-                {/* Data Insights - Grid Layout */}
+                {/* Data Insights - Grid Layout with Clickable Cards */}
                 {processingProgress === 100 && (
                   <div className="grid grid-cols-2 gap-6 mb-12">
-                    <div className="bg-white rounded-xl border border-gray-100 p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
-                        <p className="text-sm font-semibold text-gray-900">Prescription Data</p>
-                      </div>
-                      <p className="text-sm text-gray-600 font-light leading-relaxed">
-                        Detected 44% Rx decline (45→25) with temporal correlation
-                      </p>
-                    </div>
+                    {/* Prescription Data Card */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-white rounded-xl border border-gray-100 p-6 text-left hover:border-gray-900 hover:shadow-sm transition-all cursor-pointer w-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                            <p className="text-sm font-semibold text-gray-900">Prescription Data</p>
+                          </div>
+                          <p className="text-sm text-gray-600 font-light leading-relaxed">
+                            Detected 44% Rx decline (45→25) with temporal correlation
+                          </p>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Prescription Data Analysis</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4">
+                          <p className="text-sm text-gray-600 mb-4">Monthly prescription volumes showing 44% decline from Jan to Oct</p>
+                          <div className="space-y-2">
+                            {prescriptionHistory.slice(0, 10).map((record, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
+                                <span className="text-sm font-medium text-gray-900">{record.month}</span>
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm text-gray-600">Onco-Pro: {record.oncoPro}</span>
+                                  <span className="text-sm text-gray-600">Competitor: {record.competitor}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                    <div className="bg-white rounded-xl border border-gray-100 p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
-                        <p className="text-sm font-semibold text-gray-900">Call Notes</p>
-                      </div>
-                      <p className="text-sm text-gray-600 font-light leading-relaxed">
-                        Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern
-                      </p>
-                    </div>
+                    {/* Call Notes Card */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-white rounded-xl border border-gray-100 p-6 text-left hover:border-gray-900 hover:shadow-sm transition-all cursor-pointer w-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                            <p className="text-sm font-semibold text-gray-900">Call Notes</p>
+                          </div>
+                          <p className="text-sm text-gray-600 font-light leading-relaxed">
+                            Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern
+                          </p>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Call Notes Analysis ({callNotes.length} notes)</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4 space-y-4">
+                          {callNotes.map((note) => (
+                            <div key={note.id} className="border-l-2 border-blue-600 pl-4 py-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-medium text-gray-900">{new Date(note.date).toLocaleDateString()}</span>
+                                <span className="text-xs text-gray-500">by {note.repName}</span>
+                              </div>
+                              <p className="text-sm text-gray-700 leading-relaxed">{note.notes}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                    <div className="bg-white rounded-xl border border-gray-100 p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
-                        <p className="text-sm font-semibold text-gray-900">Payer Communications</p>
-                      </div>
-                      <p className="text-sm text-gray-600 font-light leading-relaxed">
-                        Analyzed {payerCommunications.length} payer docs
-                        {payerCommunications.length > 0 && (
-                          <span>, found {payerCommunications.filter(pc => pc.documentType === 'tier_change' || pc.documentType === 'policy_change').length} policy changes</span>
-                        )}
-                      </p>
-                    </div>
+                    {/* Payer Communications Card */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-white rounded-xl border border-gray-100 p-6 text-left hover:border-gray-900 hover:shadow-sm transition-all cursor-pointer w-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                            <p className="text-sm font-semibold text-gray-900">Payer Communications</p>
+                          </div>
+                          <p className="text-sm text-gray-600 font-light leading-relaxed">
+                            Analyzed {payerCommunications.length} payer docs
+                            {payerCommunications.length > 0 && (
+                              <span>, found {payerCommunications.filter(pc => pc.documentType === 'tier_change' || pc.documentType === 'policy_change').length} policy changes</span>
+                            )}
+                          </p>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Payer Communications Analysis ({payerCommunications.length} documents)</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4 space-y-4">
+                          {payerCommunications.map((doc) => (
+                            <div key={doc.id} className="bg-gray-50 rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-medium text-gray-900">{doc.payer}</span>
+                                <span className="text-xs px-2 py-0.5 bg-gray-200 rounded">{doc.documentType.replace('_', ' ')}</span>
+                                <span className="text-xs text-gray-500">{new Date(doc.effectiveDate).toLocaleDateString()}</span>
+                              </div>
+                              <p className="text-sm text-gray-700">{doc.summary}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
 
-                    <div className="bg-white rounded-xl border border-gray-100 p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
-                        <p className="text-sm font-semibold text-gray-900">Patient Cohorts</p>
-                      </div>
-                      <p className="text-sm text-gray-600 font-light leading-relaxed">
-                        Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}
-                      </p>
-                    </div>
+                    {/* Patient Cohorts Card */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-white rounded-xl border border-gray-100 p-6 text-left hover:border-gray-900 hover:shadow-sm transition-all cursor-pointer w-full">
+                          <div className="flex items-center gap-2 mb-3">
+                            <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                            <p className="text-sm font-semibold text-gray-900">Patient Cohorts</p>
+                          </div>
+                          <p className="text-sm text-gray-600 font-light leading-relaxed">
+                            Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}
+                          </p>
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Patient Cohort Analysis</DialogTitle>
+                        </DialogHeader>
+                        <div className="mt-4 space-y-4">
+                          {patients.filter(p => p.switchedDate !== null).map((patient) => (
+                            <div key={patient.id} className="border border-gray-200 rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-medium text-gray-900">Patient {patient.id}</span>
+                                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded">{patient.cohort}</span>
+                              </div>
+                              <div className="text-sm text-gray-600 space-y-1">
+                                <p>Started: {new Date(patient.startDate).toLocaleDateString()}</p>
+                                <p>Switched: {new Date(patient.switchedDate).toLocaleDateString()}</p>
+                                {patient.switchReason && <p className="text-gray-700 font-medium">Reason: {patient.switchReason}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 )}
 
