@@ -28,7 +28,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface HCP {
   id: number;
@@ -190,12 +190,55 @@ export default function HCPDetail() {
   const [stage1Input, setStage1Input] = useState("");
   const [stage2Input, setStage2Input] = useState("");
   const [stage3Input, setStage3Input] = useState("");
+  
+  // Stage 1 live agent activity
+  const [stage1Activities, setStage1Activities] = useState<Array<{
+    id: number;
+    timestamp: number;
+    agent: string;
+    activity: string;
+    status: "in_progress" | "completed";
+  }>>([]);
+  const [activityStartTime, setActivityStartTime] = useState<number | null>(null);
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
     queryFn: () => fetchHCP(hcpId!),
     enabled: !!hcpId,
   });
+
+  // Fetch Stage 1 agent activities
+  const { data: allActivities } = useQuery({
+    queryKey: ["stage1-activity", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/stage1-activity`);
+      if (!response.ok) throw new Error("Failed to fetch agent activity");
+      return response.json();
+    },
+    enabled: !!hcpId && wizardStage === 1,
+  });
+
+  // Simulate real-time activity feed by gradually revealing activities
+  useEffect(() => {
+    if (wizardStage === 1 && allActivities && !activityStartTime) {
+      setActivityStartTime(Date.now());
+    }
+  }, [wizardStage, allActivities, activityStartTime]);
+
+  useEffect(() => {
+    if (!activityStartTime || !allActivities) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - activityStartTime;
+      const visibleActivities = allActivities.filter((activity: any) => {
+        const relativeTime = activity.timestamp - allActivities[0].timestamp;
+        return relativeTime <= elapsed;
+      });
+      setStage1Activities(visibleActivities);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [activityStartTime, allActivities]);
 
   const { data: prescriptionHistory = [] } = useQuery({
     queryKey: ["prescription-history", hcpId],
@@ -392,6 +435,34 @@ export default function HCPDetail() {
                     </p>
                   </div>
                 </div>
+
+                {/* Live Agent Activity Feed */}
+                {stage1Activities.length > 0 && (
+                  <div className="mb-12">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Agents in Action</h3>
+                    <div className="space-y-2 bg-gray-50 rounded-xl p-6">
+                      {stage1Activities.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
+                          data-testid={`activity-${activity.id}`}
+                        >
+                          {activity.status === "in_progress" ? (
+                            <div className="w-4 h-4 mt-0.5 flex-shrink-0">
+                              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                          ) : (
+                            <CheckCircle2 className="w-4 h-4 text-gray-900 flex-shrink-0 mt-0.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
+                            <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Live Signal Processing */}
                 <div className="space-y-3 mb-12">

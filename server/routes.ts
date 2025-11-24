@@ -97,6 +97,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stage 1 Agent Activity Feed - Simulates agents analyzing data in real-time
+  app.get("/api/hcps/:id/stage1-activity", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const startTime = Date.now();
+      
+      // Simulated agent activities for Stage 1: Observe & Correlate
+      const activities = [
+        { id: 1, timestamp: startTime, agent: "Signal Detector", activity: "Scanning prescription history database...", status: "in_progress" },
+        { id: 2, timestamp: startTime + 1500, agent: "Signal Detector", activity: "Detected 44% Rx volume decline (45→25)", status: "completed" },
+        { id: 3, timestamp: startTime + 2000, agent: "NLP Analyzer", activity: "Processing 15 field call notes...", status: "in_progress" },
+        { id: 4, timestamp: startTime + 3500, agent: "NLP Analyzer", activity: "Extracted sentiment shift: positive→frustrated", status: "completed" },
+        { id: 5, timestamp: startTime + 4000, agent: "Document Parser", activity: "Analyzing payer communications...", status: "in_progress" },
+        { id: 6, timestamp: startTime + 5500, agent: "Document Parser", activity: id === 1 ? "No formulary changes detected" : "Found Tier 3 policy change (Aug 1)", status: "completed" },
+        { id: 7, timestamp: startTime + 6000, agent: "Cohort Tracker", activity: "Mapping patient cohorts and switching patterns...", status: "in_progress" },
+        { id: 8, timestamp: startTime + 7500, agent: "Cohort Tracker", activity: id === 1 ? "Identified 6 switches in 2 cohorts" : "Identified 9 switches across 4 access cohorts", status: "completed" },
+        { id: 9, timestamp: startTime + 8000, agent: "Correlation Engine", activity: "Cross-referencing temporal signals...", status: "in_progress" },
+        { id: 10, timestamp: startTime + 9500, agent: "Correlation Engine", activity: id === 1 ? "Dual causality detected: safety events + ASCO conference" : "Causality: Aug 1 multi-payer policy changes", status: "completed" },
+      ];
+
+      res.json(activities);
+    } catch (error) {
+      console.error("Failed to get stage 1 activity:", error);
+      res.status(500).json({ error: "Failed to retrieve agent activity" });
+    }
+  });
+
   app.post("/api/hcps", async (req, res) => {
     try {
       const validatedData = insertHcpSchema.parse(req.body);
