@@ -1757,7 +1757,7 @@ export default function HCPDetail() {
                   {/* Hint Questions */}
                   {hcpId === "2" && stage2Progress === 100 && (
                     <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-700 mb-2">Try these counterfactual questions:</p>
+                      <p className="text-xs font-medium text-gray-700 mb-2">Try these questions:</p>
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => setStage2Input("What if Aug 1st policy changes didn't occur?")}
@@ -1779,6 +1779,34 @@ export default function HCPDetail() {
                           data-testid="hint-pa-appeals"
                         >
                           💡 What if PA denials were systematically appealed?
+                        </button>
+                        <button
+                          onClick={() => setStage2Input("Why did payers change formulary tier on Aug 1st?")}
+                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          data-testid="hint-why-tier-change"
+                        >
+                          🔍 Why did payers change formulary tier on Aug 1st?
+                        </button>
+                        <button
+                          onClick={() => setStage2Input("Why did prior authorization denials increase after policy change?")}
+                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          data-testid="hint-why-pa-denials"
+                        >
+                          🔍 Why did prior authorization denials increase after policy change?
+                        </button>
+                        <button
+                          onClick={() => setStage2Input("Why were pharmacies experiencing fulfillment delays?")}
+                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          data-testid="hint-why-fulfillment-delays"
+                        >
+                          🔍 Why were pharmacies experiencing fulfillment delays?
+                        </button>
+                        <button
+                          onClick={() => setStage2Input("Why didn't Dr. Chen continue prescribing despite patient need?")}
+                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          data-testid="hint-why-stop-prescribing"
+                        >
+                          🔍 Why didn't Dr. Chen continue prescribing despite patient need?
                         </button>
                       </div>
                     </div>
