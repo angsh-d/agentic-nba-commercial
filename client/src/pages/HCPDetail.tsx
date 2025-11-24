@@ -200,6 +200,7 @@ export default function HCPDetail() {
     status: "in_progress" | "completed";
   }>>([]);
   const [activityStartTime, setActivityStartTime] = useState<number | null>(null);
+  const [processingProgress, setProcessingProgress] = useState(0);
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
@@ -220,13 +221,17 @@ export default function HCPDetail() {
 
   // Simulate real-time activity feed by gradually revealing activities
   useEffect(() => {
-    if (wizardStage === 1 && allActivities && !activityStartTime) {
-      setActivityStartTime(Date.now());
+    if (!allActivities || wizardStage !== 1) {
+      setStage1Activities([]);
+      setActivityStartTime(null);
+      return;
     }
-  }, [wizardStage, allActivities, activityStartTime]);
 
-  useEffect(() => {
-    if (!activityStartTime || !allActivities) return;
+    // Start the timer on first load
+    if (!activityStartTime) {
+      setActivityStartTime(Date.now());
+      return;
+    }
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - activityStartTime;
@@ -235,10 +240,21 @@ export default function HCPDetail() {
         return relativeTime <= elapsed;
       });
       setStage1Activities(visibleActivities);
+
+      // Calculate overall progress (0-100%)
+      const totalDuration = 30000; // 30 seconds
+      const progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+      setProcessingProgress(progress);
+
+      // Stop polling once all activities are visible
+      if (visibleActivities.length === allActivities.length) {
+        clearInterval(interval);
+        setProcessingProgress(100);
+      }
     }, 500);
 
     return () => clearInterval(interval);
-  }, [activityStartTime, allActivities]);
+  }, [wizardStage, allActivities, activityStartTime]);
 
   const { data: prescriptionHistory = [] } = useQuery({
     queryKey: ["prescription-history", hcpId],
@@ -439,7 +455,19 @@ export default function HCPDetail() {
                 {/* Live Agent Activity Feed */}
                 {stage1Activities.length > 0 && (
                   <div className="mb-12">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Agents in Action</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-medium text-gray-900">Agents in Action</h3>
+                      <span className="text-xs font-medium text-gray-600">{processingProgress}% complete</span>
+                    </div>
+                    
+                    {/* Subtle progress bar */}
+                    <div className="w-full h-1 bg-gray-200 rounded-full mb-4 overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${processingProgress}%` }}
+                      />
+                    </div>
+
                     <div className="space-y-2 bg-gray-50 rounded-xl p-6">
                       {stage1Activities.map((activity) => (
                         <div
