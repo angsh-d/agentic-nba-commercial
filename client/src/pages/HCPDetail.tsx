@@ -621,7 +621,7 @@ export default function HCPDetail() {
                             <div key={month} className="flex flex-col items-center relative z-10">
                               <div className={`transition-all ${
                                 idx === 3 
-                                  ? 'w-4 h-4 bg-red-600 rounded-full shadow-lg shadow-red-200' 
+                                  ? 'w-4 h-4 bg-gray-700 rounded-full shadow-md shadow-gray-300' 
                                   : 'w-2 h-2 bg-gray-300 rounded-full'
                               }`}></div>
                               <span className={`text-xs mt-3 ${
@@ -630,7 +630,7 @@ export default function HCPDetail() {
                             </div>
                           ))}
                         </div>
-                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gradient-to-r from-gray-200 via-red-300 to-gray-200"></div>
+                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200"></div>
                       </div>
                       
                       {/* Signal Visualizations */}
@@ -639,7 +639,7 @@ export default function HCPDetail() {
                         <div className="relative">
                           <div className="flex items-center justify-between mb-4 px-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
+                              <div className="w-1 h-8 bg-gray-600 rounded-full"></div>
                               <span className="text-sm font-medium text-gray-900">Prescription Volume</span>
                             </div>
                             <span className="text-xs text-gray-500">45 → 25 (-44%)</span>
@@ -652,7 +652,7 @@ export default function HCPDetail() {
                                   <div className="relative w-full">
                                     <div 
                                       className={`w-full rounded-t-lg transition-all ${
-                                        idx >= 3 ? 'bg-gradient-to-t from-red-400 to-red-500' : 'bg-gradient-to-t from-blue-400 to-blue-500'
+                                        idx >= 3 ? 'bg-gradient-to-t from-gray-400 to-gray-500' : 'bg-gradient-to-t from-gray-500 to-gray-600'
                                       }`}
                                       style={{ height: `${height}px` }}
                                     ></div>
@@ -668,7 +668,7 @@ export default function HCPDetail() {
                         <div className="relative">
                           <div className="flex items-center justify-between mb-4 px-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-amber-600 rounded-full"></div>
+                              <div className="w-1 h-8 bg-gray-600 rounded-full"></div>
                               <span className="text-sm font-medium text-gray-900">Payer Policy Changes</span>
                             </div>
                             <span className="text-xs text-gray-500">4 restrictions enacted</span>
@@ -679,8 +679,8 @@ export default function HCPDetail() {
                             <div className="flex-1"></div>
                             <div className="flex-1 flex justify-center">
                               <div className="relative">
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-red-400"></div>
-                                <div className="bg-red-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg whitespace-nowrap">
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-gray-400"></div>
+                                <div className="bg-gray-700 text-white text-xs px-4 py-2 rounded-full font-medium shadow-md whitespace-nowrap">
                                   Aug 1: Tier 3 + Step-Edits + $450 Copay
                                 </div>
                               </div>
@@ -694,19 +694,19 @@ export default function HCPDetail() {
                         <div className="relative">
                           <div className="flex items-center justify-between mb-4 px-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-orange-600 rounded-full"></div>
+                              <div className="w-1 h-8 bg-gray-600 rounded-full"></div>
                               <span className="text-sm font-medium text-gray-900">Access Barrier Friction</span>
                             </div>
                             <span className="text-xs text-gray-500">Escalating intensity post-Aug 1st</span>
                           </div>
                           <div className="flex items-center h-16 gap-2 px-8">
                             {[
-                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
-                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
-                              { label: 'Med', color: 'from-yellow-200 to-yellow-300', text: 'text-yellow-900', height: 'h-8' },
-                              { label: 'High', color: 'from-orange-300 to-orange-400', text: 'text-orange-900', height: 'h-12' },
-                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' },
-                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' }
+                              { label: 'Low', color: 'from-gray-200 to-gray-300', text: 'text-gray-700', height: 'h-6' },
+                              { label: 'Low', color: 'from-gray-200 to-gray-300', text: 'text-gray-700', height: 'h-6' },
+                              { label: 'Med', color: 'from-gray-300 to-gray-400', text: 'text-gray-800', height: 'h-8' },
+                              { label: 'High', color: 'from-gray-400 to-gray-500', text: 'text-gray-900', height: 'h-12' },
+                              { label: 'Critical', color: 'from-gray-600 to-gray-700', text: 'text-white', height: 'h-16' },
+                              { label: 'Critical', color: 'from-gray-600 to-gray-700', text: 'text-white', height: 'h-16' }
                             ].map((item, idx) => (
                               <div key={idx} className={`flex-1 flex items-center justify-center ${item.height} bg-gradient-to-t ${item.color} rounded-lg ${item.text} text-xs font-medium shadow-sm`}>
                                 {item.label}
@@ -719,7 +719,7 @@ export default function HCPDetail() {
                         <div className="relative">
                           <div className="flex items-center justify-between mb-4 px-1">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-red-600 rounded-full"></div>
+                              <div className="w-1 h-8 bg-gray-600 rounded-full"></div>
                               <span className="text-sm font-medium text-gray-900">Patient Abandonment</span>
                             </div>
                             <span className="text-xs text-gray-500">10 patients switched to competitor</span>
@@ -732,7 +732,7 @@ export default function HCPDetail() {
                                 ) : (
                                   <div className="flex flex-wrap gap-1.5 justify-center max-w-[40px]">
                                     {Array.from({ length: count }).map((_, i) => (
-                                      <div key={i} className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-sm"></div>
+                                      <div key={i} className="w-2.5 h-2.5 bg-gray-600 rounded-full shadow-sm"></div>
                                     ))}
                                   </div>
                                 )}
