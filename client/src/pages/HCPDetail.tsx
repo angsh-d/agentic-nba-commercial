@@ -185,6 +185,11 @@ export default function HCPDetail() {
   const [stage1Complete, setStage1Complete] = useState(false);
   const [stage2Complete, setStage2Complete] = useState(false);
   const [stage3Complete, setStage3Complete] = useState(false);
+  
+  // Human SME input
+  const [stage1Input, setStage1Input] = useState("");
+  const [stage2Input, setStage2Input] = useState("");
+  const [stage3Input, setStage3Input] = useState("");
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
@@ -429,6 +434,30 @@ export default function HCPDetail() {
                   </p>
                 </div>
 
+                {/* Human SME Input */}
+                <div className="mb-8">
+                  <label htmlFor="stage1-input" className="block text-sm font-medium text-gray-900 mb-3">
+                    Your Input (Optional)
+                  </label>
+                  <p className="text-sm text-gray-600 font-light mb-4">
+                    Validate findings, provide additional context, or suggest other hypotheses for agents to explore
+                  </p>
+                  <textarea
+                    id="stage1-input"
+                    value={stage1Input}
+                    onChange={(e) => setStage1Input(e.target.value)}
+                    placeholder="Example: 'I've noticed increased PA denials from UnitedHealthcare specifically' or 'Confirm the Aug 1st policy change timing aligns with my field observations'"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                    rows={4}
+                    data-testid="input-stage1-sme"
+                  />
+                  {stage1Input && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      ✓ Your input will be considered in the causal investigation
+                    </p>
+                  )}
+                </div>
+
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
@@ -439,7 +468,7 @@ export default function HCPDetail() {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-approve-stage1"
                   >
-                    Continue
+                    Continue to Investigation
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -525,6 +554,30 @@ export default function HCPDetail() {
                   </p>
                 </div>
 
+                {/* Human SME Input */}
+                <div className="mb-8">
+                  <label htmlFor="stage2-input" className="block text-sm font-medium text-gray-900 mb-3">
+                    Your Input (Optional)
+                  </label>
+                  <p className="text-sm text-gray-600 font-light mb-4">
+                    Validate root causes, challenge findings, or suggest additional causal factors
+                  </p>
+                  <textarea
+                    id="stage2-input"
+                    value={stage2Input}
+                    onChange={(e) => setStage2Input(e.target.value)}
+                    placeholder="Example: 'Agree on access barriers as primary cause' or 'Also consider recent MSL territory changes as contributing factor'"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                    rows={4}
+                    data-testid="input-stage2-sme"
+                  />
+                  {stage2Input && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      ✓ Your input will influence the recommendation synthesis
+                    </p>
+                  )}
+                </div>
+
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
@@ -535,7 +588,7 @@ export default function HCPDetail() {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-approve-stage2"
                   >
-                    Continue
+                    Continue to Synthesis
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -596,6 +649,30 @@ export default function HCPDetail() {
                   </p>
                 </div>
 
+                {/* Human SME Input */}
+                <div className="mb-8">
+                  <label htmlFor="stage3-input" className="block text-sm font-medium text-gray-900 mb-3">
+                    Your Input (Optional)
+                  </label>
+                  <p className="text-sm text-gray-600 font-light mb-4">
+                    Refine recommendations, add constraints, or prioritize specific actions
+                  </p>
+                  <textarea
+                    id="stage3-input"
+                    value={stage3Input}
+                    onChange={(e) => setStage3Input(e.target.value)}
+                    placeholder="Example: 'Prioritize copay assistance first - fastest ROI' or 'Add HCP preference for digital-first engagement in recommendations'"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                    rows={4}
+                    data-testid="input-stage3-sme"
+                  />
+                  {stage3Input && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      ✓ Your guidance will be incorporated into final action plan
+                    </p>
+                  )}
+                </div>
+
                 {/* Human Final Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
@@ -607,7 +684,7 @@ export default function HCPDetail() {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-approve-stage3"
                   >
-                    Approve Recommendation
+                    Approve & Execute Plan
                     <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
