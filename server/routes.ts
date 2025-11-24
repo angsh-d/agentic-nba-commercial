@@ -720,6 +720,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get generated artifacts for an HCP
+  app.get("/api/hcps/:id/artifacts", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const artifacts = await storage.getArtifactsByHcp(id);
+      
+      res.json(artifacts);
+    } catch (error) {
+      console.error("Failed to get artifacts:", error);
+      res.status(500).json({ error: "Failed to retrieve artifacts" });
+    }
+  });
+
   // Autonomous Agent - Generate NBAs for all high-risk HCPs with visible reasoning
   app.post("/api/ai/auto-generate-nbas", async (_req, res) => {
     try {

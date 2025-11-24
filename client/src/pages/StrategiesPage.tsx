@@ -2,9 +2,11 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EnsembleNBAPanel } from "@/components/EnsembleNBAPanel";
+import { ArtifactDisplay } from "@/components/ArtifactDisplay";
 import { ArrowLeft, Brain, AlertCircle, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
+import type { GeneratedArtifact } from "@shared/schema";
 
 interface NBAResults {
   hasResults: boolean;
@@ -30,6 +32,12 @@ async function fetchNBAResults(hcpId: string): Promise<NBAResults> {
 async function fetchInvestigationResults(hcpId: string): Promise<InvestigationResults> {
   const response = await fetch(`/api/ai/investigation-results/${hcpId}`);
   if (!response.ok) throw new Error("Failed to fetch investigation results");
+  return response.json();
+}
+
+async function fetchArtifacts(hcpId: string): Promise<GeneratedArtifact[]> {
+  const response = await fetch(`/api/hcps/${hcpId}/artifacts`);
+  if (!response.ok) throw new Error("Failed to fetch artifacts");
   return response.json();
 }
 
@@ -63,6 +71,12 @@ export default function StrategiesPage() {
       const isGenerating = canAccessStrategies && !currentData?.nba;
       return isGenerating ? 3000 : false;
     },
+  });
+
+  const { data: artifacts } = useQuery({
+    queryKey: ["artifacts", hcpId],
+    queryFn: () => fetchArtifacts(hcpId!),
+    enabled: !!hcpId && !!nbaResults?.nba, // Only fetch when NBA is available
   });
 
   return (
@@ -131,10 +145,17 @@ export default function StrategiesPage() {
         {canAccessStrategies && (
           <>
             {nbaResults?.nba ? (
-              <EnsembleNBAPanel 
-                nba={nbaResults.nba} 
-                provenHypotheses={confirmedHypotheses}
-              />
+              <>
+                <EnsembleNBAPanel 
+                  nba={nbaResults.nba} 
+                  provenHypotheses={confirmedHypotheses}
+                />
+                
+                {/* Display generated artifacts */}
+                {artifacts && artifacts.length > 0 && (
+                  <ArtifactDisplay artifacts={artifacts} />
+                )}
+              </>
             ) : (
               <Card className="border border-gray-200 bg-gray-50">
                 <CardContent className="p-16 text-center">
