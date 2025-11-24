@@ -44,8 +44,26 @@ interface HCP {
   createdAt: string;
 }
 
+interface InvestigationArtifact {
+  id: number;
+  hcpId: number;
+  sessionId: number;
+  agentType: string;
+  title: string;
+  content: any;
+  sequenceNumber: number;
+  confidenceScore?: number;
+  createdAt: string;
+}
+
 interface InvestigationResults {
   hasInvestigation: boolean;
+  artifacts?: {
+    plannerQuestions: InvestigationArtifact[];
+    gathererEvidence: InvestigationArtifact[];
+    hypothesisTests: InvestigationArtifact[];
+    causalModels: InvestigationArtifact[];
+  };
   session?: any;
   provenHypotheses?: any[];
   allHypotheses?: any[];
@@ -1354,6 +1372,157 @@ export default function HCPDetail() {
                         })}
                       </div>
                     </details>
+                  </div>
+                )}
+
+                {/* Investigation Artifacts - Show after progress completes */}
+                {stage2Progress === 100 && investigationResults?.artifacts && (
+                  <div className="mb-12 space-y-6">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Investigation Artifacts</h3>
+                    
+                    {/* Planner Questions */}
+                    {investigationResults.artifacts.plannerQuestions.length > 0 && (
+                      <details className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                        <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                          <span>Planner: Investigation Strategy ({investigationResults.artifacts.plannerQuestions.length} questions)</span>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </summary>
+                        <div className="px-6 py-4 space-y-4">
+                          {investigationResults.artifacts.plannerQuestions.map((artifact) => (
+                            <div key={artifact.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2">{artifact.title}</h4>
+                              <div className="text-xs text-gray-600 space-y-2">
+                                <p><strong>Question:</strong> {artifact.content.question}</p>
+                                <p><strong>Rationale:</strong> {artifact.content.rationale}</p>
+                                {artifact.content.expectedEvidence && (
+                                  <div>
+                                    <strong>Expected Evidence:</strong>
+                                    <ul className="list-disc pl-5 mt-1">
+                                      {artifact.content.expectedEvidence.map((evidence: string, idx: number) => (
+                                        <li key={idx}>{evidence}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {artifact.confidenceScore && (
+                                  <p className="text-gray-500">Confidence: {artifact.confidenceScore}%</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                    
+                    {/* Gatherer Evidence */}
+                    {investigationResults.artifacts.gathererEvidence.length > 0 && (
+                      <details className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                        <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                          <span>Gatherer: Evidence Collection ({investigationResults.artifacts.gathererEvidence.length} items)</span>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </summary>
+                        <div className="px-6 py-4 space-y-4">
+                          {investigationResults.artifacts.gathererEvidence.map((artifact) => (
+                            <div key={artifact.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2">{artifact.title}</h4>
+                              <div className="text-xs text-gray-600 space-y-2">
+                                <p><strong>Source:</strong> {artifact.content.source}</p>
+                                <p><strong>Findings:</strong> {artifact.content.findings}</p>
+                                {artifact.content.impactedPatients && (
+                                  <p><strong>Impacted Patients:</strong> {artifact.content.impactedPatients.join(', ')}</p>
+                                )}
+                                {artifact.content.keyPoints && (
+                                  <div>
+                                    <strong>Key Points:</strong>
+                                    <ul className="list-disc pl-5 mt-1">
+                                      {artifact.content.keyPoints.map((point: string, idx: number) => (
+                                        <li key={idx}>{point}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {artifact.confidenceScore && (
+                                  <p className="text-gray-500">Confidence: {artifact.confidenceScore}%</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                    
+                    {/* Hypothesis Tests */}
+                    {investigationResults.artifacts.hypothesisTests.length > 0 && (
+                      <details className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                        <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                          <span>Hypothesis Tester: Analysis ({investigationResults.artifacts.hypothesisTests.length} tests)</span>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </summary>
+                        <div className="px-6 py-4 space-y-4">
+                          {investigationResults.artifacts.hypothesisTests.map((artifact) => (
+                            <div key={artifact.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2">{artifact.title}</h4>
+                              <div className="text-xs text-gray-600 space-y-2">
+                                <p><strong>Hypothesis:</strong> {artifact.content.hypothesis}</p>
+                                <p><strong>Test Method:</strong> {artifact.content.testMethod}</p>
+                                <p><strong>Result:</strong> {artifact.content.result}</p>
+                                {artifact.content.supportingEvidence && (
+                                  <div>
+                                    <strong>Supporting Evidence:</strong>
+                                    <ul className="list-disc pl-5 mt-1">
+                                      {artifact.content.supportingEvidence.map((evidence: string, idx: number) => (
+                                        <li key={idx}>{evidence}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {artifact.confidenceScore && (
+                                  <p className="text-gray-500">Confidence: {artifact.confidenceScore}%</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                    
+                    {/* Causal Models */}
+                    {investigationResults.artifacts.causalModels.length > 0 && (
+                      <details className="bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                        <summary className="px-6 py-4 cursor-pointer text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors flex items-center justify-between">
+                          <span>Causal Model Builder: Models ({investigationResults.artifacts.causalModels.length} models)</span>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </summary>
+                        <div className="px-6 py-4 space-y-4">
+                          {investigationResults.artifacts.causalModels.map((artifact) => (
+                            <div key={artifact.id} className="bg-white rounded-lg p-4 border border-gray-200">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2">{artifact.title}</h4>
+                              <div className="text-xs text-gray-600 space-y-2">
+                                <p><strong>Root Cause:</strong> {artifact.content.rootCause}</p>
+                                {artifact.content.mechanism && (
+                                  <p><strong>Mechanism:</strong> {artifact.content.mechanism}</p>
+                                )}
+                                {artifact.content.leveragePoints && (
+                                  <div>
+                                    <strong>Leverage Points:</strong>
+                                    <ul className="list-disc pl-5 mt-1">
+                                      {artifact.content.leveragePoints.map((point: any, idx: number) => (
+                                        <li key={idx}>
+                                          <strong>{point.point}:</strong> {point.rationale}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {artifact.confidenceScore && (
+                                  <p className="text-gray-500">Confidence: {artifact.confidenceScore}%</p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
                   </div>
                 )}
 

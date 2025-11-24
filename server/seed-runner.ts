@@ -9,6 +9,7 @@ async function runSeeding() {
     // TRUNCATE all tables and reset identity sequences to ensure deterministic IDs
     await db.execute(sql`
       TRUNCATE TABLE 
+        investigation_artifacts,
         call_notes,
         payer_communications,
         agent_feedback,

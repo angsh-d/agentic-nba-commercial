@@ -486,8 +486,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const groupedArtifacts = {
         plannerQuestions: artifacts.filter(a => a.agentType === 'planner'),
         gathererEvidence: artifacts.filter(a => a.agentType === 'gatherer'),
-        hypothesisTests: artifacts.filter(a => a.agentType === 'hypothesis_tester'),
-        causalModels: artifacts.filter(a => a.agentType === 'causal_model_builder'),
+        hypothesisTests: artifacts.filter(a => a.agentType === 'analyst'),
+        causalModels: artifacts.filter(a => a.agentType === 'synthesizer'),
       };
       
       // Get all sessions for this HCP (for backwards compatibility)
