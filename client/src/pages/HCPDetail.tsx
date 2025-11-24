@@ -600,7 +600,7 @@ export default function HCPDetail() {
                     <p className="text-base text-gray-900 leading-relaxed">
                       {hcpId === "1" 
                         ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
-                        : "Agents detected 75% patient abandonment rate correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 4 patient cohorts."}
+                        : "Agents detected 83% patient abandonment rate (10 of 12 patients) correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 3 access-barrier cohorts."}
                     </p>
                   </div>
                 )}
@@ -718,7 +718,7 @@ export default function HCPDetail() {
                             <p className="text-sm font-semibold text-gray-900">Patient Cohorts</p>
                           </div>
                           <p className="text-sm text-gray-600 font-light leading-relaxed">
-                            Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}
+                            Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "3 access-barrier cohorts"}
                           </p>
                         </button>
                       </DialogTrigger>
