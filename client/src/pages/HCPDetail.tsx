@@ -1448,6 +1448,100 @@ export default function HCPDetail() {
                 {/* Hypothesis Summary - Progressive Disclosure */}
                 {stage2Progress === 100 && (
                   <>
+                    {/* Investigation Timeline */}
+                    {hcpId === "2" && (
+                      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-sm font-semibold text-gray-900">Investigation Timeline</h4>
+                          <span className="text-xs text-gray-500">Hypothesis generation → testing → resolution</span>
+                        </div>
+                        
+                        <div className="relative">
+                          {/* Timeline Bar */}
+                          <div className="absolute left-6 top-0 bottom-0 w-px bg-gray-200"></div>
+                          
+                          {/* Timeline Events */}
+                          <div className="space-y-4 relative">
+                            {/* Event 1: Inflection Detection */}
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0 w-12 text-right">
+                                <span className="text-xs font-medium text-gray-500">Aug 1</span>
+                              </div>
+                              <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-600 border-4 border-white relative z-10 mt-1"></div>
+                              <div className="flex-1 pb-2">
+                                <p className="text-xs font-semibold text-gray-900">Inflection Point Detected</p>
+                                <p className="text-xs text-gray-600 mt-0.5">Multi-payer policy changes triggered prescription decline</p>
+                              </div>
+                            </div>
+
+                            {/* Event 2: Investigation Start */}
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0 w-12 text-right">
+                                <span className="text-xs font-medium text-gray-500">Aug 5</span>
+                              </div>
+                              <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-600 border-4 border-white relative z-10 mt-1"></div>
+                              <div className="flex-1 pb-2">
+                                <p className="text-xs font-semibold text-gray-900">Investigation Initiated</p>
+                                <p className="text-xs text-gray-600 mt-0.5">Generated 5 competing hypotheses for systematic testing</p>
+                              </div>
+                            </div>
+
+                            {/* Event 3: Evidence Gathering */}
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0 w-12 text-right">
+                                <span className="text-xs font-medium text-gray-500">Aug 5-15</span>
+                              </div>
+                              <div className="flex-shrink-0 w-3 h-3 rounded-full bg-gray-400 border-4 border-white relative z-10 mt-1"></div>
+                              <div className="flex-1 pb-2">
+                                <p className="text-xs font-semibold text-gray-900">Evidence Gathering Phase</p>
+                                <p className="text-xs text-gray-600 mt-0.5">Analyzed {hcpId === "2" ? "27" : "15"} data points across call notes, payer comms, Rx data, patient records</p>
+                              </div>
+                            </div>
+
+                            {/* Event 4: Hypothesis Testing */}
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0 w-12 text-right">
+                                <span className="text-xs font-medium text-gray-500">Aug 20</span>
+                              </div>
+                              <div className="flex-shrink-0 w-3 h-3 rounded-full bg-gray-400 border-4 border-white relative z-10 mt-1"></div>
+                              <div className="flex-1 pb-2">
+                                <p className="text-xs font-semibold text-gray-900">Hypothesis Testing Completed</p>
+                                <p className="text-xs text-gray-600 mt-0.5">Cross-validated evidence against each hypothesis using temporal correlation</p>
+                              </div>
+                            </div>
+
+                            {/* Event 5: Results */}
+                            <div className="flex gap-4">
+                              <div className="flex-shrink-0 w-12 text-right">
+                                <span className="text-xs font-medium text-gray-500">Aug 20</span>
+                              </div>
+                              <div className="flex-shrink-0 w-3 h-3 rounded-full bg-blue-600 border-4 border-white relative z-10 mt-1"></div>
+                              <div className="flex-1 pb-2">
+                                <p className="text-xs font-semibold text-gray-900">Root Cause Identified</p>
+                                <p className="text-xs text-gray-600 mt-0.5">3 hypotheses proven (92%, 88%, 75% confidence), 2 rejected (10%, 12%)</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Timeline Stats */}
+                        <div className="mt-6 pt-4 border-t border-gray-200 grid grid-cols-3 gap-4">
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">15 days</p>
+                            <p className="text-xs text-gray-600">Total investigation time</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">5 hypotheses</p>
+                            <p className="text-xs text-gray-600">Generated & tested</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">92% avg</p>
+                            <p className="text-xs text-gray-600">Proven hypothesis confidence</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mb-6">
                       <h4 className="text-sm font-semibold text-gray-900 mb-4">
                         Hypothesis Testing Results
@@ -1462,14 +1556,47 @@ export default function HCPDetail() {
                           </p>
                         </div>
                         <div className="space-y-3">
-                          {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map((hyp, hypIndex) => (
+                          {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")
+                            .sort((a, b) => b.confidence - a.confidence)
+                            .map((hyp, hypIndex) => (
                             <div key={hyp.id} className="border border-gray-300 bg-gray-50 rounded-xl p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
-                                <span className="text-xs font-medium text-blue-700 px-2 py-0.5 bg-blue-50 rounded">
-                                  {hyp.confidence}% confidence
-                                </span>
+                              {/* Header with ranking */}
+                              <div className="flex items-start justify-between mb-2 gap-3">
+                                <div className="flex items-start gap-2 flex-1">
+                                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mt-0.5">
+                                    <span className="text-xs font-bold text-white">#{hypIndex + 1}</span>
+                                  </div>
+                                  <p className="text-sm font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                  <span className="text-xs font-medium text-blue-700 px-2 py-0.5 bg-blue-50 rounded whitespace-nowrap">
+                                    {hyp.confidence}% ± {hyp.confidence >= 90 ? 3 : hyp.confidence >= 80 ? 5 : 7}%
+                                  </span>
+                                  <span className="text-xs text-gray-500">Confidence interval</span>
+                                </div>
                               </div>
+
+                              {/* Confidence bar */}
+                              <div className="mb-3">
+                                <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-blue-600 rounded-full transition-all"
+                                    style={{ width: `${hyp.confidence}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+
+                              {/* Ranking explanation */}
+                              <div className="bg-blue-50 rounded-lg px-3 py-2 mb-3">
+                                <p className="text-xs text-gray-700">
+                                  <span className="font-semibold text-gray-900">Ranked #{hypIndex + 1} of {getHypothesesForHcp(hcpId).length}:</span> {
+                                    hypIndex === 0 ? "Strongest evidence with highest temporal correlation to switching event" :
+                                    hypIndex === 1 ? "Strong supporting evidence, secondary contributing factor" :
+                                    "Moderate evidence, tertiary contributing factor"
+                                  }
+                                </p>
+                              </div>
+
                               <p className="text-xs text-gray-700 mb-3">{hyp.text.split(' - ')[1]}</p>
                               
                               {/* Evidence Summary */}
