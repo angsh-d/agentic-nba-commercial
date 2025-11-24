@@ -77,6 +77,12 @@ async function fetchPatients(hcpId: string) {
   return response.json();
 }
 
+async function fetchPrescriptionTrends(hcpId: string) {
+  const response = await fetch(`/api/hcps/${hcpId}/prescription-trends`);
+  if (!response.ok) throw new Error("Failed to fetch prescription trends");
+  return response.json();
+}
+
 async function fetchClinicalEvents(hcpId: string) {
   const response = await fetch(`/api/hcps/${hcpId}/events`);
   if (!response.ok) throw new Error("Failed to fetch clinical events");
@@ -406,19 +412,15 @@ export default function HCPDetail() {
     enabled: !!hcpId,
   });
 
-  const { data: investigationResults } = useQuery({
-    queryKey: ["investigation-results", hcpId],
-    queryFn: () => fetchInvestigationResults(hcpId!),
+  const { data: prescriptionTrends = [] } = useQuery({
+    queryKey: ["prescription-trends", hcpId],
+    queryFn: () => fetchPrescriptionTrends(hcpId!),
     enabled: !!hcpId,
   });
 
-  const { data: prescriptionTrends = [] } = useQuery({
-    queryKey: ["prescription-trends", hcpId],
-    queryFn: async () => {
-      const response = await fetch(`/api/hcps/${hcpId}/prescription-trends`);
-      if (!response.ok) return [];
-      return response.json();
-    },
+  const { data: investigationResults } = useQuery({
+    queryKey: ["investigation-results", hcpId],
+    queryFn: () => fetchInvestigationResults(hcpId!),
     enabled: !!hcpId,
   });
 
@@ -626,9 +628,9 @@ export default function HCPDetail() {
                         <div className="mt-4">
                           <p className="text-sm text-gray-600 mb-4">Monthly prescription volumes showing 44% decline from Jan to Oct</p>
                           <div className="space-y-2">
-                            {prescriptionHistory.slice(0, 10).map((record, idx) => (
+                            {prescriptionTrends.slice(0, 10).map((record: any, idx: number) => (
                               <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
-                                <span className="text-sm font-medium text-gray-900">{record.month}</span>
+                                <span className="text-sm font-medium text-gray-900">2025-{record.month}</span>
                                 <div className="flex items-center gap-4">
                                   <span className="text-sm text-gray-600">Own Drug: {record.ownDrug}</span>
                                   <span className="text-sm text-gray-600">Competitor: {record.competitorDrug}</span>
