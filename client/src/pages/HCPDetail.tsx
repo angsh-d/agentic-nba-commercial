@@ -1888,15 +1888,29 @@ export default function HCPDetail() {
 
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
-                  <Link href={`/hcp/${hcpId}/investigate`}>
+                  {!hasInvestigation || !isConfirmed ? (
+                    <Link href={`/hcp/${hcpId}/investigate`}>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                        data-testid="button-investigate-root-causes"
+                      >
+                        Investigate Root Causes with AI
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
                     <Button
+                      onClick={() => {
+                        setStage2Complete(true);
+                        setWizardStage(3);
+                      }}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
-                      data-testid="button-investigate-root-causes"
+                      data-testid="button-continue-synthesis"
                     >
-                      Investigate Root Causes with AI
+                      Continue to Synthesis
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
-                  </Link>
+                  )}
                 </div>
               </div>
             )}
