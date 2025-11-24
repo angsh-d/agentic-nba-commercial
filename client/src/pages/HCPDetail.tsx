@@ -661,11 +661,10 @@ export default function HCPDetail() {
                           {callNotes.map((note) => (
                             <div key={note.id} className="border-l-2 border-blue-600 pl-4 py-2">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">{new Date(note.noteDate).toLocaleDateString()}</span>
+                                <span className="text-xs font-medium text-gray-900">{new Date(note.visitDate).toLocaleDateString()}</span>
                                 <span className="text-xs text-gray-500">by {note.repName}</span>
                               </div>
-                              <p className="text-sm font-medium text-gray-900 mb-1">{note.summary}</p>
-                              {note.fullText && <p className="text-sm text-gray-600 leading-relaxed">{note.fullText}</p>}
+                              <p className="text-sm text-gray-700 leading-relaxed">{note.noteText}</p>
                             </div>
                           ))}
                         </div>
@@ -728,13 +727,15 @@ export default function HCPDetail() {
                           {patients.filter(p => p.switchedDate !== null).map((patient) => (
                             <div key={patient.id} className="border border-gray-200 rounded-lg p-4">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">Patient {patient.id}</span>
-                                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded">{patient.cohort}</span>
+                                <span className="text-xs font-medium text-gray-900">{patient.patientCode}</span>
+                                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded">{patient.cohort.replace(/_/g, ' ')}</span>
                               </div>
                               <div className="text-sm text-gray-600 space-y-1">
-                                <p>Started: {new Date(patient.therapyStartDate).toLocaleDateString()}</p>
-                                <p>Switched: {new Date(patient.switchedDate).toLocaleDateString()}</p>
-                                {patient.switchReason && <p className="text-gray-700 font-medium">Reason: {patient.switchReason}</p>}
+                                <p><span className="font-medium">Payer:</span> {patient.payer}</p>
+                                <p><span className="font-medium">Copay:</span> ${patient.copayAmount}</p>
+                                <p><span className="font-medium">PA Status:</span> {patient.priorAuthStatus?.replace(/_/g, ' ')}</p>
+                                {patient.switchedDate && <p><span className="font-medium">Switched:</span> {new Date(patient.switchedDate).toLocaleDateString()}</p>}
+                                {patient.switchedToDrug && <p><span className="font-medium">To:</span> {patient.switchedToDrug}</p>}
                               </div>
                             </div>
                           ))}
