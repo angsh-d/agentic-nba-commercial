@@ -469,25 +469,32 @@ export default function HCPDetail() {
                     </div>
 
                     <div className="space-y-2 bg-gray-50 rounded-xl p-6">
-                      {stage1Activities.map((activity) => (
-                        <div
-                          key={activity.id}
-                          className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
-                          data-testid={`activity-${activity.id}`}
-                        >
-                          {activity.status === "in_progress" ? (
-                            <div className="w-4 h-4 mt-0.5 flex-shrink-0">
-                              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      {stage1Activities.map((activity, index) => {
+                        // Determine if this activity is complete by checking if next activity is visible
+                        const isComplete = activity.status === "completed" || 
+                                         index < stage1Activities.length - 1 || 
+                                         processingProgress === 100;
+                        
+                        return (
+                          <div
+                            key={activity.id}
+                            className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
+                            data-testid={`activity-${activity.id}`}
+                          >
+                            {!isComplete ? (
+                              <div className="w-4 h-4 mt-0.5 flex-shrink-0">
+                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                              </div>
+                            ) : (
+                              <CheckCircle2 className="w-4 h-4 text-gray-900 flex-shrink-0 mt-0.5" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
+                              <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
                             </div>
-                          ) : (
-                            <CheckCircle2 className="w-4 h-4 text-gray-900 flex-shrink-0 mt-0.5" />
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
-                            <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
