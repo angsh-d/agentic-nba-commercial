@@ -742,10 +742,98 @@ export default function HCPDetail() {
                         </div>
                       </div>
 
+                      {/* Signals with No Correlation - Shows thoroughness */}
+                      <div className="mt-12 pt-8 border-t border-gray-200">
+                        <div className="flex items-center justify-between mb-6">
+                          <h4 className="text-sm font-medium text-gray-900">Signals Investigated — No Temporal Correlation Detected</h4>
+                          <span className="text-xs text-gray-400">Evidence of hypothesis testing</span>
+                        </div>
+                        
+                        <div className="space-y-6 opacity-60">
+                          {/* Clinical Safety Events */}
+                          <div className="relative">
+                            <div className="flex items-center justify-between mb-3 px-1">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gray-300 rounded-full"></div>
+                                <span className="text-xs text-gray-600">Clinical Safety Events</span>
+                              </div>
+                              <span className="text-xs text-gray-400">No events detected</span>
+                            </div>
+                            <div className="flex items-center h-8 px-8">
+                              {[0, 0, 0, 0, 0, 0].map((_, idx) => (
+                                <div key={idx} className="flex-1 flex items-center justify-center">
+                                  <span className="text-xs text-gray-300">—</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* KOL Conference Attendance */}
+                          <div className="relative">
+                            <div className="flex items-center justify-between mb-3 px-1">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gray-300 rounded-full"></div>
+                                <span className="text-xs text-gray-600">KOL Conference Attendance</span>
+                              </div>
+                              <span className="text-xs text-gray-400">Stable pattern, no inflection</span>
+                            </div>
+                            <div className="flex items-center h-8 gap-2 px-8">
+                              {[1, 0, 1, 1, 0, 1].map((attended, idx) => (
+                                <div key={idx} className="flex-1 flex items-center justify-center">
+                                  {attended === 1 ? (
+                                    <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                  ) : (
+                                    <span className="text-xs text-gray-200">—</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Competitive Marketing Activity */}
+                          <div className="relative">
+                            <div className="flex items-center justify-between mb-3 px-1">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gray-300 rounded-full"></div>
+                                <span className="text-xs text-gray-600">Competitive Detailing Frequency</span>
+                              </div>
+                              <span className="text-xs text-gray-400">Consistent baseline, no spike</span>
+                            </div>
+                            <div className="flex items-center h-10 gap-1 px-8">
+                              {[8, 7, 9, 8, 7, 9].map((count, idx) => (
+                                <div key={idx} className="flex-1 flex items-center justify-center">
+                                  <div className="w-full h-6 bg-gray-200 rounded flex items-center justify-center">
+                                    <span className="text-xs text-gray-400">{count}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Publication Impact */}
+                          <div className="relative">
+                            <div className="flex items-center justify-between mb-3 px-1">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-6 bg-gray-300 rounded-full"></div>
+                                <span className="text-xs text-gray-600">Clinical Publication Impact</span>
+                              </div>
+                              <span className="text-xs text-gray-400">No relevant publications in timeframe</span>
+                            </div>
+                            <div className="flex items-center h-8 px-8">
+                              {[0, 0, 0, 0, 0, 0].map((_, idx) => (
+                                <div key={idx} className="flex-1 flex items-center justify-center">
+                                  <span className="text-xs text-gray-300">—</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Insight Summary */}
                       <div className="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6">
                         <p className="text-sm leading-relaxed text-gray-700">
-                          <span className="font-semibold text-gray-900">Causal Evidence:</span> All four independent data signals demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers (UHC, Aetna, Cigna, BCBS) implemented formulary restrictions. This temporal alignment establishes clear causal relationship between policy changes and prescription decline.
+                          <span className="font-semibold text-gray-900">Causal Evidence:</span> Investigation examined 8 independent data signals. Four signals (prescription volume, payer policies, access friction, patient abandonment) demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers implemented formulary restrictions. Four other signals (clinical safety, conferences, competitive activity, publications) show no temporal correlation, confirming the root cause is specifically reimbursement-driven, not clinical or competitive factors.
                         </p>
                       </div>
                     </div>
