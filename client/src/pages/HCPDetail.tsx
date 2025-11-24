@@ -600,7 +600,15 @@ export default function HCPDetail() {
                     <p className="text-base text-gray-900 leading-relaxed">
                       {hcpId === "1" 
                         ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
-                        : "Agents detected 83% patient abandonment rate (10 of 12 patients) correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 3 access-barrier cohorts."}
+                        : (
+                        <>
+                          <strong>Multi-Signal Analysis:</strong> Investigated 8 data sources — identified 4 signals with synchronized Aug 1st inflection.
+                          <br /><br />
+                          <strong>Core Finding:</strong> 83% patient abandonment (10/12) correlating with multi-payer formulary restrictions (Tier 3, step-edits, $450 copays) across 3 access-barrier cohorts.
+                          <br /><br />
+                          <strong>Ruled Out:</strong> Clinical safety, conferences, competitive activity, publications showed no temporal correlation — confirming reimbursement-driven causality.
+                        </>
+                      )}
                     </p>
                   </div>
                 )}
