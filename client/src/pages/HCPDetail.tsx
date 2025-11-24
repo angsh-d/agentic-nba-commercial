@@ -201,6 +201,17 @@ export default function HCPDetail() {
   }>>([]);
   const [activityStartTime, setActivityStartTime] = useState<number | null>(null);
   const [processingProgress, setProcessingProgress] = useState(0);
+  
+  // Stage 2 live agent activity
+  const [stage2Activities, setStage2Activities] = useState<Array<{
+    id: number;
+    timestamp: number;
+    agent: string;
+    activity: string;
+    status: "in_progress" | "completed";
+  }>>([]);
+  const [stage2StartTime, setStage2StartTime] = useState<number | null>(null);
+  const [stage2Progress, setStage2Progress] = useState(0);
 
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
@@ -217,6 +228,17 @@ export default function HCPDetail() {
       return response.json();
     },
     enabled: !!hcpId && wizardStage === 1,
+  });
+
+  // Fetch Stage 2 agent activities
+  const { data: allStage2Activities } = useQuery({
+    queryKey: ["stage2-activity", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/stage2-activity`);
+      if (!response.ok) throw new Error("Failed to fetch agent activity");
+      return response.json();
+    },
+    enabled: !!hcpId && wizardStage === 2,
   });
 
   // Simulate real-time activity feed by gradually revealing activities
@@ -255,6 +277,40 @@ export default function HCPDetail() {
 
     return () => clearInterval(interval);
   }, [wizardStage, allActivities, activityStartTime]);
+
+  // Stage 2 progressive reveal
+  useEffect(() => {
+    if (!allStage2Activities || wizardStage !== 2) {
+      setStage2Activities([]);
+      setStage2StartTime(null);
+      return;
+    }
+
+    if (!stage2StartTime) {
+      setStage2StartTime(Date.now());
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - stage2StartTime;
+      const visibleActivities = allStage2Activities.filter((activity: any) => {
+        const relativeTime = activity.timestamp - allStage2Activities[0].timestamp;
+        return relativeTime <= elapsed;
+      });
+      setStage2Activities(visibleActivities);
+
+      const totalDuration = 35000; // 35 seconds
+      const progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+      setStage2Progress(progress);
+
+      if (visibleActivities.length === allStage2Activities.length) {
+        clearInterval(interval);
+        setStage2Progress(100);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [wizardStage, allStage2Activities, stage2StartTime]);
 
   const { data: prescriptionHistory = [] } = useQuery({
     queryKey: ["prescription-history", hcpId],
@@ -605,6 +661,75 @@ export default function HCPDetail() {
                     </p>
                   </div>
                 </div>
+
+                {/* Agent Reasoning Activity Feed */}
+                {stage2Activities.length > 0 && (
+                  <div className="mb-12">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-gray-900">Agentic Reasoning & Investigation</h3>
+                      <span className="text-xs font-medium text-gray-600">{stage2Progress}% complete</span>
+                    </div>
+                    
+                    {/* Progress bar */}
+                    <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${stage2Progress}%` }}
+                      />
+                    </div>
+
+                    {/* Current activity */}
+                    {stage2Activities.length > 0 && (
+                      <div className="flex items-center gap-3 text-xs text-gray-600 mb-6">
+                        <div className="w-3 h-3 flex-shrink-0">
+                          {stage2Progress < 100 ? (
+                            <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3 text-gray-900" />
+                          )}
+                        </div>
+                        <span className="font-light">
+                          {stage2Progress < 100 
+                            ? `${stage2Activities[stage2Activities.length - 1].agent}: ${stage2Activities[stage2Activities.length - 1].activity}`
+                            : "Causal investigation complete"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Detailed activity log - collapsible */}
+                    <details className="bg-gray-50 rounded-xl overflow-hidden">
+                      <summary className="px-6 py-4 cursor-pointer text-xs font-medium text-gray-900 hover:bg-gray-100 transition-colors">
+                        View Detailed Reasoning Log ({stage2Activities.length} steps)
+                      </summary>
+                      <div className="px-6 py-4 space-y-2 max-h-64 overflow-y-auto">
+                        {stage2Activities.map((activity, index) => {
+                          const isComplete = activity.status === "completed" || 
+                                           index < stage2Activities.length - 1 || 
+                                           stage2Progress === 100;
+                          
+                          return (
+                            <div
+                              key={activity.id}
+                              className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
+                            >
+                              {!isComplete ? (
+                                <div className="w-3 h-3 mt-0.5 flex-shrink-0">
+                                  <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                              ) : (
+                                <CheckCircle2 className="w-3 h-3 text-gray-900 flex-shrink-0 mt-0.5" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
+                                <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  </div>
+                )}
 
                   {/* Hypothesis Summary */}
                   <div className="mb-6">

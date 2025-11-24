@@ -97,6 +97,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Stage 2 Agent Activity Feed - Causal investigation with hypothesis testing
+  app.get("/api/hcps/:id/stage2-activity", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const startTime = Date.now();
+      
+      // Simulated agent activities for Stage 2: Plan & Investigate (~35 seconds)
+      const activities = [
+        { id: 1, timestamp: startTime, agent: "Planner Agent", activity: "Creating investigation strategy...", status: "in_progress" },
+        { id: 2, timestamp: startTime + 4000, agent: "Planner Agent", activity: id === 1 ? "Identified 2 causal domains: safety + temporal events" : "Identified primary domain: access barriers", status: "completed" },
+        { id: 3, timestamp: startTime + 5000, agent: "Hypothesis Generator", activity: "Building competing hypothesis tree...", status: "in_progress" },
+        { id: 4, timestamp: startTime + 8000, agent: "Hypothesis Generator", activity: id === 1 ? "Generated 5 hypotheses across safety, efficacy, access domains" : "Generated 6 hypotheses: copay, PA, fulfillment, network, formulary, competitive", status: "completed" },
+        { id: 5, timestamp: startTime + 9000, agent: "Evidence Gatherer", activity: "Cross-referencing call notes with patient switches...", status: "in_progress" },
+        { id: 6, timestamp: startTime + 13000, agent: "Evidence Gatherer", activity: id === 1 ? "Found 6 cardiac events correlating with 6 switches" : "Found 100% correlation between Aug 1 policy and switch dates", status: "completed" },
+        { id: 7, timestamp: startTime + 14000, agent: "Hypothesis Tester", activity: id === 1 ? "Testing H1: Cardiac safety concerns..." : "Testing H1: High copay shock...", status: "in_progress" },
+        { id: 8, timestamp: startTime + 17000, agent: "Hypothesis Tester", activity: id === 1 ? "H1 proven: 100% switch rate in CV-risk cohort" : "H1 proven: 4/4 copay shock patients switched", status: "completed" },
+        { id: 9, timestamp: startTime + 18000, agent: "Hypothesis Tester", activity: id === 1 ? "Testing H2: ASCO conference influence..." : "Testing H2: PA denial patterns...", status: "in_progress" },
+        { id: 10, timestamp: startTime + 21000, agent: "Hypothesis Tester", activity: id === 1 ? "H2 proven: Young RCC cohort switched post-ASCO" : "H2 proven: 3/3 PA denied patients switched", status: "completed" },
+        { id: 11, timestamp: startTime + 22000, agent: "Hypothesis Tester", activity: id === 1 ? "Testing H3-H5: Access barriers, competitive..." : "Testing H3: Fulfillment delays...", status: "in_progress" },
+        { id: 12, timestamp: startTime + 25000, agent: "Hypothesis Tester", activity: id === 1 ? "H3-H5 disproven: No access/competitive evidence" : "H3 proven: 2/2 fulfillment delay patients switched", status: "completed" },
+        { id: 13, timestamp: startTime + 26000, agent: "Causal Analyzer", activity: "Building causal graph from proven hypotheses...", status: "in_progress" },
+        { id: 14, timestamp: startTime + 30000, agent: "Causal Analyzer", activity: id === 1 ? "Dual causality confirmed: safety + temporal" : "Multi-payer causality confirmed: 3 access barriers", status: "completed" },
+        { id: 15, timestamp: startTime + 31000, agent: "Confidence Scorer", activity: "Calculating evidence-to-hypothesis confidence...", status: "in_progress" },
+        { id: 16, timestamp: startTime + 35000, agent: "Confidence Scorer", activity: id === 1 ? "Final confidence: 92% (6/6 events + 6/6 switches)" : "Final confidence: 95% (9/9 switches + policy correlation)", status: "completed" },
+      ];
+
+      res.json(activities);
+    } catch (error) {
+      console.error("Failed to get stage 2 activity:", error);
+      res.status(500).json({ error: "Failed to retrieve agent activity" });
+    }
+  });
+
   // Stage 1 Agent Activity Feed - Simulates agents analyzing data in real-time
   app.get("/api/hcps/:id/stage1-activity", async (req, res) => {
     try {
