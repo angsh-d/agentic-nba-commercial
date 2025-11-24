@@ -738,35 +738,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { hcpId, hcpName, actionType, actionText, reason, synthesisRationale } = req.body;
 
-      if (!hcpId || !actionType || !actionText) {
+      if (!hcpId || !actionType || !actionText?.trim()) {
         return res.status(400).json({ error: "Missing required fields: hcpId, actionType, actionText" });
       }
 
       let content: any;
       let artifactType: string;
+      let title: string;
 
       // Generate appropriate artifact based on action type
       if (actionType === "call") {
         content = await generateCallScript(hcpName, actionText, reason, synthesisRationale);
         artifactType = "call_script";
+        title = `Call Script: ${actionText}`;
       } else if (actionType === "email") {
         content = await generateEmailDraft(hcpName, actionText, reason, synthesisRationale);
         artifactType = "email_draft";
+        title = `Email Draft: ${actionText}`;
       } else if (actionType === "meeting") {
         content = await generateMeetingAgenda(hcpName, actionText, reason, synthesisRationale);
         artifactType = "meeting_agenda";
+        title = `Meeting Agenda: ${actionText}`;
       } else {
         // Default to call script for other action types
         content = await generateCallScript(hcpName, actionText, reason, synthesisRationale);
         artifactType = "call_script";
+        title = `Call Script: ${actionText}`;
       }
 
       // Save to database
-      const artifact = await storage.createArtifact({
+      const artifact = await storage.createGeneratedArtifact({
         hcpId,
         nbaId: null, // Not linked to a specific NBA record since we're generating on-demand
         artifactType,
         actionType,
+        title,
         content,
       });
 
