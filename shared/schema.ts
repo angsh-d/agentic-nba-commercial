@@ -390,3 +390,49 @@ export const insertPayerCommunicationSchema = createInsertSchema(payerCommunicat
 export const selectPayerCommunicationSchema = createSelectSchema(payerCommunications);
 export type InsertPayerCommunication = z.infer<typeof insertPayerCommunicationSchema>;
 export type PayerCommunication = typeof payerCommunications.$inferSelect;
+
+// Investigation Artifacts - Structured outputs from multi-agent root cause investigations
+export const investigationArtifacts = pgTable("investigation_artifacts", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull().references(() => agentSessions.id),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  artifactType: text("artifact_type").notNull(), // "planner_goal", "evidence_packet", "hypothesis_test", "causal_model"
+  agentType: text("agent_type").notNull(), // "planner", "gatherer", "analyst", "synthesizer"
+  title: text("title").notNull(), // Short title/summary
+  content: jsonb("content").notNull().$type<InvestigationArtifactContent>(), // Structured artifact data
+  sequenceNumber: integer("sequence_number").notNull(), // Order in investigation
+  confidenceScore: integer("confidence_score"), // 0-100 confidence level
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Discriminated union type for artifact content
+export type InvestigationArtifactContent = 
+  | { type: "planner_goal"; question: string; rationale: string; expectedEvidence: string[] }
+  | { type: "evidence_packet"; category: string; findings: string[]; sources: string[]; strength: number }
+  | { type: "hypothesis_test"; hypothesis: string; testType: string; result: string; confidence: number; evidence: string[] }
+  | { type: "causal_model"; modelType: string; nodes: CausalNode[]; interventions: Intervention[] };
+
+export type CausalNode = {
+  id: string;
+  label: string;
+  nodeType: "barrier" | "intervention" | "outcome";
+  impact: "high" | "medium" | "low";
+  evidence: string[];
+};
+
+export type Intervention = {
+  id: string;
+  name: string;
+  targetBarriers: string[];
+  leverageType: "high" | "medium" | "low";
+  actionable: boolean;
+  resources: string[];
+};
+
+export const insertInvestigationArtifactSchema = createInsertSchema(investigationArtifacts).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectInvestigationArtifactSchema = createSelectSchema(investigationArtifacts);
+export type InsertInvestigationArtifact = z.infer<typeof insertInvestigationArtifactSchema>;
+export type InvestigationArtifact = typeof investigationArtifacts.$inferSelect;
