@@ -2055,7 +2055,6 @@ export default function HCPDetail() {
                         const newArtifact = await artifactRes.json();
                         setArtifacts([newArtifact]);
                         setStage3Complete(true);
-                        setWizardStage('complete');
                       } catch (error) {
                         console.error("Artifact generation error:", error);
                       } finally {
