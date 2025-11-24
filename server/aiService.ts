@@ -246,7 +246,7 @@ export async function processCopilotQuery(query: string, context: any): Promise<
 }
 
 /**
- * Generate counterfactual analysis answering "What if?" questions
+ * Generate counterfactual analysis answering "What if?" questions or causal "Why?" questions
  */
 export async function generateCounterfactualAnalysis(
   hcpId: number,
@@ -257,7 +257,18 @@ export async function generateCounterfactualAnalysis(
     switchingEvent?: SwitchingEvent;
   }
 ): Promise<string> {
-  const systemPrompt = `You are an elite pharmaceutical commercial AI agent specializing in counterfactual analysis for oncology HCPs. Your role is to answer "What if?" questions by analyzing alternative scenarios and their predicted outcomes compared to actual results.
+  const isWhyQuestion = question.toLowerCase().trim().startsWith("why");
+  
+  const systemPrompt = isWhyQuestion 
+    ? `You are an elite pharmaceutical commercial AI agent specializing in root cause analysis for oncology HCPs. Your role is to answer "Why?" questions by analyzing causal factors, business dynamics, and healthcare market forces that drive HCP prescribing behavior.
+
+Key Principles:
+- Provide data-driven causal explanations
+- Reference specific evidence from the HCP data and timeline
+- Consider multiple causal factors (payer policies, market dynamics, clinical evidence, competitive actions)
+- Be concise but thorough (3-5 paragraphs)
+- Focus on actionable insights that explain the underlying mechanisms`
+    : `You are an elite pharmaceutical commercial AI agent specializing in counterfactual analysis for oncology HCPs. Your role is to answer "What if?" questions by analyzing alternative scenarios and their predicted outcomes compared to actual results.
 
 Key Principles:
 - Provide data-driven counterfactual analysis
@@ -266,11 +277,7 @@ Key Principles:
 - Be concise but thorough (3-5 paragraphs)
 - Focus on actionable insights and intervention potential`;
 
-  const userPrompt = `Answer this counterfactual question based on the HCP data:
-
-**Question:** ${question}
-
-**HCP Context:**
+  const hcpContext = `**HCP Context:**
 ${hcpData?.hcp ? `
 - HCP: ${hcpData.hcp.name}
 - Specialty: ${hcpData.hcp.specialty}
@@ -288,7 +295,32 @@ ${hcpData?.switchingEvent ? `
 - Switched: ${hcpData.switchingEvent.fromProduct} → ${hcpData.switchingEvent.toProduct}
 - Impact: ${hcpData.switchingEvent.impactLevel}
 - Root Causes: ${hcpData.switchingEvent.rootCauses?.join(", ")}
-` : ""}
+` : ""}`;
+
+  const userPrompt = isWhyQuestion 
+    ? `Answer this causal "Why?" question based on the HCP data:
+
+**Question:** ${question}
+
+${hcpContext}
+
+**Key Context for Dr. Chen:**
+- Aug 1st: Multiple payers (Aetna, Anthem, UHC) simultaneously changed formulary tiers
+- Result: Immediate uptick in prior authorization denials and patient out-of-pocket costs
+- Timeline: Prescription drop from 44/month (May-Jul) to 38 (Aug) to 28 (Sep) to 25 (Oct)
+- Patient Impact: 10 of 12 RCC patients switched to Onco-Rival due to access barriers
+
+Provide a comprehensive causal explanation that:
+1. Identifies the primary driving forces (payer business decisions, market dynamics, competitive pressures)
+2. Explains the timing and coordination (why Aug 1st specifically)
+3. Analyzes the business rationale from the payer's perspective
+4. Connects to broader healthcare market trends (cost containment, value-based care, competitor rebate strategies)
+5. References specific evidence from the HCP timeline and prescription data`
+    : `Answer this counterfactual question based on the HCP data:
+
+**Question:** ${question}
+
+${hcpContext}
 
 Provide a comprehensive counterfactual analysis that:
 1. States the hypothetical scenario clearly
@@ -307,10 +339,10 @@ Provide a comprehensive counterfactual analysis that:
       max_completion_tokens: 6000,
     });
 
-    return response.choices[0]?.message?.content || "Unable to generate counterfactual analysis.";
+    return response.choices[0]?.message?.content || "Unable to generate analysis.";
   } catch (error) {
-    console.error("Counterfactual analysis error:", error);
-    return "I'm having trouble generating the counterfactual analysis. Please try again.";
+    console.error("Counterfactual/causal analysis error:", error);
+    return "I'm having trouble generating the analysis. Please try again.";
   }
 }
 
