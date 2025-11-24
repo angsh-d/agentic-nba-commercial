@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema, insertPrescriptionHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
-import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery } from "./aiService";
+import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis } from "./aiService";
 import { agentOrchestrator, detectSignalsForHcp, discoverCorrelations, generateRiskInsight } from "./agentOrchestrator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -205,6 +205,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       res.status(500).json({ error: "Failed to create HCP" });
+    }
+  });
+
+  // Counterfactual Analysis
+  app.post("/api/hcps/:id/counterfactual", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { question } = req.body;
+
+      if (!question) {
+        return res.status(400).json({ error: "Question is required" });
+      }
+
+      // Fetch HCP data for context
+      const hcp = await storage.getHcp(id);
+      const prescriptionHistory = await storage.getPrescriptionHistory(id);
+
+      // Generate counterfactual analysis using AI
+      const answer = await generateCounterfactualAnalysis(id, question, {
+        hcp: hcp || undefined,
+        prescriptionHistory,
+      });
+
+      res.json({ answer });
+    } catch (error) {
+      console.error("Counterfactual analysis error:", error);
+      res.status(500).json({ error: "Failed to generate counterfactual analysis" });
     }
   });
 

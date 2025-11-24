@@ -246,6 +246,75 @@ export async function processCopilotQuery(query: string, context: any): Promise<
 }
 
 /**
+ * Generate counterfactual analysis answering "What if?" questions
+ */
+export async function generateCounterfactualAnalysis(
+  hcpId: number,
+  question: string,
+  hcpData?: {
+    hcp?: Hcp;
+    prescriptionHistory?: PrescriptionHistory[];
+    switchingEvent?: SwitchingEvent;
+  }
+): Promise<string> {
+  const systemPrompt = `You are an elite pharmaceutical commercial AI agent specializing in counterfactual analysis for oncology HCPs. Your role is to answer "What if?" questions by analyzing alternative scenarios and their predicted outcomes compared to actual results.
+
+Key Principles:
+- Provide data-driven counterfactual analysis
+- Compare predicted vs actual outcomes with specific numbers when possible
+- Reference specific evidence from the HCP data provided
+- Be concise but thorough (3-5 paragraphs)
+- Focus on actionable insights and intervention potential`;
+
+  const userPrompt = `Answer this counterfactual question based on the HCP data:
+
+**Question:** ${question}
+
+**HCP Context:**
+${hcpData?.hcp ? `
+- HCP: ${hcpData.hcp.name}
+- Specialty: ${hcpData.hcp.specialty}
+- Switch Risk Score: ${hcpData.hcp.switchRiskScore}/100
+- Risk Tier: ${hcpData.hcp.switchRiskTier}
+` : ""}
+
+${hcpData?.prescriptionHistory && hcpData.prescriptionHistory.length > 0 ? `
+**Prescription History:**
+${hcpData.prescriptionHistory.map(p => `- ${p.month}: ${p.productName} (${p.prescriptionCount} Rx)${p.isOurProduct ? " ✓ Our Product" : " ⚠ Competitor"}`).join("\n")}
+` : ""}
+
+${hcpData?.switchingEvent ? `
+**Switching Event:**
+- Switched: ${hcpData.switchingEvent.fromProduct} → ${hcpData.switchingEvent.toProduct}
+- Impact: ${hcpData.switchingEvent.impactLevel}
+- Root Causes: ${hcpData.switchingEvent.rootCauses?.join(", ")}
+` : ""}
+
+Provide a comprehensive counterfactual analysis that:
+1. States the hypothetical scenario clearly
+2. Predicts what would have happened (with specific patient/prescription numbers if possible)
+3. Compares to actual outcomes
+4. Explains the key differences and intervention potential
+5. Quantifies the impact when possible (e.g., "8 of 12 patients retained vs actual 3")`;
+
+  try {
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      max_completion_tokens: 6000,
+    });
+
+    return response.choices[0]?.message?.content || "Unable to generate counterfactual analysis.";
+  } catch (error) {
+    console.error("Counterfactual analysis error:", error);
+    return "I'm having trouble generating the counterfactual analysis. Please try again.";
+  }
+}
+
+/**
  * Fallback NBA generation when AI is unavailable
  */
 function generateFallbackNBA(hcp: Hcp, switchingEvent?: SwitchingEvent): AIGeneratedNBA {
