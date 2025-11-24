@@ -452,98 +452,101 @@ export default function HCPDetail() {
                   </div>
                 </div>
 
-                {/* Live Agent Activity Feed */}
+                {/* Agent Processing Status - Compact */}
                 {stage1Activities.length > 0 && (
-                  <div className="mb-12">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-gray-900">Agents in Action</h3>
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-gray-900">Multi-Agent Analysis</h3>
                       <span className="text-xs font-medium text-gray-600">{processingProgress}% complete</span>
                     </div>
                     
                     {/* Subtle progress bar */}
-                    <div className="w-full h-1 bg-gray-200 rounded-full mb-4 overflow-hidden">
+                    <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
                       <div 
                         className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${processingProgress}%` }}
                       />
                     </div>
 
-                    <div className="space-y-2 bg-gray-50 rounded-xl p-6">
-                      {stage1Activities.map((activity, index) => {
-                        // Determine if this activity is complete by checking if next activity is visible
-                        const isComplete = activity.status === "completed" || 
-                                         index < stage1Activities.length - 1 || 
-                                         processingProgress === 100;
-                        
-                        return (
-                          <div
-                            key={activity.id}
-                            className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
-                            data-testid={`activity-${activity.id}`}
-                          >
-                            {!isComplete ? (
-                              <div className="w-4 h-4 mt-0.5 flex-shrink-0">
-                                <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                              </div>
-                            ) : (
-                              <CheckCircle2 className="w-4 h-4 text-gray-900 flex-shrink-0 mt-0.5" />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
-                              <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    {/* Show only the current/last activity */}
+                    {stage1Activities.length > 0 && (
+                      <div className="flex items-center gap-3 text-xs text-gray-600">
+                        <div className="w-3 h-3 flex-shrink-0">
+                          {processingProgress < 100 ? (
+                            <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3 text-gray-900" />
+                          )}
+                        </div>
+                        <span className="font-light">
+                          {processingProgress < 100 
+                            ? `${stage1Activities[stage1Activities.length - 1].agent}: ${stage1Activities[stage1Activities.length - 1].activity}`
+                            : "All agents completed analysis"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* Live Signal Processing */}
-                <div className="space-y-3 mb-12">
-                  <div className="flex items-start gap-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Prescription Data Analysis</p>
-                      <p className="text-sm text-gray-600 font-light">Detected 44% Rx decline (45→25) with temporal correlation</p>
-                    </div>
+                {/* Key Finding - Moved Up */}
+                {processingProgress === 100 && (
+                  <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Key Discovery</h3>
+                    <p className="text-base text-gray-900 leading-relaxed">
+                      {hcpId === "1" 
+                        ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
+                        : "Agents detected 75% patient abandonment rate correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 4 patient cohorts."}
+                    </p>
                   </div>
-                  <div className="flex items-start gap-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Call Notes Analysis</p>
-                      <p className="text-sm text-gray-600 font-light">Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern</p>
+                )}
+
+                {/* Data Insights - Grid Layout */}
+                {processingProgress === 100 && (
+                  <div className="grid grid-cols-2 gap-6 mb-12">
+                    <div className="bg-white rounded-xl border border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                        <p className="text-sm font-semibold text-gray-900">Prescription Data</p>
+                      </div>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">
+                        Detected 44% Rx decline (45→25) with temporal correlation
+                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Payer Communications</p>
-                      <p className="text-sm text-gray-600 font-light">
+
+                    <div className="bg-white rounded-xl border border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                        <p className="text-sm font-semibold text-gray-900">Call Notes</p>
+                      </div>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">
+                        Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern
+                      </p>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                        <p className="text-sm font-semibold text-gray-900">Payer Communications</p>
+                      </div>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">
                         Analyzed {payerCommunications.length} payer docs
                         {payerCommunications.length > 0 && (
                           <span>, found {payerCommunications.filter(pc => pc.documentType === 'tier_change' || pc.documentType === 'policy_change').length} policy changes</span>
                         )}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-4 py-3">
-                    <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Patient Cohort Tracking</p>
-                      <p className="text-sm text-gray-600 font-light">Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}</p>
+
+                    <div className="bg-white rounded-xl border border-gray-100 p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="w-4 h-4 text-gray-900" />
+                        <p className="text-sm font-semibold text-gray-900">Patient Cohorts</p>
+                      </div>
+                      <p className="text-sm text-gray-600 font-light leading-relaxed">
+                        Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Key Finding */}
-                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-                  <p className="text-base text-gray-900 leading-relaxed">
-                    {hcpId === "1" 
-                      ? "Agents detected a 75% patient switch rate with dual causality: cardiac safety events correlating with switches in CV-risk patients + temporal proximity to ASCO conference affecting young RCC patients."
-                      : "Agents detected 75% patient abandonment rate correlating precisely with Aug 1st multi-payer policy changes introducing Tier 3 step-edits and $450 copays across 4 patient cohorts."}
-                  </p>
-                </div>
+                )}
 
                 {/* Human SME Input */}
                 <div className="mb-8">
