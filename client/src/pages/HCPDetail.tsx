@@ -425,7 +425,7 @@ export default function HCPDetail() {
                     <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900 mb-1">Patient Cohort Tracking</p>
-                      <p className="text-sm text-gray-600 font-light">Identified {patients.filter(p => p.switchedToCompetitor === 1).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}</p>
+                      <p className="text-sm text-gray-600 font-light">Identified {patients.filter(p => p.switchedDate !== null).length} patient switches across {hcpId === "1" ? "2 cohorts" : "4 access-barrier cohorts"}</p>
                     </div>
                   </div>
                 </div>
