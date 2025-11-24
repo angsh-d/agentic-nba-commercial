@@ -255,6 +255,10 @@ export async function generateCounterfactualAnalysis(
     hcp?: Hcp;
     prescriptionHistory?: PrescriptionHistory[];
     switchingEvent?: SwitchingEvent;
+    callNotes?: any[];
+    payerCommunications?: any[];
+    patients?: any[];
+    clinicalEvents?: any[];
   }
 ): Promise<string> {
   const isWhyQuestion = question.toLowerCase().trim().startsWith("why");
@@ -279,6 +283,7 @@ Key Principles:
 - Focus on actionable insights and intervention potential
 - Avoid verbose language - get straight to the point`;
 
+  // Build dynamic context from database
   const hcpContext = `**HCP Context:**
 ${hcpData?.hcp ? `
 - HCP: ${hcpData.hcp.name}
@@ -290,6 +295,27 @@ ${hcpData?.hcp ? `
 ${hcpData?.prescriptionHistory && hcpData.prescriptionHistory.length > 0 ? `
 **Prescription History:**
 ${hcpData.prescriptionHistory.map(p => `- ${p.month}: ${p.productName} (${p.prescriptionCount} Rx)${p.isOurProduct ? " ✓ Our Product" : " ⚠ Competitor"}`).join("\n")}
+` : ""}
+
+${hcpData?.callNotes && hcpData.callNotes.length > 0 ? `
+**Call Notes:**
+${hcpData.callNotes.map(n => `- ${n.callDate}: ${n.notes} (Rep: ${n.repName})`).join("\n")}
+` : ""}
+
+${hcpData?.payerCommunications && hcpData.payerCommunications.length > 0 ? `
+**Payer Communications:**
+${hcpData.payerCommunications.map(p => `- ${p.payerName}: ${p.details} (${p.impactLevel} impact)`).join("\n")}
+` : ""}
+
+${hcpData?.patients && hcpData.patients.length > 0 ? `
+**Patient Context:**
+- Total Patients: ${hcpData.patients.length}
+- Patient Codes: ${hcpData.patients.map(p => p.patientCode).join(", ")}
+` : ""}
+
+${hcpData?.clinicalEvents && hcpData.clinicalEvents.length > 0 ? `
+**Clinical Events:**
+${hcpData.clinicalEvents.map(e => `- ${e.eventDate}: ${e.eventType} - ${e.description}${e.outcome ? ` (Outcome: ${e.outcome})` : ""}`).join("\n")}
 ` : ""}
 
 ${hcpData?.switchingEvent ? `
@@ -306,18 +332,12 @@ ${hcpData?.switchingEvent ? `
 
 ${hcpContext}
 
-**Key Context for Dr. Chen:**
-- Aug 1st: Multiple payers (Aetna, Anthem, UHC) simultaneously changed formulary tiers
-- Result: Immediate uptick in prior authorization denials and patient out-of-pocket costs
-- Timeline: Prescription drop from 44/month (May-Jul) to 38 (Aug) to 28 (Sep) to 25 (Oct)
-- Patient Impact: 10 of 12 RCC patients switched to Onco-Rival due to access barriers
-
 Provide a comprehensive causal explanation that:
 1. Identifies the primary driving forces (payer business decisions, market dynamics, competitive pressures)
-2. Explains the timing and coordination (why Aug 1st specifically)
+2. Explains the timing and coordination based on the evidence
 3. Analyzes the business rationale from the payer's perspective
 4. Connects to broader healthcare market trends (cost containment, value-based care, competitor rebate strategies)
-5. References specific evidence from the HCP timeline and prescription data`
+5. References specific evidence from the call notes, payer communications, prescription data, and clinical events provided`
     : `Answer this counterfactual question based on the HCP data:
 
 **Question:** ${question}

@@ -218,14 +218,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Question is required" });
       }
 
-      // Fetch HCP data for context
-      const hcp = await storage.getHcp(id);
-      const prescriptionHistory = await storage.getPrescriptionHistory(id);
+      // Fetch comprehensive HCP data for dynamic context
+      const [hcp, prescriptionHistory, callNotes, payerComms, patients, clinicalEvents] = await Promise.all([
+        storage.getHcp(id),
+        storage.getPrescriptionHistory(id),
+        storage.getCallNotesByHcp(id),
+        storage.getPayerCommunicationsByHcp(id),
+        storage.getPatientsByHcp(id),
+        storage.getClinicalEventsByHcp(id),
+      ]);
 
       // Generate counterfactual analysis using AI
       const answer = await generateCounterfactualAnalysis(id, question, {
         hcp: hcp || undefined,
         prescriptionHistory,
+        callNotes,
+        payerCommunications: payerComms,
+        patients,
+        clinicalEvents,
       });
 
       res.json({ answer });
