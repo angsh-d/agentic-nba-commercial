@@ -1476,7 +1476,320 @@ Questions: BCBS Provider Services 1-800-BCBS-PROV`,
 
     console.log("✅ HCP 2 signals and risk score updated (92% critical risk)");
     
-    console.log("✅ Database seeded successfully with rich multi-cohort scenario");
+    // === INVESTIGATION ARTIFACTS: ROOT CAUSE ANALYSIS ===
+    console.log("🔍 Seeding investigation artifacts for root cause analysis...");
+
+    // Dr. Chen Investigation Session
+    const chenSession = await storage.createAgentSession({
+      goalDescription: "Deep root cause investigation of access barrier-driven switching",
+      goalType: "switching_analysis",
+      status: "completed",
+      currentPhase: "synthesis",
+      contextData: {
+        hcpId: drMichaelChen.id,
+        triggerEvent: "Multi-payer policy changes Aug 1st",
+        investigationType: "access_barriers"
+      },
+      finalOutcome: "Identified 3 primary access barriers with 92% confidence",
+      confidenceScore: 92
+    });
+
+    // Planner Goals for Dr. Chen
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "planner_goal",
+      agentType: "planner",
+      title: "Why did 4 payers simultaneously change policies on Aug 1st?",
+      content: {
+        type: "planner_goal",
+        question: "Why did 4 payers simultaneously change policies on Aug 1st?",
+        rationale: "Coordinated payer policy changes suggest market-wide competitive pressure or regulatory shift. Need to understand if this is cost-driven, clinical evidence-based, or competitive positioning.",
+        expectedEvidence: [
+          "Formulary change notifications from UHC, Aetna, Cigna, BCBS",
+          "Competitor pricing data and market access terms",
+          "CMS guidance or NCCN guideline updates",
+          "Payer medical policy documents"
+        ]
+      },
+      sequenceNumber: 1,
+      confidenceScore: 95
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "planner_goal",
+      agentType: "planner",
+      title: "What's driving the $450 copay and step-edit requirements?",
+      content: {
+        type: "planner_goal",
+        question: "What's driving the $450 copay and step-edit requirements?",
+        rationale: "Patient abandonment is concentrated among high-copay patients. Understanding tier placement rationale reveals if this is negotiable or policy-locked.",
+        expectedEvidence: [
+          "Tier placement criteria and pricing structures",
+          "Step-edit protocol documentation",
+          "Competitor product tier placements",
+          "Patient assistance program availability"
+        ]
+      },
+      sequenceNumber: 2,
+      confidenceScore: 92
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "planner_goal",
+      agentType: "planner",
+      title: "Are there payer-specific patterns we can exploit?",
+      content: {
+        type: "planner_goal",
+        question: "Are there payer-specific patterns we can exploit?",
+        rationale: "If some payers have softer restrictions or exception pathways, we can target interventions to highest-impact payers first.",
+        expectedEvidence: [
+          "Payer-by-payer breakdown of patient outcomes",
+          "Exception/appeal success rates by payer",
+          "Specialty pharmacy network overlap",
+          "Prior authorization turnaround times"
+        ]
+      },
+      sequenceNumber: 3,
+      confidenceScore: 88
+    });
+
+    // Gatherer Evidence for Dr. Chen
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "evidence_packet",
+      agentType: "gatherer",
+      title: "Payer Contract Details & Formulary Changes",
+      content: {
+        type: "evidence_packet",
+        category: "Payer Contracts",
+        findings: [
+          "UHC: Moved Onco-Pro from Tier 2 ($35 copay) to Tier 3 ($450 copay) effective Aug 1, 2025",
+          "Aetna: Added step-edit requirement - must fail Onco-Rival first before Onco-Pro approval",
+          "Cigna: Restricted specialty pharmacy network, removed preferred pharmacies causing 14-day delays",
+          "BCBS: Maintained Tier 2 status but added quantity limits (30-day supply max)"
+        ],
+        sources: ["Formulary Update Emails", "Medical Policy Documents", "Pharmacy Network Bulletins"],
+        strength: 95
+      },
+      sequenceNumber: 4,
+      confidenceScore: 95
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "evidence_packet",
+      agentType: "gatherer",
+      title: "Market Intelligence & Competitive Landscape",
+      content: {
+        type: "evidence_packet",
+        category: "Market Intelligence",
+        findings: [
+          "Onco-Rival WAC price reduced 15% in Q2 2025, triggering payer renegotiations",
+          "Onco-Pro WAC increased 8% in Q1 2025, widening cost gap vs competitors",
+          "Competitor offers $0 copay program for commercially insured patients through manufacturer assistance",
+          "Onco-Rival has exclusive contracts with 3 major specialty pharmacy networks (CVS Specialty, Accredo, BriovaRx)"
+        ],
+        sources: ["Market Access Reports", "Competitor Pricing Analysis", "Specialty Pharmacy Contracts"],
+        strength: 88
+      },
+      sequenceNumber: 5,
+      confidenceScore: 88
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "evidence_packet",
+      agentType: "gatherer",
+      title: "Access Pathway Mapping & Exception Opportunities",
+      content: {
+        type: "evidence_packet",
+        category: "Access Pathways",
+        findings: [
+          "UHC: Appeals success rate 45% if clinical justification includes biomarker data",
+          "Aetna: Medical exception pathway available for patients with contraindications to step-edit drug",
+          "Cigna: Bridge program available - 30-day supply while PA processes (not widely communicated)",
+          "Patient Assistance Programs: Onco-Pro manufacturer offers copay cards capping OOP at $25/month for eligible patients"
+        ],
+        sources: ["Payer Appeals Data", "Hub Services Documentation", "Patient Assistance Program Guidelines"],
+        strength: 82
+      },
+      sequenceNumber: 6,
+      confidenceScore: 82
+    });
+
+    // Hypothesis Testing for Dr. Chen
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "hypothesis_test",
+      agentType: "analyst",
+      title: "Cost-driven vs Clinical Evidence-driven Restrictions",
+      content: {
+        type: "hypothesis_test",
+        hypothesis: "Payer restrictions are primarily cost-driven, not clinical evidence-driven",
+        testType: "Evidence Correlation Analysis",
+        result: "PROVEN - 92% confidence. No new clinical data or safety concerns in Q2-Q3 2025. Timing coincides with competitor pricing changes, not clinical events.",
+        confidence: 92,
+        evidence: [
+          "Formulary changes occurred Aug 1 (30 days after Onco-Rival price reduction)",
+          "No NCCN guideline updates or FDA safety alerts in 2025",
+          "Payer medical policies cite 'cost-effectiveness' not 'clinical inferiority'",
+          "Pattern matches historical payer behavior following WAC price increases"
+        ]
+      },
+      sequenceNumber: 7,
+      confidenceScore: 92
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "hypothesis_test",
+      agentType: "analyst",
+      title: "Soft vs Hard Barrier Classification",
+      content: {
+        type: "hypothesis_test",
+        hypothesis: "Access barriers vary in negotiability - some are soft (policy-locked) vs hard (negotiable)",
+        testType: "Barrier Intervention Feasibility Analysis",
+        result: "PROVEN - 88% confidence. Barriers exist on spectrum: Copay assistance (soft/addressable), PA denials (medium/partially addressable), Tier placement (hard/policy-locked).",
+        confidence: 88,
+        evidence: [
+          "SOFT: Copay shock - 100% addressable via manufacturer copay cards",
+          "MEDIUM: PA denials - 45% addressable via medical necessity appeals with biomarker data",
+          "MEDIUM: Fulfillment delays - 60% addressable via bridge programs and network optimization",
+          "HARD: Tier 3 placement - Not addressable without contract renegotiation (12-18 month cycle)"
+        ]
+      },
+      sequenceNumber: 8,
+      confidenceScore: 88
+    });
+
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "hypothesis_test",
+      agentType: "analyst",
+      title: "Patient Segment Vulnerability Analysis",
+      content: {
+        type: "hypothesis_test",
+        hypothesis: "Certain patient segments are disproportionately affected and have available workarounds",
+        testType: "Cohort Outcome Analysis",
+        result: "PROVEN - 85% confidence. Commercial insurance patients most vulnerable (100% switch rate in high-copay cohort). Medicare patients less affected. Workarounds exist but require proactive intervention.",
+        confidence: 85,
+        evidence: [
+          "High Copay Cohort (4 patients): 100% commercial insurance, 100% switch rate, $450/month barrier",
+          "PA Denied Cohort (3 patients): 100% Aetna/UHC, 100% switch rate, step-edit requirement",
+          "Smooth Access Cohort (3 patients): 67% Medicare Advantage, 0% switch rate, no access barriers",
+          "Copay assistance eligibility: 85% of commercial patients qualify but only 15% currently enrolled"
+        ]
+      },
+      sequenceNumber: 9,
+      confidenceScore: 85
+    });
+
+    // Causal Model Building for Dr. Chen
+    await storage.createInvestigationArtifact({
+      sessionId: chenSession.id,
+      hcpId: drMichaelChen.id,
+      artifactType: "causal_model",
+      agentType: "synthesizer",
+      title: "Access Barrier Intervention Decision Tree",
+      content: {
+        type: "causal_model",
+        modelType: "decision_tree",
+        nodes: [
+          {
+            id: "copay_barrier",
+            label: "$35 → $450 Copay Shock (Tier 2→3)",
+            nodeType: "barrier",
+            impact: "high",
+            evidence: ["4/4 patients abandoned", "100% switch rate in cohort"]
+          },
+          {
+            id: "copay_card",
+            label: "Manufacturer Copay Assistance Program",
+            nodeType: "intervention",
+            impact: "high",
+            evidence: ["Caps OOP at $25/month", "85% commercial patients eligible", "15% current enrollment"]
+          },
+          {
+            id: "pa_denial",
+            label: "Step-Edit PA Denials",
+            nodeType: "barrier",
+            impact: "high",
+            evidence: ["3/3 patients switched", "Aetna/UHC step-edit requirement"]
+          },
+          {
+            id: "medical_exception",
+            label: "Medical Exception Appeals with Biomarker Data",
+            nodeType: "intervention",
+            impact: "medium",
+            evidence: ["45% success rate", "Requires clinical justification", "Hub services support available"]
+          },
+          {
+            id: "fulfillment_delay",
+            label: "14-Day Specialty Pharmacy Delays",
+            nodeType: "barrier",
+            impact: "medium",
+            evidence: ["2/2 patients switched", "Competitor offers 3-day fills"]
+          },
+          {
+            id: "bridge_program",
+            label: "Cigna Bridge Program + Network Optimization",
+            nodeType: "intervention",
+            impact: "medium",
+            evidence: ["30-day bridge supply available", "Underutilized pathway", "Requires proactive coordination"]
+          },
+          {
+            id: "patient_retention",
+            label: "Patient Retention Outcome",
+            nodeType: "outcome",
+            impact: "high",
+            evidence: ["Target: Reverse 75% attrition", "Prevent future switches via proactive enrollment"]
+          }
+        ],
+        interventions: [
+          {
+            id: "hub_services_activation",
+            name: "Hub Services Proactive Enrollment Campaign",
+            targetBarriers: ["copay_barrier", "pa_denial", "fulfillment_delay"],
+            leverageType: "high",
+            actionable: true,
+            resources: ["Field reps", "Hub services team", "Patient assistance hotline", "HCP office staff training"]
+          },
+          {
+            id: "specialty_pharmacy_partnership",
+            name: "Specialty Pharmacy Network Expansion",
+            targetBarriers: ["fulfillment_delay"],
+            leverageType: "medium",
+            actionable: true,
+            resources: ["Pharmacy contracts", "Logistics optimization", "Patient pharmacy preference mapping"]
+          },
+          {
+            id: "appeals_support",
+            name: "Systematic PA Appeals with Clinical Data Package",
+            targetBarriers: ["pa_denial"],
+            leverageType: "medium",
+            actionable: true,
+            resources: ["Medical science liaisons", "Appeals templates", "Biomarker testing support"]
+          }
+        ]
+      },
+      sequenceNumber: 10,
+      confidenceScore: 90
+    });
+
+    console.log("✅ Dr. Chen investigation artifacts seeded (10 artifacts)");
+    
+    console.log("✅ Database seeded successfully with rich multi-cohort scenario and investigation artifacts");
   } catch (error) {
     console.error("❌ Error seeding database:", error);
   }

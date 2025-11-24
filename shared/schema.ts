@@ -140,7 +140,7 @@ export const clinicalEvents = pgTable("clinical_events", {
   eventDate: timestamp("event_date").notNull(),
   impact: text("impact").notNull(), // "high", "medium", "low"
   relatedDrug: text("related_drug"), // Drug mentioned in event
-  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional details
+  metadata: jsonb("metadata").$type<Record<string, unknown>>(), // Additional details
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -204,7 +204,7 @@ export const agentSessions = pgTable("agent_sessions", {
   goalType: text("goal_type").notNull(), // "nba_generation", "territory_planning", "switching_analysis"
   status: text("status").notNull().default("in_progress"), // in_progress, completed, failed
   currentPhase: text("current_phase"), // Current agent phase
-  contextData: jsonb("context_data").$type<Record<string, any>>(), // Session context
+  contextData: jsonb("context_data").$type<Record<string, unknown>>(), // Session context
   finalOutcome: text("final_outcome"), // Result summary
   confidenceScore: integer("confidence_score"), // 0-100
   startedAt: timestamp("started_at").defaultNow().notNull(),
@@ -226,7 +226,7 @@ export const agentThoughts = pgTable("agent_thoughts", {
   agentType: text("agent_type").notNull(), // "planner", "analyst", "synthesizer", "reflector"
   thoughtType: text("thought_type").notNull(), // "observation", "reasoning", "action", "critique"
   content: text("content").notNull(), // The actual thought/reasoning
-  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional context
+  metadata: jsonb("metadata").$type<Record<string, unknown>>(), // Additional context
   sequenceNumber: integer("sequence_number").notNull(), // Order in the session
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
@@ -246,8 +246,8 @@ export const agentActions = pgTable("agent_actions", {
   agentType: text("agent_type").notNull(),
   actionType: text("action_type").notNull(), // "query_data", "generate_nba", "create_plan", "analyze_pattern"
   actionDescription: text("action_description").notNull(),
-  actionParams: jsonb("action_params").$type<Record<string, any>>(),
-  result: jsonb("result").$type<Record<string, any>>(),
+  actionParams: jsonb("action_params").$type<Record<string, unknown>>(),
+  result: jsonb("result").$type<Record<string, unknown>>(),
   success: integer("success").notNull().default(1), // 1 = success, 0 = failure
   errorMessage: text("error_message"),
   executedAt: timestamp("executed_at").defaultNow().notNull(),
@@ -290,7 +290,7 @@ export const detectedSignals = pgTable("detected_signals", {
   signalStrength: integer("signal_strength").notNull(), // 1-10 strength score
   signalSource: text("signal_source").notNull(), // "prescription_history", "clinical_events", "peer_network"
   signalDescription: text("signal_description").notNull(), // Human-readable description
-  contextData: jsonb("context_data").$type<Record<string, any>>(), // Additional signal metadata
+  contextData: jsonb("context_data").$type<Record<string, unknown>>(), // Additional signal metadata
   detectedAt: timestamp("detected_at").defaultNow().notNull(),
   status: text("status").notNull().default("active"), // active, correlated, dismissed
 });
