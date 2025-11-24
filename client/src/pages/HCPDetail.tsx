@@ -756,17 +756,43 @@ export default function HCPDetail() {
                           <DialogTitle>Payer Communications Analysis ({payerCommunications.length} documents)</DialogTitle>
                         </DialogHeader>
                         <div className="mt-4 space-y-4">
-                          {payerCommunications.map((doc: any) => (
-                            <div key={doc.id} className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">{doc.payerName}</span>
-                                <span className="text-xs px-2 py-0.5 bg-gray-200 rounded">{doc.documentType.replace(/_/g, ' ')}</span>
-                                <span className="text-xs text-gray-500">{new Date(doc.effectiveDate).toLocaleDateString()}</span>
+                          {payerCommunications.map((doc: any) => {
+                            // Highlight documents that introduced reimbursement restrictions
+                            const hasReimbursementRestriction = 
+                              doc.documentType === 'tier_change' || 
+                              doc.documentType === 'pa_requirement' ||
+                              doc.documentType === 'policy_change';
+                            
+                            const titleLower = doc.documentTitle?.toLowerCase() || '';
+                            const textLower = doc.documentText?.toLowerCase() || '';
+                            const hasStepEdit = titleLower.includes('step-edit') || textLower.includes('step-edit') || textLower.includes('step edit');
+                            const hasTierChange = titleLower.includes('tier') || textLower.includes('tier 3') || textLower.includes('tier change');
+                            const hasPARequirement = titleLower.includes('prior authorization') || titleLower.includes('pa requirement');
+                            
+                            const isHighlighted = hasReimbursementRestriction && (hasStepEdit || hasTierChange || hasPARequirement);
+                            
+                            return (
+                              <div 
+                                key={doc.id} 
+                                className={`rounded-lg p-4 ${isHighlighted ? 'bg-amber-50 border-2 border-amber-400' : 'bg-gray-50'}`}
+                              >
+                                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                  <span className="text-xs font-medium text-gray-900">{doc.payerName}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded ${isHighlighted ? 'bg-amber-200 text-amber-900 font-medium' : 'bg-gray-200'}`}>
+                                    {doc.documentType.replace(/_/g, ' ')}
+                                  </span>
+                                  <span className="text-xs text-gray-500">{new Date(doc.effectiveDate).toLocaleDateString()}</span>
+                                  {isHighlighted && (
+                                    <span className="text-xs px-2 py-0.5 bg-red-100 text-red-900 rounded font-medium">
+                                      ⚠️ Reimbursement Restriction
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-sm font-semibold text-gray-900 mb-2">{doc.documentTitle}</p>
+                                <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{doc.documentText}</p>
                               </div>
-                              <p className="text-sm font-semibold text-gray-900 mb-2">{doc.documentTitle}</p>
-                              <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{doc.documentText}</p>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </DialogContent>
                     </Dialog>
