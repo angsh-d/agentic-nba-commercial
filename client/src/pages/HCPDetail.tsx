@@ -694,14 +694,15 @@ export default function HCPDetail() {
                           <DialogTitle>Payer Communications Analysis ({payerCommunications.length} documents)</DialogTitle>
                         </DialogHeader>
                         <div className="mt-4 space-y-4">
-                          {payerCommunications.map((doc) => (
+                          {payerCommunications.map((doc: any) => (
                             <div key={doc.id} className="bg-gray-50 rounded-lg p-4">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">{doc.payer}</span>
-                                <span className="text-xs px-2 py-0.5 bg-gray-200 rounded">{doc.documentType.replace('_', ' ')}</span>
+                                <span className="text-xs font-medium text-gray-900">{doc.payerName}</span>
+                                <span className="text-xs px-2 py-0.5 bg-gray-200 rounded">{doc.documentType.replace(/_/g, ' ')}</span>
                                 <span className="text-xs text-gray-500">{new Date(doc.effectiveDate).toLocaleDateString()}</span>
                               </div>
-                              <p className="text-sm text-gray-700">{doc.summary}</p>
+                              <p className="text-sm font-semibold text-gray-900 mb-2">{doc.documentTitle}</p>
+                              <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">{doc.documentText}</p>
                             </div>
                           ))}
                         </div>
