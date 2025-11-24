@@ -731,27 +731,29 @@ export default function HCPDetail() {
                   </div>
                 )}
 
-                  {/* Hypothesis Summary */}
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Generated {getHypothesesForHcp(hcpId).length} Competing Hypotheses</h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      {getHypothesesForHcp(hcpId).map((hyp) => (
-                        <div key={hyp.id} className={`p-4 rounded-lg border-2 ${hyp.status === "proven" ? "border-emerald-600 bg-emerald-50" : "border-gray-200 bg-gray-50"}`}>
-                          <div className="flex items-center gap-2 mb-2">
-                            {hyp.status === "proven" ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                            ) : (
-                              <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
-                            )}
-                            <p className="text-xs font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
+                {/* Hypothesis Summary - Only show after investigation completes */}
+                {stage2Progress === 100 && (
+                  <>
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4">Generated {getHypothesesForHcp(hcpId).length} Competing Hypotheses</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {getHypothesesForHcp(hcpId).map((hyp) => (
+                          <div key={hyp.id} className={`p-4 rounded-lg border-2 ${hyp.status === "proven" ? "border-emerald-600 bg-emerald-50" : "border-gray-200 bg-gray-50"}`}>
+                            <div className="flex items-center gap-2 mb-2">
+                              {hyp.status === "proven" ? (
+                                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                              )}
+                              <p className="text-xs font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
+                            </div>
+                            <p className="text-xs text-gray-600">{hyp.confidence}% confidence</p>
                           </div>
-                          <p className="text-xs text-gray-600">{hyp.confidence}% confidence</p>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Evidence Review */}
+                    {/* Evidence Review */}
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 mb-6">
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">Evidence Gathered Across Signals</h4>
                     <p className="text-sm text-gray-600 mb-4">
@@ -786,12 +788,14 @@ export default function HCPDetail() {
                     </Dialog>
                   </div>
 
-                {/* Root Cause Finding */}
-                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-                  <p className="text-base text-gray-900 leading-relaxed">
-                    {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven hypotheses with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence: {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map(h => h.text.split(' - ')[0]).join(", ")}
-                  </p>
-                </div>
+                    {/* Root Cause Finding */}
+                    <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                      <p className="text-base text-gray-900 leading-relaxed">
+                        {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} proven hypotheses with {getHypothesesForHcp(hcpId).filter(h => h.status === "proven")[0]?.confidence || 90}% confidence: {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map(h => h.text.split(' - ')[0]).join(", ")}
+                      </p>
+                    </div>
+                  </>
+                )}
 
                 {/* Human SME Input */}
                 <div className="mb-8">
