@@ -133,6 +133,11 @@ export async function generateNBAWithProvenance(
   
   // Step 4: Synthesize final NBA
   // Priority: Rules > RL > LLM defaults
+  // Defensive: Ensure we have at least one action from RL
+  if (!rlOutput.topActions || rlOutput.topActions.length === 0) {
+    throw new Error("RL Engine returned no actions - this should not happen");
+  }
+  
   let finalAction = rlOutput.topActions[0];
   let priority: "High" | "Medium" | "Low" = "Medium";
   

@@ -8,6 +8,7 @@ import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
 import { ComparativePrescriptionTrends } from "@/components/ComparativePrescriptionTrends";
 import { HypothesisTreeView } from "@/components/HypothesisTreeView";
 import { MultiSignalEvidencePanel } from "@/components/MultiSignalEvidencePanel";
+import { NBAProvenancePanel } from "@/components/NBAProvenancePanel";
 import {
   ArrowLeft,
   Brain,
@@ -1990,43 +1991,9 @@ export default function HCPDetail() {
 
                 {/* Ensemble Synthesis - Only show after synthesis completes */}
                 {stage3Progress === 100 && (
-                <>
                   <div className="mb-12">
-                    <h3 className="text-base font-semibold text-gray-900 mb-6">Ensemble Recommendation Synthesis</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-4 py-3">
-                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">RL-based NBA Engine</p>
-                          <p className="text-sm text-gray-600 font-light">Suggests {hcpId === "1" ? "efficacy repositioning + safety protocol" : "PA fast-track + copay foundation enrollment"} based on historical outcomes</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4 py-3">
-                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">Business Rules Engine</p>
-                          <p className="text-sm text-gray-600 font-light">Validates {hcpId === "1" ? "REMS compliance + formulary approval" : "payer coverage requirements + reimbursement pathways"}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-4 py-3">
-                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 mb-1">LLM Contextual Reasoning</p>
-                          <p className="text-sm text-gray-600 font-light">Synthesizes {hcpId === "1" ? "clinical evidence + KOL positioning" : "payer negotiation strategy + MSL deployment timing"}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <NBAProvenancePanel hcpId={parseInt(hcpId)} />
                   </div>
-
-                  {/* Final Recommendation */}
-                  <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-                    <p className="text-base text-gray-900 leading-relaxed">
-                      {hcpId === "1" 
-                        ? "Deploy 3-pronged strategy: (1) MSL-led safety protocol education, (2) Efficacy repositioning based on ORION-Y data, (3) KOL collaboration for clinical best practices. Traditional tools would miss the dual-causality pattern requiring coordinated safety + efficacy response."
-                        : "Deploy urgent access intervention: (1) PA escalation SWAT team with 48hr SLA, (2) Auto-enroll eligible patients in $0 copay foundation, (3) Specialty pharmacy fast-track with 3-day fulfillment, (4) Deploy reimbursement specialist. Traditional tools would flag Rx decline but miss the multi-payer policy causality requiring coordinated access strategy."}
-                    </p>
-                  </div>
-                </>
                 )}
 
                 {/* Human SME Input */}

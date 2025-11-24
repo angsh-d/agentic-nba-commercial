@@ -258,7 +258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const prescriptionHistory = await storage.getPrescriptionHistory(id);
       const switchingEvents = await storage.getSwitchingEventsByStatus("active");
-      const switchingEvent = switchingEvents.find(e => e.hcp.id === id)?.switchingEvent;
+      const switchingEvent = switchingEvents.find(e => e.hcp.id === id);
       
       // Generate NBA with provenance
       const provenance = await generateNBAWithProvenance(hcp, prescriptionHistory, switchingEvent);
