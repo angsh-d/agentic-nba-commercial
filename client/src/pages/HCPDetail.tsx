@@ -810,26 +810,93 @@ export default function HCPDetail() {
                           </p>
                         </button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Patient Cohort Analysis</DialogTitle>
+                          <DialogTitle>Patient Cohort Analysis - Access Barrier Breakdown</DialogTitle>
                         </DialogHeader>
-                        <div className="mt-4 space-y-4">
-                          {patients.filter(p => p.switchedDate !== null).map((patient) => (
-                            <div key={patient.id} className="border border-gray-200 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">{patient.patientCode}</span>
-                                <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded">{patient.cohort.replace(/_/g, ' ')}</span>
+                        <div className="mt-4">
+                          {/* Summary Stats */}
+                          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                              <div>
+                                <p className="text-2xl font-semibold text-gray-900">{patients.filter(p => p.switchedDate !== null).length}</p>
+                                <p className="text-xs text-gray-600 mt-1">Patients Switched</p>
                               </div>
-                              <div className="text-sm text-gray-600 space-y-1">
-                                <p><span className="font-medium">Payer:</span> {patient.payer}</p>
-                                <p><span className="font-medium">Copay:</span> ${patient.copayAmount}</p>
-                                <p><span className="font-medium">PA Status:</span> {patient.priorAuthStatus?.replace(/_/g, ' ')}</p>
-                                {patient.switchedDate && <p><span className="font-medium">Switched:</span> {new Date(patient.switchedDate).toLocaleDateString()}</p>}
-                                {patient.switchedToDrug && <p><span className="font-medium">To:</span> {patient.switchedToDrug}</p>}
+                              <div>
+                                <p className="text-2xl font-semibold text-gray-900">
+                                  {Math.round((patients.filter(p => p.switchedDate !== null).length / patients.length) * 100)}%
+                                </p>
+                                <p className="text-xs text-gray-600 mt-1">Abandonment Rate</p>
+                              </div>
+                              <div>
+                                <p className="text-2xl font-semibold text-gray-900">3</p>
+                                <p className="text-xs text-gray-600 mt-1">Access Barrier Types</p>
                               </div>
                             </div>
-                          ))}
+                          </div>
+
+                          {/* Cohort Groups */}
+                          <div className="space-y-6">
+                            {['high_copay', 'pa_denied', 'fulfillment_delay'].map((cohortName) => {
+                              const cohortPatients = patients.filter(p => p.cohort === cohortName && p.switchedDate !== null);
+                              if (cohortPatients.length === 0) return null;
+                              
+                              const cohortConfig = {
+                                high_copay: { 
+                                  title: 'High Copay Shock', 
+                                  icon: '💰',
+                                  color: 'red',
+                                  description: '$35 → $450 copay increase (UHC Tier 3 change)'
+                                },
+                                pa_denied: { 
+                                  title: 'Prior Authorization Denied', 
+                                  icon: '🚫',
+                                  color: 'orange',
+                                  description: 'Step-edit requirement: must fail on competitor first'
+                                },
+                                fulfillment_delay: { 
+                                  title: 'Fulfillment Delays', 
+                                  icon: '⏱️',
+                                  color: 'yellow',
+                                  description: 'Specialty pharmacy network changes: 3 days → 10-14 days'
+                                }
+                              }[cohortName];
+                              
+                              return (
+                                <div key={cohortName} className="border border-gray-200 rounded-lg overflow-hidden">
+                                  <div className={`bg-${cohortConfig.color}-50 border-b border-${cohortConfig.color}-200 p-4`}>
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <span className="text-2xl">{cohortConfig.icon}</span>
+                                      <div className="flex-1">
+                                        <h3 className="text-sm font-semibold text-gray-900">{cohortConfig.title}</h3>
+                                        <p className="text-xs text-gray-600 mt-0.5">{cohortConfig.description}</p>
+                                      </div>
+                                      <span className={`text-xs px-3 py-1 bg-${cohortConfig.color}-100 text-${cohortConfig.color}-900 rounded-full font-medium`}>
+                                        {cohortPatients.length} patients
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="p-4 bg-white">
+                                    <div className="space-y-3">
+                                      {cohortPatients.map((patient: any) => (
+                                        <div key={patient.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                          <div className="flex-1">
+                                            <p className="text-sm font-medium text-gray-900">{patient.patientCode}</p>
+                                            <p className="text-xs text-gray-500 mt-0.5">{patient.payer}</p>
+                                          </div>
+                                          <div className="flex items-center gap-4 text-xs text-gray-600">
+                                            <span>${patient.copayAmount} copay</span>
+                                            <span className="text-gray-400">•</span>
+                                            <span>Switched {new Date(patient.switchedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </DialogContent>
                     </Dialog>
