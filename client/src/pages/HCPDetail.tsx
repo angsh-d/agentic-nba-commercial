@@ -621,22 +621,102 @@ export default function HCPDetail() {
                           </p>
                         </button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Prescription Data Analysis</DialogTitle>
+                          <DialogTitle>Prescription Data Analysis - Temporal Correlation with Policy Changes</DialogTitle>
                         </DialogHeader>
                         <div className="mt-4">
-                          <p className="text-sm text-gray-600 mb-4">Monthly prescription volumes showing 44% decline from Jan to Oct</p>
-                          <div className="space-y-2">
-                            {prescriptionTrends.slice(0, 10).map((record: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
-                                <span className="text-sm font-medium text-gray-900">2025-{record.month}</span>
-                                <div className="flex items-center gap-4">
-                                  <span className="text-sm text-gray-600">Own Drug: {record.ownDrug}</span>
-                                  <span className="text-sm text-gray-600">Competitor: {record.competitorDrug}</span>
+                          {/* Summary Stats */}
+                          <div className="grid grid-cols-4 gap-4 mb-6">
+                            <div className="bg-blue-50 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-blue-900">
+                                {prescriptionTrends.length > 0 ? prescriptionTrends[0].ownDrug : 0}
+                              </p>
+                              <p className="text-xs text-blue-700 mt-1">May Baseline</p>
+                            </div>
+                            <div className="bg-red-50 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-red-900">
+                                {prescriptionTrends.length > 0 ? prescriptionTrends[prescriptionTrends.length - 1].ownDrug : 0}
+                              </p>
+                              <p className="text-xs text-red-700 mt-1">Oct Current</p>
+                            </div>
+                            <div className="bg-amber-50 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-amber-900">44%</p>
+                              <p className="text-xs text-amber-700 mt-1">Total Decline</p>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-gray-900">Aug 1st</p>
+                              <p className="text-xs text-gray-700 mt-1">Inflection Point</p>
+                            </div>
+                          </div>
+
+                          {/* Timeline View */}
+                          <div className="space-y-3">
+                            {prescriptionTrends.map((record: any, idx: number) => {
+                              const isPolicyChangeMonth = record.month === '08';
+                              const isPostPolicyChange = parseInt(record.month) >= 8;
+                              const prevRecord = idx > 0 ? prescriptionTrends[idx - 1] : null;
+                              const monthChange = prevRecord ? record.ownDrug - prevRecord.ownDrug : 0;
+                              const competitorChange = prevRecord ? record.competitorDrug - prevRecord.competitorDrug : 0;
+                              
+                              return (
+                                <div 
+                                  key={idx} 
+                                  className={`border rounded-lg p-4 ${isPolicyChangeMonth ? 'border-red-400 bg-red-50' : isPostPolicyChange ? 'border-orange-200 bg-orange-50' : 'border-gray-200 bg-white'}`}
+                                >
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-sm font-semibold text-gray-900">2025-{record.month}</span>
+                                      {isPolicyChangeMonth && (
+                                        <span className="text-xs px-2 py-0.5 bg-red-100 text-red-900 rounded font-medium">
+                                          ⚠️ Policy Change Date
+                                        </span>
+                                      )}
+                                      {isPostPolicyChange && !isPolicyChangeMonth && (
+                                        <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-900 rounded">
+                                          Post-Policy Impact
+                                        </span>
+                                      )}
+                                    </div>
+                                    {monthChange !== 0 && (
+                                      <span className={`text-xs font-medium ${monthChange < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        {monthChange > 0 ? '+' : ''}{monthChange} from prev month
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-4">
+                                    {/* Own Drug */}
+                                    <div>
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs text-gray-600">Onco-Pro</span>
+                                        <span className="text-sm font-semibold text-gray-900">{record.ownDrug}</span>
+                                      </div>
+                                      <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div 
+                                          className="bg-blue-600 h-2 rounded-full transition-all"
+                                          style={{ width: `${(record.ownDrug / 45) * 100}%` }}
+                                        />
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Competitor */}
+                                    <div>
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs text-gray-600">Competitor</span>
+                                        <span className="text-sm font-semibold text-gray-900">{record.competitorDrug}</span>
+                                      </div>
+                                      <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div 
+                                          className="bg-red-600 h-2 rounded-full transition-all"
+                                          style={{ width: `${(record.competitorDrug / 15) * 100}%` }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         </div>
                       </DialogContent>
