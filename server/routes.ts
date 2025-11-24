@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema, insertPrescriptionHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
-import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis, generateNBAWithProvenance } from "./aiService";
+import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis, generateNBAWithProvenance, generateCallScript, generateEmailDraft, generateMeetingAgenda } from "./aiService";
 import { agentOrchestrator, detectSignalsForHcp, discoverCorrelations, generateRiskInsight } from "./agentOrchestrator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -730,6 +730,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to get artifacts:", error);
       res.status(500).json({ error: "Failed to retrieve artifacts" });
+    }
+  });
+
+  // Generate a single artifact based on NBA details
+  app.post("/api/ai/generate-artifact", async (req, res) => {
+    try {
+      const { hcpId, hcpName, actionType, actionText, reason, synthesisRationale } = req.body;
+
+      if (!hcpId || !actionType || !actionText) {
+        return res.status(400).json({ error: "Missing required fields: hcpId, actionType, actionText" });
+      }
+
+      let content: any;
+      let artifactType: string;
+
+      // Generate appropriate artifact based on action type
+      if (actionType === "call") {
+        content = await generateCallScript(hcpName, actionText, reason, synthesisRationale);
+        artifactType = "call_script";
+      } else if (actionType === "email") {
+        content = await generateEmailDraft(hcpName, actionText, reason, synthesisRationale);
+        artifactType = "email_draft";
+      } else if (actionType === "meeting") {
+        content = await generateMeetingAgenda(hcpName, actionText, reason, synthesisRationale);
+        artifactType = "meeting_agenda";
+      } else {
+        // Default to call script for other action types
+        content = await generateCallScript(hcpName, actionText, reason, synthesisRationale);
+        artifactType = "call_script";
+      }
+
+      // Save to database
+      const artifact = await storage.createArtifact({
+        hcpId,
+        nbaId: null, // Not linked to a specific NBA record since we're generating on-demand
+        artifactType,
+        actionType,
+        content,
+      });
+
+      res.json(artifact);
+    } catch (error) {
+      console.error("Failed to generate artifact:", error);
+      res.status(500).json({ error: "Failed to generate artifact" });
     }
   });
 

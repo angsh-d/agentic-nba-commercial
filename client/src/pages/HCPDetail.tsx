@@ -9,6 +9,7 @@ import { ComparativePrescriptionTrends } from "@/components/ComparativePrescript
 import { HypothesisTreeView } from "@/components/HypothesisTreeView";
 import { MultiSignalEvidencePanel } from "@/components/MultiSignalEvidencePanel";
 import { NBAProvenancePanel } from "@/components/NBAProvenancePanel";
+import { ArtifactDisplay } from "@/components/ArtifactDisplay";
 import {
   ArrowLeft,
   Brain,
@@ -201,6 +202,10 @@ export default function HCPDetail() {
   // Counterfactual Q&A state
   const [counterfactualResponse, setCounterfactualResponse] = useState<string | null>(null);
   const [counterfactualLoading, setCounterfactualLoading] = useState(false);
+  
+  // Artifact generation state
+  const [artifacts, setArtifacts] = useState<any[]>([]);
+  const [generatingArtifact, setGeneratingArtifact] = useState(false);
   
   // Stage 1 live agent activity
   const [stage1Activities, setStage1Activities] = useState<Array<{
@@ -2023,17 +2028,65 @@ export default function HCPDetail() {
                 {/* Human Final Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
-                    onClick={() => {
-                      setStage3Complete(true);
-                      setWizardStage('complete');
+                    onClick={async () => {
+                      setGeneratingArtifact(true);
+                      try {
+                        // Fetch the NBA provenance to get action details
+                        const provenanceRes = await fetch(`/api/hcps/${hcpId}/nba-provenance`);
+                        if (!provenanceRes.ok) throw new Error("Failed to fetch NBA");
+                        const provenanceData = await provenanceRes.json();
+                        const finalNBA = provenanceData.finalSynthesis;
+
+                        // Trigger artifact generation
+                        const artifactRes = await fetch(`/api/ai/generate-artifact`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            hcpId: parseInt(hcpId),
+                            hcpName: hcp?.name || "Dr. Unknown",
+                            actionType: finalNBA.actionType,
+                            actionText: finalNBA.action,
+                            reason: finalNBA.reason,
+                            synthesisRationale: finalNBA.synthesisRationale,
+                          }),
+                        });
+
+                        if (!artifactRes.ok) throw new Error("Failed to generate artifact");
+                        const newArtifact = await artifactRes.json();
+                        setArtifacts([newArtifact]);
+                        setStage3Complete(true);
+                        setWizardStage('complete');
+                      } catch (error) {
+                        console.error("Artifact generation error:", error);
+                      } finally {
+                        setGeneratingArtifact(false);
+                      }
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    disabled={generatingArtifact}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium disabled:opacity-50"
                     data-testid="button-approve-stage3"
                   >
-                    Approve & Execute Plan
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    {generatingArtifact ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2 inline-block" />
+                        Generating Artifact...
+                      </>
+                    ) : (
+                      <>
+                        Approve & Execute Plan
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
                   </Button>
                 </div>
+                
+                {/* Display Generated Artifacts */}
+                {artifacts.length > 0 && (
+                  <div className="mt-12">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Generated Artifact</h3>
+                    <ArtifactDisplay artifacts={artifacts} />
+                  </div>
+                )}
               </div>
             )}
 
