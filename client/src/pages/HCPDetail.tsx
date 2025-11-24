@@ -607,114 +607,145 @@ export default function HCPDetail() {
 
                 {/* Temporal Correlation Visualization */}
                 {processingProgress === 100 && (
-                  <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-8">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-6">Multi-Signal Temporal Correlation Analysis</h3>
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-200 p-10 mb-8 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-base font-semibold text-gray-900">Temporal Correlation Analysis</h3>
+                      <p className="text-xs text-gray-500">All signals aligned to August 1st inflection point</p>
+                    </div>
                     
                     <div className="relative">
-                      {/* Timeline axis */}
-                      <div className="flex items-center justify-between mb-8 px-4">
-                        {['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'].map((month, idx) => (
-                          <div key={month} className="flex flex-col items-center">
-                            <div className={`w-3 h-3 rounded-full ${idx === 3 ? 'bg-red-600 ring-4 ring-red-100' : 'bg-gray-300'}`}></div>
-                            <span className={`text-xs mt-2 ${idx === 3 ? 'font-semibold text-red-900' : 'text-gray-600'}`}>{month}</span>
-                          </div>
-                        ))}
+                      {/* Timeline with elegant design */}
+                      <div className="relative mb-12">
+                        <div className="flex items-center justify-between px-8">
+                          {['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'].map((month, idx) => (
+                            <div key={month} className="flex flex-col items-center relative z-10">
+                              <div className={`transition-all ${
+                                idx === 3 
+                                  ? 'w-4 h-4 bg-red-600 rounded-full shadow-lg shadow-red-200' 
+                                  : 'w-2 h-2 bg-gray-300 rounded-full'
+                              }`}></div>
+                              <span className={`text-xs mt-3 ${
+                                idx === 3 ? 'font-semibold text-gray-900' : 'text-gray-500'
+                              }`}>{month}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gradient-to-r from-gray-200 via-red-300 to-gray-200"></div>
                       </div>
                       
-                      {/* Connecting line with inflection point */}
-                      <div className="absolute top-[6px] left-4 right-4 h-0.5 bg-gray-200 -z-10"></div>
-                      
-                      {/* Signal Tracks */}
-                      <div className="space-y-6 mt-8">
-                        {/* Prescription Volume Track */}
-                        <div className="bg-blue-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-blue-900">📊 Prescription Volume</span>
-                            <span className="text-xs text-blue-700">45 → 25 (-44%)</span>
+                      {/* Signal Visualizations */}
+                      <div className="space-y-8">
+                        {/* Prescription Volume - Line Chart Style */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4 px-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
+                              <span className="text-sm font-medium text-gray-900">Prescription Volume</span>
+                            </div>
+                            <span className="text-xs text-gray-500">45 → 25 (-44%)</span>
                           </div>
-                          <div className="flex items-end h-20 gap-1">
-                            {prescriptionTrends.map((record: any, idx: number) => (
-                              <div key={idx} className="flex-1 flex flex-col items-center justify-end">
-                                <div 
-                                  className={`w-full rounded-t ${idx >= 3 ? 'bg-red-400' : 'bg-blue-400'}`}
-                                  style={{ height: `${(record.ownDrug / 45) * 100}%` }}
-                                ></div>
-                                <span className="text-xs text-gray-600 mt-1">{record.ownDrug}</span>
+                          <div className="relative h-32 flex items-end gap-3 px-8">
+                            {prescriptionTrends.map((record: any, idx: number) => {
+                              const height = (record.ownDrug / 45) * 100;
+                              return (
+                                <div key={idx} className="flex-1 flex flex-col items-center justify-end group">
+                                  <div className="relative w-full">
+                                    <div 
+                                      className={`w-full rounded-t-lg transition-all ${
+                                        idx >= 3 ? 'bg-gradient-to-t from-red-400 to-red-500' : 'bg-gradient-to-t from-blue-400 to-blue-500'
+                                      }`}
+                                      style={{ height: `${height}px` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs text-gray-600 mt-2 font-medium">{record.ownDrug}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Payer Policy Event Marker */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4 px-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-8 bg-amber-600 rounded-full"></div>
+                              <span className="text-sm font-medium text-gray-900">Payer Policy Changes</span>
+                            </div>
+                            <span className="text-xs text-gray-500">4 restrictions enacted</span>
+                          </div>
+                          <div className="relative flex items-center h-20 px-8">
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1 flex justify-center">
+                              <div className="relative">
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-red-400"></div>
+                                <div className="bg-red-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg whitespace-nowrap">
+                                  Aug 1: Tier 3 + Step-Edits + $450 Copay
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                          </div>
+                        </div>
+
+                        {/* Call Notes Friction - Gradient Intensity */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4 px-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-8 bg-orange-600 rounded-full"></div>
+                              <span className="text-sm font-medium text-gray-900">Access Barrier Friction</span>
+                            </div>
+                            <span className="text-xs text-gray-500">Escalating intensity post-Aug 1st</span>
+                          </div>
+                          <div className="flex items-center h-16 gap-2 px-8">
+                            {[
+                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
+                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
+                              { label: 'Med', color: 'from-yellow-200 to-yellow-300', text: 'text-yellow-900', height: 'h-8' },
+                              { label: 'High', color: 'from-orange-300 to-orange-400', text: 'text-orange-900', height: 'h-12' },
+                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' },
+                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' }
+                            ].map((item, idx) => (
+                              <div key={idx} className={`flex-1 flex items-center justify-center ${item.height} bg-gradient-to-t ${item.color} rounded-lg ${item.text} text-xs font-medium shadow-sm`}>
+                                {item.label}
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        {/* Payer Policy Changes Track */}
-                        <div className="bg-amber-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-amber-900">📋 Payer Policy Changes</span>
-                            <span className="text-xs text-amber-700">4 restrictions on Aug 1st</span>
+                        {/* Patient Switches - Elegant Dot Matrix */}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4 px-1">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-8 bg-red-600 rounded-full"></div>
+                              <span className="text-sm font-medium text-gray-900">Patient Abandonment</span>
+                            </div>
+                            <span className="text-xs text-gray-500">10 patients switched to competitor</span>
                           </div>
-                          <div className="flex items-center h-12">
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1 flex items-center justify-center">
-                              <div className="bg-red-600 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg">
-                                ⚠️ Aug 1st: Tier 3 + Step-Edits + $450 Copay
+                          <div className="flex items-center h-16 gap-2 px-8">
+                            {[0, 0, 0, 2, 4, 4].map((count, idx) => (
+                              <div key={idx} className="flex-1 flex items-center justify-center">
+                                {count === 0 ? (
+                                  <span className="text-xs text-gray-300">—</span>
+                                ) : (
+                                  <div className="flex flex-wrap gap-1.5 justify-center max-w-[40px]">
+                                    {Array.from({ length: count }).map((_, i) => (
+                                      <div key={i} className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-sm"></div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
-                          </div>
-                        </div>
-
-                        {/* Call Notes Friction Track */}
-                        <div className="bg-orange-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-orange-900">💬 Call Notes Friction Intensity</span>
-                            <span className="text-xs text-orange-700">Escalating post-Aug 1st</span>
-                          </div>
-                          <div className="flex items-center h-12 gap-2">
-                            <div className="flex-1 flex items-center justify-center h-8 bg-green-200 rounded text-xs">Low</div>
-                            <div className="flex-1 flex items-center justify-center h-8 bg-green-200 rounded text-xs">Low</div>
-                            <div className="flex-1 flex items-center justify-center h-8 bg-yellow-200 rounded text-xs">Med</div>
-                            <div className="flex-1 flex items-center justify-center h-10 bg-orange-300 rounded text-xs font-semibold">High</div>
-                            <div className="flex-1 flex items-center justify-center h-12 bg-red-400 rounded text-xs font-semibold text-white">Critical</div>
-                            <div className="flex-1 flex items-center justify-center h-12 bg-red-400 rounded text-xs font-semibold text-white">Critical</div>
-                          </div>
-                        </div>
-
-                        {/* Patient Switches Track */}
-                        <div className="bg-red-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-semibold text-red-900">👥 Patient Switches</span>
-                            <span className="text-xs text-red-700">10 patients switched post-Aug 1st</span>
-                          </div>
-                          <div className="flex items-center h-12 gap-2">
-                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
-                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
-                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
-                            <div className="flex-1 flex flex-col gap-1 items-center">
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                            </div>
-                            <div className="flex-1 flex flex-col gap-1 items-center">
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                            </div>
-                            <div className="flex-1 flex flex-col gap-1 items-center">
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                            </div>
+                            ))}
                           </div>
                         </div>
                       </div>
 
-                      {/* Conclusion */}
-                      <div className="mt-6 bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-900">
-                          <span className="font-semibold">Temporal Correlation:</span> All four signals show clear inflection at August 1st, 2025 — the exact date when 4 major payers implemented reimbursement restrictions. This demonstrates causal relationship between policy changes and prescription decline.
+                      {/* Insight Summary */}
+                      <div className="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6">
+                        <p className="text-sm leading-relaxed text-gray-700">
+                          <span className="font-semibold text-gray-900">Causal Evidence:</span> All four independent data signals demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers (UHC, Aetna, Cigna, BCBS) implemented formulary restrictions. This temporal alignment establishes clear causal relationship between policy changes and prescription decline.
                         </p>
                       </div>
                     </div>
