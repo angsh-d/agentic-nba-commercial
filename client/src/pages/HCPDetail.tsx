@@ -1462,7 +1462,7 @@ export default function HCPDetail() {
                           </p>
                         </div>
                         <div className="space-y-3">
-                          {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map((hyp) => (
+                          {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").map((hyp, hypIndex) => (
                             <div key={hyp.id} className="border border-gray-300 bg-gray-50 rounded-xl p-4">
                               <div className="flex items-center justify-between mb-2">
                                 <p className="text-sm font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
@@ -1471,12 +1471,165 @@ export default function HCPDetail() {
                                 </span>
                               </div>
                               <p className="text-xs text-gray-700 mb-3">{hyp.text.split(' - ')[1]}</p>
-                              <div className="bg-white rounded-lg p-3 space-y-1">
-                                <p className="text-xs font-medium text-gray-900 mb-1">Key Evidence:</p>
-                                {hyp.evidence.map((ev, idx) => (
-                                  <p key={idx} className="text-xs text-gray-600 pl-3">• {ev}</p>
-                                ))}
+                              
+                              {/* Evidence Summary */}
+                              <div className="bg-white rounded-lg p-3 mb-3">
+                                <p className="text-xs font-medium text-gray-900 mb-2">Key Findings:</p>
+                                <div className="space-y-1">
+                                  {hyp.evidence.map((ev, idx) => (
+                                    <p key={idx} className="text-xs text-gray-600 pl-3">• {ev}</p>
+                                  ))}
+                                </div>
                               </div>
+
+                              {/* Evidence Trail - Detailed Data Sources */}
+                              <Accordion type="single" collapsible className="bg-white rounded-lg border border-gray-200">
+                                <AccordionItem value="evidence-trail" className="border-0">
+                                  <AccordionTrigger className="px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 rounded-t-lg">
+                                    <div className="flex items-center gap-2">
+                                      <FileText className="w-3 h-3 text-gray-500" />
+                                      <span>View Evidence Trail</span>
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="px-3 pb-3">
+                                    <div className="space-y-2 pt-2">
+                                      {/* Map evidence to specific data sources for Dr. Chen */}
+                                      {hcpId === "2" ? (
+                                        <>
+                                          {/* Access Barriers Evidence */}
+                                          {hyp.text.includes("Access Barriers") && (
+                                            <>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug 1</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Payer Policy Changes</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Payer Comm</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">UHC, Aetna, Cigna, BCBS implemented new PA requirements and copay increases</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug 15</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Dr. Chen Reports Copay Shock</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">"4 patients shocked by $450 copay, 3 abandoning fills"</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Sep 20</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">PA Denial Impact</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">"3 patients denied due to step-edit requirements"</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug-Sep</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Prescription Decline</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Rx Data</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">75% drop in monthly prescriptions (12 → 3) after Aug 1st</p>
+                                                </div>
+                                              </div>
+                                            </>
+                                          )}
+
+                                          {/* Pricing Pressure Evidence */}
+                                          {hyp.text.includes("Pricing Pressure") && (
+                                            <>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug 1</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Copay Increase</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Payer Comm</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">Copay jumped from $35 to $450 across 4 major payers</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug 15</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Patient Abandonment</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Patient Data</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">4/4 young RCC patients (25-35) abandoned due to copay shock</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Sep 1</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Competitor Switch</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Rx Data</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">10 patients switched to lower-cost competitor products</p>
+                                                </div>
+                                              </div>
+                                            </>
+                                          )}
+
+                                          {/* Fulfillment Delays Evidence */}
+                                          {hyp.text.includes("Fulfillment") && (
+                                            <>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug 15</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Specialty Pharmacy Delays</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">"specialty pharmacy delays now 10-14 days"</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Sep 20</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">PA Processing Time</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">"patients give up waiting for PA approvals"</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Aug-Sep</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">Patient Impact</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Patient Data</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">2/2 elderly RCC patients switched due to fulfillment delays</p>
+                                                </div>
+                                              </div>
+                                            </>
+                                          )}
+                                        </>
+                                      ) : (
+                                        // Generic fallback for other HCPs
+                                        <>
+                                          {hyp.evidence.map((ev, idx) => (
+                                            <div key={idx} className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                              <div className="flex-1">
+                                                <p className="text-xs text-gray-700">{ev}</p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </>
+                                      )}
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
                             </div>
                           ))}
                         </div>
