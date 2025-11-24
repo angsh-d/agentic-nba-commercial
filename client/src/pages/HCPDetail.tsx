@@ -1888,15 +1888,17 @@ export default function HCPDetail() {
 
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
-                  <Link href={`/hcp/${hcpId}/strategies`}>
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
-                      data-testid="button-continue-synthesis"
-                    >
-                      Continue to Synthesis
-                      <ChevronRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  <Button
+                    onClick={() => {
+                      setStage2Complete(true);
+                      setWizardStage(3);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    data-testid="button-continue-synthesis"
+                  >
+                    Continue to Synthesis
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               </div>
             )}
@@ -2020,18 +2022,15 @@ export default function HCPDetail() {
 
                 {/* Human Final Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
-                  <Button
-                    onClick={() => {
-                      setStage3Complete(true);
-                      setHypothesisConfirmed(true);
-                      setWizardStage('complete');
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
-                    data-testid="button-approve-stage3"
-                  >
-                    Approve & Execute Plan
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <Link href={`/hcp/${hcpId}/strategies`}>
+                    <Button
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                      data-testid="button-approve-stage3"
+                    >
+                      Approve & Execute Plan
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             )}
