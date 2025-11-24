@@ -630,8 +630,8 @@ export default function HCPDetail() {
                               <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
                                 <span className="text-sm font-medium text-gray-900">{record.month}</span>
                                 <div className="flex items-center gap-4">
-                                  <span className="text-sm text-gray-600">Onco-Pro: {record.oncoPro}</span>
-                                  <span className="text-sm text-gray-600">Competitor: {record.competitor}</span>
+                                  <span className="text-sm text-gray-600">Own Drug: {record.ownDrug}</span>
+                                  <span className="text-sm text-gray-600">Competitor: {record.competitorDrug}</span>
                                 </div>
                               </div>
                             ))}
@@ -660,11 +660,12 @@ export default function HCPDetail() {
                         <div className="mt-4 space-y-4">
                           {callNotes.map((note) => (
                             <div key={note.id} className="border-l-2 border-blue-600 pl-4 py-2">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium text-gray-900">{new Date(note.date).toLocaleDateString()}</span>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-medium text-gray-900">{new Date(note.noteDate).toLocaleDateString()}</span>
                                 <span className="text-xs text-gray-500">by {note.repName}</span>
                               </div>
-                              <p className="text-sm text-gray-700 leading-relaxed">{note.notes}</p>
+                              <p className="text-sm font-medium text-gray-900 mb-1">{note.summary}</p>
+                              {note.fullText && <p className="text-sm text-gray-600 leading-relaxed">{note.fullText}</p>}
                             </div>
                           ))}
                         </div>
@@ -731,7 +732,7 @@ export default function HCPDetail() {
                                 <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-900 rounded">{patient.cohort}</span>
                               </div>
                               <div className="text-sm text-gray-600 space-y-1">
-                                <p>Started: {new Date(patient.startDate).toLocaleDateString()}</p>
+                                <p>Started: {new Date(patient.therapyStartDate).toLocaleDateString()}</p>
                                 <p>Switched: {new Date(patient.switchedDate).toLocaleDateString()}</p>
                                 {patient.switchReason && <p className="text-gray-700 font-medium">Reason: {patient.switchReason}</p>}
                               </div>
