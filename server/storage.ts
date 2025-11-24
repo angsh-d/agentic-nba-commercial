@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications, investigationArtifacts } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication, InvestigationArtifact, InsertInvestigationArtifact } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -84,11 +84,6 @@ export interface IStorage {
   // Payer Communication operations
   createPayerCommunication(communication: InsertPayerCommunication): Promise<PayerCommunication>;
   getPayerCommunicationsByHcp(hcpId: number): Promise<PayerCommunication[]>;
-  
-  // Investigation Artifact operations
-  createInvestigationArtifact(artifact: InsertInvestigationArtifact): Promise<InvestigationArtifact>;
-  getInvestigationArtifactsBySession(sessionId: number): Promise<InvestigationArtifact[]>;
-  getInvestigationArtifactsByHcp(hcpId: number): Promise<InvestigationArtifact[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -433,28 +428,6 @@ export class DatabaseStorage implements IStorage {
       .from(payerCommunications)
       .where(sql`${payerCommunications.products} @> '["Onco-Pro"]'::jsonb`)
       .orderBy(desc(payerCommunications.receivedDate));
-  }
-  
-  // Investigation Artifact operations
-  async createInvestigationArtifact(insertArtifact: InsertInvestigationArtifact): Promise<InvestigationArtifact> {
-    const results = await db.insert(investigationArtifacts).values(insertArtifact).returning();
-    return results[0];
-  }
-  
-  async getInvestigationArtifactsBySession(sessionId: number): Promise<InvestigationArtifact[]> {
-    return await db
-      .select()
-      .from(investigationArtifacts)
-      .where(eq(investigationArtifacts.sessionId, sessionId))
-      .orderBy(investigationArtifacts.sequenceNumber);
-  }
-  
-  async getInvestigationArtifactsByHcp(hcpId: number): Promise<InvestigationArtifact[]> {
-    return await db
-      .select()
-      .from(investigationArtifacts)
-      .where(eq(investigationArtifacts.hcpId, hcpId))
-      .orderBy(investigationArtifacts.sessionId, investigationArtifacts.sequenceNumber);
   }
 }
 

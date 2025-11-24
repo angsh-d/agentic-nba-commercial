@@ -140,7 +140,7 @@ export const clinicalEvents = pgTable("clinical_events", {
   eventDate: timestamp("event_date").notNull(),
   impact: text("impact").notNull(), // "high", "medium", "low"
   relatedDrug: text("related_drug"), // Drug mentioned in event
-  metadata: jsonb("metadata").$type<Record<string, unknown>>(), // Additional details
+  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional details
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -204,7 +204,7 @@ export const agentSessions = pgTable("agent_sessions", {
   goalType: text("goal_type").notNull(), // "nba_generation", "territory_planning", "switching_analysis"
   status: text("status").notNull().default("in_progress"), // in_progress, completed, failed
   currentPhase: text("current_phase"), // Current agent phase
-  contextData: jsonb("context_data").$type<Record<string, unknown>>(), // Session context
+  contextData: jsonb("context_data").$type<Record<string, any>>(), // Session context
   finalOutcome: text("final_outcome"), // Result summary
   confidenceScore: integer("confidence_score"), // 0-100
   startedAt: timestamp("started_at").defaultNow().notNull(),
@@ -226,7 +226,7 @@ export const agentThoughts = pgTable("agent_thoughts", {
   agentType: text("agent_type").notNull(), // "planner", "analyst", "synthesizer", "reflector"
   thoughtType: text("thought_type").notNull(), // "observation", "reasoning", "action", "critique"
   content: text("content").notNull(), // The actual thought/reasoning
-  metadata: jsonb("metadata").$type<Record<string, unknown>>(), // Additional context
+  metadata: jsonb("metadata").$type<Record<string, any>>(), // Additional context
   sequenceNumber: integer("sequence_number").notNull(), // Order in the session
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
@@ -246,8 +246,8 @@ export const agentActions = pgTable("agent_actions", {
   agentType: text("agent_type").notNull(),
   actionType: text("action_type").notNull(), // "query_data", "generate_nba", "create_plan", "analyze_pattern"
   actionDescription: text("action_description").notNull(),
-  actionParams: jsonb("action_params").$type<Record<string, unknown>>(),
-  result: jsonb("result").$type<Record<string, unknown>>(),
+  actionParams: jsonb("action_params").$type<Record<string, any>>(),
+  result: jsonb("result").$type<Record<string, any>>(),
   success: integer("success").notNull().default(1), // 1 = success, 0 = failure
   errorMessage: text("error_message"),
   executedAt: timestamp("executed_at").defaultNow().notNull(),
@@ -290,7 +290,7 @@ export const detectedSignals = pgTable("detected_signals", {
   signalStrength: integer("signal_strength").notNull(), // 1-10 strength score
   signalSource: text("signal_source").notNull(), // "prescription_history", "clinical_events", "peer_network"
   signalDescription: text("signal_description").notNull(), // Human-readable description
-  contextData: jsonb("context_data").$type<Record<string, unknown>>(), // Additional signal metadata
+  contextData: jsonb("context_data").$type<Record<string, any>>(), // Additional signal metadata
   detectedAt: timestamp("detected_at").defaultNow().notNull(),
   status: text("status").notNull().default("active"), // active, correlated, dismissed
 });
@@ -390,49 +390,3 @@ export const insertPayerCommunicationSchema = createInsertSchema(payerCommunicat
 export const selectPayerCommunicationSchema = createSelectSchema(payerCommunications);
 export type InsertPayerCommunication = z.infer<typeof insertPayerCommunicationSchema>;
 export type PayerCommunication = typeof payerCommunications.$inferSelect;
-
-// Investigation Artifacts - Structured outputs from multi-agent root cause investigations
-export const investigationArtifacts = pgTable("investigation_artifacts", {
-  id: serial("id").primaryKey(),
-  sessionId: integer("session_id").notNull().references(() => agentSessions.id),
-  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
-  artifactType: text("artifact_type").notNull(), // "planner_goal", "evidence_packet", "hypothesis_test", "causal_model"
-  agentType: text("agent_type").notNull(), // "planner", "gatherer", "analyst", "synthesizer"
-  title: text("title").notNull(), // Short title/summary
-  content: jsonb("content").notNull().$type<InvestigationArtifactContent>(), // Structured artifact data
-  sequenceNumber: integer("sequence_number").notNull(), // Order in investigation
-  confidenceScore: integer("confidence_score"), // 0-100 confidence level
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Discriminated union type for artifact content
-export type InvestigationArtifactContent = 
-  | { type: "planner_goal"; question: string; rationale: string; expectedEvidence: string[] }
-  | { type: "evidence_packet"; category: string; findings: string[]; sources: string[]; strength: number }
-  | { type: "hypothesis_test"; hypothesis: string; testType: string; result: string; confidence: number; evidence: string[] }
-  | { type: "causal_model"; modelType: string; nodes: CausalNode[]; interventions: Intervention[] };
-
-export type CausalNode = {
-  id: string;
-  label: string;
-  nodeType: "barrier" | "intervention" | "outcome";
-  impact: "high" | "medium" | "low";
-  evidence: string[];
-};
-
-export type Intervention = {
-  id: string;
-  name: string;
-  targetBarriers: string[];
-  leverageType: "high" | "medium" | "low";
-  actionable: boolean;
-  resources: string[];
-};
-
-export const insertInvestigationArtifactSchema = createInsertSchema(investigationArtifacts).omit({ 
-  id: true, 
-  createdAt: true 
-});
-export const selectInvestigationArtifactSchema = createSelectSchema(investigationArtifacts);
-export type InsertInvestigationArtifact = z.infer<typeof insertInvestigationArtifactSchema>;
-export type InvestigationArtifact = typeof investigationArtifacts.$inferSelect;
