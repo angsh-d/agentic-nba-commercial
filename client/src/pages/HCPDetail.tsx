@@ -608,15 +608,15 @@ export default function HCPDetail() {
                 {/* Temporal Correlation Visualization */}
                 {processingProgress === 100 && (
                   <div className="bg-white rounded-3xl border border-gray-100 p-16 mb-12">
-                    <div className="max-w-5xl mx-auto">
-                      <div className="mb-16">
+                    <div className="max-w-6xl mx-auto">
+                      <div className="mb-20">
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">Temporal Correlation Analysis</h3>
                         <p className="text-sm text-gray-500">All signals aligned to August 1st inflection point</p>
                       </div>
                       
                       {/* Timeline */}
-                      <div className="relative mb-20">
-                        <div className="flex items-center justify-between">
+                      <div className="relative mb-24">
+                        <div className="flex items-center justify-between px-4">
                           {['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'].map((month, idx) => (
                             <div key={month} className="flex flex-col items-center relative z-10">
                               <div className={`rounded-full ${
@@ -624,97 +624,112 @@ export default function HCPDetail() {
                                   ? 'w-3 h-3 bg-gray-900' 
                                   : 'w-1.5 h-1.5 bg-gray-300'
                               }`}></div>
-                              <span className={`text-xs mt-4 tracking-wide ${
+                              <span className={`text-xs mt-5 tracking-wide ${
                                 idx === 3 ? 'font-semibold text-gray-900' : 'text-gray-400'
                               }`}>{month}</span>
                             </div>
                           ))}
                         </div>
-                        <div className="absolute top-[5px] left-0 right-0 h-px bg-gray-200"></div>
+                        <div className="absolute top-[5px] left-4 right-4 h-px bg-gray-200"></div>
                       </div>
                       
                       {/* Signal Visualizations */}
-                      <div className="space-y-16">
+                      <div className="space-y-20">
                         {/* Prescription Volume */}
                         <div>
-                          <div className="flex items-baseline justify-between mb-8">
+                          <div className="flex items-baseline justify-between mb-10">
                             <h4 className="text-sm font-medium text-gray-900">Prescription Volume</h4>
                             <span className="text-xs text-gray-400 tracking-wide">45 → 25 (-44%)</span>
                           </div>
-                          <div className="flex items-end gap-4 h-40">
+                          <div className="flex items-end gap-5 h-44 px-4">
                             {prescriptionTrends.map((record: any, idx: number) => {
                               const height = (record.ownDrug / 45) * 100;
                               return (
                                 <div key={idx} className="flex-1 flex flex-col items-center justify-end">
                                   <div 
-                                    className={`w-full ${idx >= 3 ? 'bg-gray-900' : 'bg-blue-600'}`}
+                                    className={`w-full rounded-sm ${idx >= 3 ? 'bg-gray-900' : 'bg-blue-600'}`}
                                     style={{ height: `${height}%` }}
                                   ></div>
-                                  <span className="text-xs text-gray-400 mt-3 tracking-wide">{record.ownDrug}</span>
+                                  <span className="text-xs text-gray-400 mt-4 tracking-wide">{record.ownDrug}</span>
                                 </div>
                               );
                             })}
                           </div>
                         </div>
 
-                        {/* Policy Change Event */}
+                        {/* Reimbursement Access Line Graph */}
                         <div>
-                          <div className="flex items-baseline justify-between mb-8">
-                            <h4 className="text-sm font-medium text-gray-900">Policy Implementation</h4>
-                            <span className="text-xs text-gray-400 tracking-wide">4 restrictions enacted</span>
+                          <div className="flex items-baseline justify-between mb-10">
+                            <h4 className="text-sm font-medium text-gray-900">Reimbursement Access Rate</h4>
+                            <span className="text-xs text-gray-400 tracking-wide">95% → 22% drop</span>
                           </div>
-                          <div className="relative flex items-center h-24">
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1 flex justify-center">
-                              <div className="relative">
-                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-px h-6 bg-gray-300"></div>
-                                <div className="bg-gray-900 text-white text-xs px-6 py-3 rounded-full tracking-wide whitespace-nowrap">
-                                  Aug 1 Policy Changes
-                                </div>
-                              </div>
+                          <div className="relative h-44 px-4">
+                            <svg className="w-full h-full" viewBox="0 0 600 160" preserveAspectRatio="none">
+                              {/* Grid lines */}
+                              <line x1="0" y1="40" x2="600" y2="40" stroke="#f3f4f6" strokeWidth="1" />
+                              <line x1="0" y1="80" x2="600" y2="80" stroke="#f3f4f6" strokeWidth="1" />
+                              <line x1="0" y1="120" x2="600" y2="120" stroke="#f3f4f6" strokeWidth="1" />
+                              
+                              {/* Line path: flat at 95% then drops to 22% */}
+                              <polyline
+                                points="0,20 100,18 200,19 300,20 300,140 400,142 500,141 600,140"
+                                fill="none"
+                                stroke="#1f2937"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              
+                              {/* Inflection point marker */}
+                              <circle cx="300" cy="20" r="4" fill="#1f2937" />
+                              <circle cx="300" cy="140" r="4" fill="#1f2937" />
+                            </svg>
+                            <div className="flex items-center justify-between mt-4">
+                              <span className="text-xs text-gray-400 tracking-wide">95%</span>
+                              <span className="text-xs text-gray-400 tracking-wide">95%</span>
+                              <span className="text-xs text-gray-400 tracking-wide">95%</span>
+                              <span className="text-xs text-gray-900 font-semibold tracking-wide">22%</span>
+                              <span className="text-xs text-gray-400 tracking-wide">22%</span>
+                              <span className="text-xs text-gray-400 tracking-wide">22%</span>
                             </div>
-                            <div className="flex-1"></div>
-                            <div className="flex-1"></div>
                           </div>
                         </div>
 
                         {/* Access Friction Intensity */}
                         <div>
-                          <div className="flex items-baseline justify-between mb-8">
+                          <div className="flex items-baseline justify-between mb-10">
                             <h4 className="text-sm font-medium text-gray-900">Access Friction Intensity</h4>
                             <span className="text-xs text-gray-400 tracking-wide">Escalating post-Aug 1st</span>
                           </div>
-                          <div className="flex items-end gap-4 h-24">
+                          <div className="flex items-end gap-5 h-28 px-4">
                             {[
-                              { height: 'h-8', opacity: 'opacity-20' },
-                              { height: 'h-8', opacity: 'opacity-20' },
-                              { height: 'h-12', opacity: 'opacity-40' },
-                              { height: 'h-16', opacity: 'opacity-60' },
-                              { height: 'h-20', opacity: 'opacity-80' },
-                              { height: 'h-24', opacity: 'opacity-100' }
+                              { height: 'h-10', opacity: 'opacity-20' },
+                              { height: 'h-10', opacity: 'opacity-20' },
+                              { height: 'h-14', opacity: 'opacity-40' },
+                              { height: 'h-18', opacity: 'opacity-60' },
+                              { height: 'h-24', opacity: 'opacity-80' },
+                              { height: 'h-28', opacity: 'opacity-100' }
                             ].map((item, idx) => (
-                              <div key={idx} className={`flex-1 ${item.height} bg-gray-900 ${item.opacity}`}></div>
+                              <div key={idx} className={`flex-1 ${item.height} bg-gray-900 ${item.opacity} rounded-sm`}></div>
                             ))}
                           </div>
                         </div>
 
                         {/* Patient Switches */}
                         <div>
-                          <div className="flex items-baseline justify-between mb-8">
+                          <div className="flex items-baseline justify-between mb-10">
                             <h4 className="text-sm font-medium text-gray-900">Patient Abandonment</h4>
                             <span className="text-xs text-gray-400 tracking-wide">10 patients switched</span>
                           </div>
-                          <div className="flex items-center gap-4 h-16">
+                          <div className="flex items-center gap-5 h-20 px-4">
                             {[0, 0, 0, 2, 4, 4].map((count, idx) => (
                               <div key={idx} className="flex-1 flex items-center justify-center">
                                 {count === 0 ? (
-                                  <div className="w-2 h-px bg-gray-200"></div>
+                                  <div className="w-3 h-px bg-gray-200"></div>
                                 ) : (
-                                  <div className="flex flex-wrap gap-2 justify-center max-w-[50px]">
+                                  <div className="flex flex-wrap gap-2 justify-center max-w-[60px]">
                                     {Array.from({ length: count }).map((_, i) => (
-                                      <div key={i} className="w-2 h-2 bg-gray-900 rounded-full"></div>
+                                      <div key={i} className="w-2.5 h-2.5 bg-gray-900 rounded-full"></div>
                                     ))}
                                   </div>
                                 )}
@@ -725,8 +740,8 @@ export default function HCPDetail() {
                       </div>
 
                       {/* Insight */}
-                      <div className="mt-20 pt-12 border-t border-gray-100">
-                        <p className="text-sm leading-relaxed text-gray-600 max-w-3xl">
+                      <div className="mt-24 pt-12 border-t border-gray-100">
+                        <p className="text-sm leading-relaxed text-gray-600">
                           All four independent data signals demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers implemented formulary restrictions. This temporal alignment establishes clear causal relationship between policy changes and prescription decline.
                         </p>
                       </div>
