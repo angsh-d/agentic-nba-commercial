@@ -605,6 +605,122 @@ export default function HCPDetail() {
                   </div>
                 )}
 
+                {/* Temporal Correlation Visualization */}
+                {processingProgress === 100 && (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-8">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-6">Multi-Signal Temporal Correlation Analysis</h3>
+                    
+                    <div className="relative">
+                      {/* Timeline axis */}
+                      <div className="flex items-center justify-between mb-8 px-4">
+                        {['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'].map((month, idx) => (
+                          <div key={month} className="flex flex-col items-center">
+                            <div className={`w-3 h-3 rounded-full ${idx === 3 ? 'bg-red-600 ring-4 ring-red-100' : 'bg-gray-300'}`}></div>
+                            <span className={`text-xs mt-2 ${idx === 3 ? 'font-semibold text-red-900' : 'text-gray-600'}`}>{month}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Connecting line with inflection point */}
+                      <div className="absolute top-[6px] left-4 right-4 h-0.5 bg-gray-200 -z-10"></div>
+                      
+                      {/* Signal Tracks */}
+                      <div className="space-y-6 mt-8">
+                        {/* Prescription Volume Track */}
+                        <div className="bg-blue-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-blue-900">📊 Prescription Volume</span>
+                            <span className="text-xs text-blue-700">45 → 25 (-44%)</span>
+                          </div>
+                          <div className="flex items-end h-20 gap-1">
+                            {prescriptionTrends.map((record: any, idx: number) => (
+                              <div key={idx} className="flex-1 flex flex-col items-center justify-end">
+                                <div 
+                                  className={`w-full rounded-t ${idx >= 3 ? 'bg-red-400' : 'bg-blue-400'}`}
+                                  style={{ height: `${(record.ownDrug / 45) * 100}%` }}
+                                ></div>
+                                <span className="text-xs text-gray-600 mt-1">{record.ownDrug}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Payer Policy Changes Track */}
+                        <div className="bg-amber-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-amber-900">📋 Payer Policy Changes</span>
+                            <span className="text-xs text-amber-700">4 restrictions on Aug 1st</span>
+                          </div>
+                          <div className="flex items-center h-12">
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1 flex items-center justify-center">
+                              <div className="bg-red-600 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg">
+                                ⚠️ Aug 1st: Tier 3 + Step-Edits + $450 Copay
+                              </div>
+                            </div>
+                            <div className="flex-1"></div>
+                            <div className="flex-1"></div>
+                          </div>
+                        </div>
+
+                        {/* Call Notes Friction Track */}
+                        <div className="bg-orange-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-orange-900">💬 Call Notes Friction Intensity</span>
+                            <span className="text-xs text-orange-700">Escalating post-Aug 1st</span>
+                          </div>
+                          <div className="flex items-center h-12 gap-2">
+                            <div className="flex-1 flex items-center justify-center h-8 bg-green-200 rounded text-xs">Low</div>
+                            <div className="flex-1 flex items-center justify-center h-8 bg-green-200 rounded text-xs">Low</div>
+                            <div className="flex-1 flex items-center justify-center h-8 bg-yellow-200 rounded text-xs">Med</div>
+                            <div className="flex-1 flex items-center justify-center h-10 bg-orange-300 rounded text-xs font-semibold">High</div>
+                            <div className="flex-1 flex items-center justify-center h-12 bg-red-400 rounded text-xs font-semibold text-white">Critical</div>
+                            <div className="flex-1 flex items-center justify-center h-12 bg-red-400 rounded text-xs font-semibold text-white">Critical</div>
+                          </div>
+                        </div>
+
+                        {/* Patient Switches Track */}
+                        <div className="bg-red-50 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-semibold text-red-900">👥 Patient Switches</span>
+                            <span className="text-xs text-red-700">10 patients switched post-Aug 1st</span>
+                          </div>
+                          <div className="flex items-center h-12 gap-2">
+                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
+                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
+                            <div className="flex-1 flex items-center justify-center text-xs text-gray-400">-</div>
+                            <div className="flex-1 flex flex-col gap-1 items-center">
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                            </div>
+                            <div className="flex-1 flex flex-col gap-1 items-center">
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                            </div>
+                            <div className="flex-1 flex flex-col gap-1 items-center">
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                              <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Conclusion */}
+                      <div className="mt-6 bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-900">
+                          <span className="font-semibold">Temporal Correlation:</span> All four signals show clear inflection at August 1st, 2025 — the exact date when 4 major payers implemented reimbursement restrictions. This demonstrates causal relationship between policy changes and prescription decline.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Data Insights - Grid Layout with Clickable Cards */}
                 {processingProgress === 100 && (
                   <div className="grid grid-cols-2 gap-6 mb-12">
