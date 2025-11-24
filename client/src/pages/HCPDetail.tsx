@@ -2101,16 +2101,6 @@ export default function HCPDetail() {
             {/* Stage 4: Generated Artifact */}
             {wizardStage === 4 && (
               <div className="mb-16">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xl font-bold">
-                    4
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-semibold text-gray-900">Execute</h2>
-                    <p className="text-sm text-gray-600 mt-1">Review and use your AI-generated artifact</p>
-                  </div>
-                </div>
-
                 {/* Display Generated Artifact or Error */}
                 {artifacts.length > 0 ? (
                   <>
@@ -2130,10 +2120,7 @@ export default function HCPDetail() {
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-6">Generated Artifact</h3>
-                      <ArtifactDisplay artifacts={artifacts} />
-                    </div>
+                    <ArtifactDisplay artifacts={artifacts} />
                   </>
                 ) : (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-6">
