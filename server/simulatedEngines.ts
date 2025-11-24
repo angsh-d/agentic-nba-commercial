@@ -74,12 +74,21 @@ export function simulateRLEngine(
       reasoning: "Q-learning indicates data-driven communication has high value in post-switch scenarios"
     });
   } else if (riskScore >= 70) {
+    // Check if this is an access-barrier scenario
+    const hasAccessBarriers = hcp.switchRiskReasons?.some(r => 
+      r.toLowerCase().includes("access") || r.toLowerCase().includes("barrier") || r.toLowerCase().includes("payer")
+    );
+    
+    const reasoning = hasAccessBarriers
+      ? "Early intervention saved 9 of 12 barrier patients (75% retention) in access-crisis cohort | Policy v2.7 vs v2.6: +23% success rate"
+      : "Policy learned that early intervention prevents 73% of high-risk switches | Historical success rate: 87% retention with proactive engagement";
+    
     topActions.push({
       action: "Proactive relationship-building call",
       actionType: "call" as const,
       confidence: 0.85,
       qValue: 7.4,
-      reasoning: "Policy learned that early intervention prevents 73% of high-risk switches"
+      reasoning
     });
     topActions.push({
       action: "Invite to educational dinner event",
@@ -145,7 +154,7 @@ export function simulateRulesEngine(
       action: "Escalate to district manager + require urgent meeting",
       priority: "High" as const
     });
-    escalations.push("District Manager notification sent");
+    escalations.push("District Manager notification sent → 24hr payer war-room committed");
   }
   
   // Rule 2: Switching Event Response
@@ -177,7 +186,7 @@ export function simulateRulesEngine(
       ruleId: "R004",
       ruleName: "High-Value HCP Retention",
       condition: "switchRiskScore >= 50 AND engagementLevel = 'high'",
-      action: "Assign dedicated account manager",
+      action: "Assign dedicated account manager → Priority copay assistance activation",
       priority: "Medium" as const
     });
   }
@@ -217,31 +226,49 @@ export function simulateLLMContextualization(
   rlOutput: RLEngineOutput,
   rulesOutput: RulesEngineOutput
 ): LLMContextualization {
-  const narrative = `Based on ${hcp.name}'s profile, the optimal approach combines ${rlOutput.topActions[0]?.action.toLowerCase()} (highest Q-value: ${rlOutput.topActions[0]?.qValue}) with immediate ${rulesOutput.triggeredRules.length > 0 ? 'compliance with triggered business rules' : 'standard engagement protocols'}.`;
+  // Create provocative narrative headline based on HCP scenario (case-insensitive check)
+  let headline = "";
+  const hasAccessBarriers = hcp.switchRiskReasons?.some(r => 
+    r.toLowerCase().includes("access") || r.toLowerCase().includes("barrier") || r.toLowerCase().includes("payer")
+  );
+  
+  if (hasAccessBarriers) {
+    headline = "🚨 Stop the $450 Copay Freefall";
+  } else {
+    headline = "Critical Intervention Window Open";
+  }
+  
+  const narrative = `${headline} — Based on ${hcp.name}'s profile, the optimal approach combines ${rlOutput.topActions[0]?.action.toLowerCase()} (highest Q-value: ${rlOutput.topActions[0]?.qValue}) with immediate ${rulesOutput.triggeredRules.length > 0 ? 'compliance with triggered business rules' : 'standard engagement protocols'}.`;
   
   const adjustments = [];
   const hcpSpecificInsights = [];
   
-  // Add adjustments based on HCP characteristics
-  if (hcp.engagementLevel === "low") {
-    adjustments.push("Adjust communication style to be less technical, more relationship-focused");
+  // Add explicit LLM adjustments vs RL recommendation
+  if (hasAccessBarriers) {
+    adjustments.push("LLM Override: Prioritize financial toxicity language over clinical data (3 patients cited '$450+ copay shock' in recent visits)");
+    adjustments.push("Script Personalization: Reference specific patient 'Mr. Daniels' who switched due to Aetna PA denial");
   }
   
-  if (hcp.specialty === "Oncologist - RCC") {
-    hcpSpecificInsights.push("Emphasize RCC-specific efficacy data and renal safety profile");
-  }
-  
-  if (hcp.hospital?.includes("Academic")) {
-    hcpSpecificInsights.push("Frame discussion around latest clinical research and trial data");
-  }
-  
-  // Add timing adjustments
+  // Add timing adjustments (can coexist with access-barrier guidance)
   const lastVisit = hcp.lastVisitDate ? new Date(hcp.lastVisitDate) : null;
   if (lastVisit) {
     const daysSinceVisit = (Date.now() - lastVisit.getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceVisit < 14) {
       adjustments.push("Recent visit detected - consider email follow-up instead of in-person to avoid over-engagement");
     }
+  }
+  
+  // Add adjustments based on HCP characteristics
+  if (hcp.engagementLevel === "low") {
+    adjustments.push("Adjust communication style to be less technical, more relationship-focused");
+  }
+  
+  if (hcp.specialty === "Oncologist - RCC" || hcp.specialty === "Oncologist") {
+    hcpSpecificInsights.push("Emphasize RCC-specific efficacy data and renal safety profile");
+  }
+  
+  if (hcp.hospital?.includes("Academic") || hcp.hospital?.includes("Cancer")) {
+    hcpSpecificInsights.push("Frame discussion around latest clinical research and trial data");
   }
   
   return {
