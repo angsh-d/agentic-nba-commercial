@@ -659,16 +659,73 @@ export default function HCPDetail() {
                         <DialogHeader>
                           <DialogTitle>Call Notes Analysis ({callNotes.length} notes)</DialogTitle>
                         </DialogHeader>
-                        <div className="mt-4 space-y-4">
-                          {callNotes.map((note) => (
-                            <div key={note.id} className="border-l-2 border-blue-600 pl-4 py-2">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-medium text-gray-900">{new Date(note.visitDate).toLocaleDateString()}</span>
-                                <span className="text-xs text-gray-500">by {note.repName}</span>
-                              </div>
-                              <p className="text-sm text-gray-700 leading-relaxed">{note.noteText}</p>
+                        <div className="mt-4">
+                          <div className="flex items-center gap-3 mb-4 text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+                              <span className="text-gray-600">High Friction</span>
                             </div>
-                          ))}
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+                              <span className="text-gray-600">Moderate Friction</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+                              <span className="text-gray-600">Positive/Solution</span>
+                            </div>
+                          </div>
+                          <div className="space-y-4">
+                            {callNotes.map((note: any) => {
+                              const noteDate = new Date(note.visitDate);
+                              const policyChangeDate = new Date("2025-08-01");
+                              const isPostPolicyChange = noteDate >= policyChangeDate;
+                              
+                              // Detect friction keywords
+                              const noteTextLower = note.noteText?.toLowerCase() || '';
+                              const hasHighFriction = noteTextLower.includes('frustrated') || 
+                                                      noteTextLower.includes('angry') || 
+                                                      noteTextLower.includes('abandoning') ||
+                                                      noteTextLower.includes('losing patients') ||
+                                                      noteTextLower.includes('emergency meeting');
+                              const hasModerateFriction = noteTextLower.includes('concerned') || 
+                                                          noteTextLower.includes('barrier') || 
+                                                          noteTextLower.includes('delay') ||
+                                                          noteTextLower.includes('denied') ||
+                                                          noteTextLower.includes('copay');
+                              const isPositive = noteTextLower.includes('positive') || 
+                                                 noteTextLower.includes('optimistic') || 
+                                                 noteTextLower.includes('solution');
+                              
+                              let borderColor = 'border-blue-600';
+                              let bgColor = 'bg-white';
+                              let badge = null;
+                              
+                              if (isPositive) {
+                                borderColor = 'border-green-500';
+                                bgColor = 'bg-green-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Solution Discussed</span>;
+                              } else if (hasHighFriction && isPostPolicyChange) {
+                                borderColor = 'border-red-500';
+                                bgColor = 'bg-red-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded">High Friction - Post Aug 1st</span>;
+                              } else if (hasModerateFriction && isPostPolicyChange) {
+                                borderColor = 'border-yellow-500';
+                                bgColor = 'bg-yellow-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">Access Barrier - Post Aug 1st</span>;
+                              }
+                              
+                              return (
+                                <div key={note.id} className={`border-l-2 ${borderColor} ${bgColor} rounded-r-lg pl-4 pr-3 py-3`}>
+                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                    <span className="text-xs font-medium text-gray-900">{noteDate.toLocaleDateString()}</span>
+                                    <span className="text-xs text-gray-500">by {note.repName}</span>
+                                    {badge}
+                                  </div>
+                                  <p className="text-sm text-gray-700 leading-relaxed">{note.noteText}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </DialogContent>
                     </Dialog>
