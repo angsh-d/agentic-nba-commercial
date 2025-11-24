@@ -476,45 +476,36 @@ export default function HCPDetail() {
           </Button>
         </Link>
 
-        {/* Header */}
-        <div className="mb-20">
-          <div className="flex items-start justify-between mb-8">
-            <div>
-              <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight">
-                {hcp.name}
-              </h1>
-              <div className="flex items-center gap-4 text-base text-gray-600 font-light">
-                <span>{hcp.specialty}</span>
-                <span className="w-1 h-1 rounded-full bg-gray-300" />
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" />
-                  {hcp.hospital}
-                </span>
-              </div>
-            </div>
-
-            {hcp.switchRiskScore > 0 && (
-              <div className="text-right">
-                <div className="text-6xl font-semibold text-gray-900 mb-3 tracking-tight">
-                  {hcp.switchRiskScore}
-                </div>
-                {getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)}
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* PROGRESSIVE WIZARD - Multi-Agent Investigation */}
         {hcp.switchRiskScore > 0 && hcpId && (
           <div className="mb-24">
-            {/* Wizard Header - Apple Style */}
+            {/* Unified Hero Header - Apple Style */}
             <div className="mb-16">
-              <h1 className="text-4xl font-semibold text-gray-900 mb-3 tracking-tight">
-                Agentic Investigation
-              </h1>
-              <p className="text-lg text-gray-600 font-light mb-12">
-                Multi-agent analysis with human oversight
-              </p>
+              <div className="flex items-start justify-between mb-12">
+                <div className="flex-1">
+                  <h1 className="text-5xl font-semibold text-gray-900 mb-4 tracking-tight">
+                    {hcp.name}
+                  </h1>
+                  <div className="flex items-center gap-4 text-base text-gray-600 font-light">
+                    <span>{hcp.specialty}</span>
+                    <span className="w-1 h-1 rounded-full bg-gray-300" />
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4" />
+                      {hcp.hospital}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-6xl font-semibold text-gray-900 mb-3 tracking-tight">
+                    {hcp.switchRiskScore}
+                  </div>
+                  {getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)}
+                  <div className="mt-4 text-sm text-gray-600 font-light">
+                    Multi-agent analysis
+                  </div>
+                </div>
+              </div>
 
               {/* Progress Stepper - Apple Style */}
               <div className="flex items-center justify-between max-w-2xl">
