@@ -651,13 +651,13 @@ export default function HCPDetail() {
                             <p className="text-sm font-semibold text-gray-900">Call Notes</p>
                           </div>
                           <p className="text-sm text-gray-600 font-light leading-relaxed">
-                            Processed {callNotes.length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern
+                            Processed {callNotes.filter((n: any) => new Date(n.visitDate) < new Date("2025-10-11")).length} field notes, identified {hcpId === "1" ? "safety concerns" : "access frustration"} pattern
                           </p>
                         </button>
                       </DialogTrigger>
                       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Call Notes Analysis ({callNotes.length} notes)</DialogTitle>
+                          <DialogTitle>Call Notes Analysis ({callNotes.filter((n: any) => new Date(n.visitDate) < new Date("2025-10-11")).length} notes)</DialogTitle>
                         </DialogHeader>
                         <div className="mt-4">
                           <div className="flex items-center gap-3 mb-4 text-xs">
@@ -675,7 +675,12 @@ export default function HCPDetail() {
                             </div>
                           </div>
                           <div className="space-y-4">
-                            {callNotes.map((note: any) => {
+                            {callNotes.filter((note: any) => {
+                              // Exclude solution-focused notes from Oct 11th onwards (save for NBA stage)
+                              const noteDate = new Date(note.visitDate);
+                              const cutoffDate = new Date("2025-10-11");
+                              return noteDate < cutoffDate;
+                            }).map((note: any) => {
                               const noteDate = new Date(note.visitDate);
                               const policyChangeDate = new Date("2025-08-01");
                               const isPostPolicyChange = noteDate >= policyChangeDate;
