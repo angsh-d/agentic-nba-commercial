@@ -213,6 +213,17 @@ export default function HCPDetail() {
   const [stage2StartTime, setStage2StartTime] = useState<number | null>(null);
   const [stage2Progress, setStage2Progress] = useState(0);
 
+  // Stage 3 live agent activity
+  const [stage3Activities, setStage3Activities] = useState<Array<{
+    id: number;
+    timestamp: number;
+    agent: string;
+    activity: string;
+    status: "in_progress" | "completed";
+  }>>([]);
+  const [stage3StartTime, setStage3StartTime] = useState<number | null>(null);
+  const [stage3Progress, setStage3Progress] = useState(0);
+
   const { data: hcp, isLoading } = useQuery({
     queryKey: ["hcp", hcpId],
     queryFn: () => fetchHCP(hcpId!),
@@ -239,6 +250,17 @@ export default function HCPDetail() {
       return response.json();
     },
     enabled: !!hcpId && wizardStage === 2,
+  });
+
+  // Fetch Stage 3 agent activities
+  const { data: allStage3Activities } = useQuery({
+    queryKey: ["stage3-activity", hcpId],
+    queryFn: async () => {
+      const response = await fetch(`/api/hcps/${hcpId}/stage3-activity`);
+      if (!response.ok) throw new Error("Failed to fetch agent activity");
+      return response.json();
+    },
+    enabled: !!hcpId && wizardStage === 3,
   });
 
   // Simulate real-time activity feed by gradually revealing activities
@@ -311,6 +333,40 @@ export default function HCPDetail() {
 
     return () => clearInterval(interval);
   }, [wizardStage, allStage2Activities, stage2StartTime]);
+
+  // Stage 3 progressive reveal
+  useEffect(() => {
+    if (!allStage3Activities || wizardStage !== 3) {
+      setStage3Activities([]);
+      setStage3StartTime(null);
+      return;
+    }
+
+    if (!stage3StartTime) {
+      setStage3StartTime(Date.now());
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - stage3StartTime;
+      const visibleActivities = allStage3Activities.filter((activity: any) => {
+        const relativeTime = activity.timestamp - allStage3Activities[0].timestamp;
+        return relativeTime <= elapsed;
+      });
+      setStage3Activities(visibleActivities);
+
+      const totalDuration = 40000; // 40 seconds
+      const progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+      setStage3Progress(progress);
+
+      if (visibleActivities.length === allStage3Activities.length) {
+        clearInterval(interval);
+        setStage3Progress(100);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [wizardStage, allStage3Activities, stage3StartTime]);
 
   const { data: prescriptionHistory = [] } = useQuery({
     queryKey: ["prescription-history", hcpId],
@@ -855,42 +911,115 @@ export default function HCPDetail() {
                   </div>
                 </div>
 
-                {/* Ensemble Synthesis */}
-                <div className="mb-12">
-                  <h3 className="text-base font-semibold text-gray-900 mb-6">Ensemble Recommendation Synthesis</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-4 py-3">
-                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 mb-1">RL-based NBA Engine</p>
-                        <p className="text-sm text-gray-600 font-light">Suggests {hcpId === "1" ? "efficacy repositioning + safety protocol" : "PA fast-track + copay foundation enrollment"} based on historical outcomes</p>
-                      </div>
+                {/* Agent Ensemble Synthesis Feed */}
+                {stage3Activities.length > 0 && (
+                  <div className="mb-12">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-gray-900">Ensemble Synthesis & Reflection</h3>
+                      <span className="text-xs font-medium text-gray-600">{stage3Progress}% complete</span>
                     </div>
-                    <div className="flex items-start gap-4 py-3">
-                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 mb-1">Business Rules Engine</p>
-                        <p className="text-sm text-gray-600 font-light">Validates {hcpId === "1" ? "REMS compliance + formulary approval" : "payer coverage requirements + reimbursement pathways"}</p>
-                      </div>
+                    
+                    {/* Progress bar */}
+                    <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${stage3Progress}%` }}
+                      />
                     </div>
-                    <div className="flex items-start gap-4 py-3">
-                      <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 mb-1">LLM Contextual Reasoning</p>
-                        <p className="text-sm text-gray-600 font-light">Synthesizes {hcpId === "1" ? "clinical evidence + KOL positioning" : "payer negotiation strategy + MSL deployment timing"}</p>
+
+                    {/* Current activity */}
+                    {stage3Activities.length > 0 && (
+                      <div className="flex items-center gap-3 text-xs text-gray-600 mb-6">
+                        <div className="w-3 h-3 flex-shrink-0">
+                          {stage3Progress < 100 ? (
+                            <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3 text-gray-900" />
+                          )}
+                        </div>
+                        <span className="font-light">
+                          {stage3Progress < 100 
+                            ? `${stage3Activities[stage3Activities.length - 1].agent}: ${stage3Activities[stage3Activities.length - 1].activity}`
+                            : "Ensemble synthesis complete"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Detailed activity log - collapsible */}
+                    <details className="bg-gray-50 rounded-xl overflow-hidden">
+                      <summary className="px-6 py-4 cursor-pointer text-xs font-medium text-gray-900 hover:bg-gray-100 transition-colors">
+                        View Ensemble Synthesis Log ({stage3Activities.length} steps)
+                      </summary>
+                      <div className="px-6 py-4 space-y-2 max-h-64 overflow-y-auto">
+                        {stage3Activities.map((activity, index) => {
+                          const isComplete = activity.status === "completed" || 
+                                           index < stage3Activities.length - 1 || 
+                                           stage3Progress === 100;
+                          
+                          return (
+                            <div
+                              key={activity.id}
+                              className="flex items-start gap-3 animate-in fade-in slide-in-from-left-2 duration-300"
+                            >
+                              {!isComplete ? (
+                                <div className="w-3 h-3 mt-0.5 flex-shrink-0">
+                                  <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                </div>
+                              ) : (
+                                <CheckCircle2 className="w-3 h-3 text-gray-900 flex-shrink-0 mt-0.5" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-gray-900">{activity.agent}</p>
+                                <p className="text-xs text-gray-600 font-light">{activity.activity}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  </div>
+                )}
+
+                {/* Ensemble Synthesis - Only show after synthesis completes */}
+                {stage3Progress === 100 && (
+                <>
+                  <div className="mb-12">
+                    <h3 className="text-base font-semibold text-gray-900 mb-6">Ensemble Recommendation Synthesis</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-4 py-3">
+                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 mb-1">RL-based NBA Engine</p>
+                          <p className="text-sm text-gray-600 font-light">Suggests {hcpId === "1" ? "efficacy repositioning + safety protocol" : "PA fast-track + copay foundation enrollment"} based on historical outcomes</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4 py-3">
+                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 mb-1">Business Rules Engine</p>
+                          <p className="text-sm text-gray-600 font-light">Validates {hcpId === "1" ? "REMS compliance + formulary approval" : "payer coverage requirements + reimbursement pathways"}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4 py-3">
+                        <CheckCircle2 className="w-5 h-5 text-gray-900 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 mb-1">LLM Contextual Reasoning</p>
+                          <p className="text-sm text-gray-600 font-light">Synthesizes {hcpId === "1" ? "clinical evidence + KOL positioning" : "payer negotiation strategy + MSL deployment timing"}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Final Recommendation */}
-                <div className="bg-gray-50 rounded-2xl p-8 mb-12">
-                  <p className="text-base text-gray-900 leading-relaxed">
-                    {hcpId === "1" 
-                      ? "Deploy 3-pronged strategy: (1) MSL-led safety protocol education, (2) Efficacy repositioning based on ORION-Y data, (3) KOL collaboration for clinical best practices. Traditional tools would miss the dual-causality pattern requiring coordinated safety + efficacy response."
-                      : "Deploy urgent access intervention: (1) PA escalation SWAT team with 48hr SLA, (2) Auto-enroll eligible patients in $0 copay foundation, (3) Specialty pharmacy fast-track with 3-day fulfillment, (4) Deploy reimbursement specialist. Traditional tools would flag Rx decline but miss the multi-payer policy causality requiring coordinated access strategy."}
-                  </p>
-                </div>
+                  {/* Final Recommendation */}
+                  <div className="bg-gray-50 rounded-2xl p-8 mb-12">
+                    <p className="text-base text-gray-900 leading-relaxed">
+                      {hcpId === "1" 
+                        ? "Deploy 3-pronged strategy: (1) MSL-led safety protocol education, (2) Efficacy repositioning based on ORION-Y data, (3) KOL collaboration for clinical best practices. Traditional tools would miss the dual-causality pattern requiring coordinated safety + efficacy response."
+                        : "Deploy urgent access intervention: (1) PA escalation SWAT team with 48hr SLA, (2) Auto-enroll eligible patients in $0 copay foundation, (3) Specialty pharmacy fast-track with 3-day fulfillment, (4) Deploy reimbursement specialist. Traditional tools would flag Rx decline but miss the multi-payer policy causality requiring coordinated access strategy."}
+                    </p>
+                  </div>
+                </>
+                )}
 
                 {/* Human SME Input */}
                 <div className="mb-8">
