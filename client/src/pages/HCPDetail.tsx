@@ -607,81 +607,71 @@ export default function HCPDetail() {
 
                 {/* Temporal Correlation Visualization */}
                 {processingProgress === 100 && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-200 p-10 mb-8 shadow-sm">
-                    <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-base font-semibold text-gray-900">Temporal Correlation Analysis</h3>
-                      <p className="text-xs text-gray-500">All signals aligned to August 1st inflection point</p>
-                    </div>
-                    
-                    <div className="relative">
-                      {/* Timeline with elegant design */}
-                      <div className="relative mb-12">
-                        <div className="flex items-center justify-between px-8">
+                  <div className="bg-white rounded-3xl border border-gray-100 p-16 mb-12">
+                    <div className="max-w-5xl mx-auto">
+                      <div className="mb-16">
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Temporal Correlation Analysis</h3>
+                        <p className="text-sm text-gray-500">All signals aligned to August 1st inflection point</p>
+                      </div>
+                      
+                      {/* Timeline */}
+                      <div className="relative mb-20">
+                        <div className="flex items-center justify-between">
                           {['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'].map((month, idx) => (
                             <div key={month} className="flex flex-col items-center relative z-10">
-                              <div className={`transition-all ${
+                              <div className={`rounded-full ${
                                 idx === 3 
-                                  ? 'w-4 h-4 bg-red-600 rounded-full shadow-lg shadow-red-200' 
-                                  : 'w-2 h-2 bg-gray-300 rounded-full'
+                                  ? 'w-3 h-3 bg-gray-900' 
+                                  : 'w-1.5 h-1.5 bg-gray-300'
                               }`}></div>
-                              <span className={`text-xs mt-3 ${
-                                idx === 3 ? 'font-semibold text-gray-900' : 'text-gray-500'
+                              <span className={`text-xs mt-4 tracking-wide ${
+                                idx === 3 ? 'font-semibold text-gray-900' : 'text-gray-400'
                               }`}>{month}</span>
                             </div>
                           ))}
                         </div>
-                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gradient-to-r from-gray-200 via-red-300 to-gray-200"></div>
+                        <div className="absolute top-[5px] left-0 right-0 h-px bg-gray-200"></div>
                       </div>
                       
                       {/* Signal Visualizations */}
-                      <div className="space-y-8">
-                        {/* Prescription Volume - Line Chart Style */}
-                        <div className="relative">
-                          <div className="flex items-center justify-between mb-4 px-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
-                              <span className="text-sm font-medium text-gray-900">Prescription Volume</span>
-                            </div>
-                            <span className="text-xs text-gray-500">45 → 25 (-44%)</span>
+                      <div className="space-y-16">
+                        {/* Prescription Volume */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-8">
+                            <h4 className="text-sm font-medium text-gray-900">Prescription Volume</h4>
+                            <span className="text-xs text-gray-400 tracking-wide">45 → 25 (-44%)</span>
                           </div>
-                          <div className="relative h-32 flex items-end gap-3 px-8">
+                          <div className="flex items-end gap-4 h-40">
                             {prescriptionTrends.map((record: any, idx: number) => {
                               const height = (record.ownDrug / 45) * 100;
                               return (
-                                <div key={idx} className="flex-1 flex flex-col items-center justify-end group">
-                                  <div className="relative w-full">
-                                    <div 
-                                      className={`w-full rounded-t-lg transition-all ${
-                                        idx >= 3 ? 'bg-gradient-to-t from-red-400 to-red-500' : 'bg-gradient-to-t from-blue-400 to-blue-500'
-                                      }`}
-                                      style={{ height: `${height}px` }}
-                                    ></div>
-                                  </div>
-                                  <span className="text-xs text-gray-600 mt-2 font-medium">{record.ownDrug}</span>
+                                <div key={idx} className="flex-1 flex flex-col items-center justify-end">
+                                  <div 
+                                    className={`w-full ${idx >= 3 ? 'bg-gray-900' : 'bg-blue-600'}`}
+                                    style={{ height: `${height}%` }}
+                                  ></div>
+                                  <span className="text-xs text-gray-400 mt-3 tracking-wide">{record.ownDrug}</span>
                                 </div>
                               );
                             })}
                           </div>
                         </div>
 
-                        {/* Payer Policy Event Marker */}
-                        <div className="relative">
-                          <div className="flex items-center justify-between mb-4 px-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-amber-600 rounded-full"></div>
-                              <span className="text-sm font-medium text-gray-900">Payer Policy Changes</span>
-                            </div>
-                            <span className="text-xs text-gray-500">4 restrictions enacted</span>
+                        {/* Policy Change Event */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-8">
+                            <h4 className="text-sm font-medium text-gray-900">Policy Implementation</h4>
+                            <span className="text-xs text-gray-400 tracking-wide">4 restrictions enacted</span>
                           </div>
-                          <div className="relative flex items-center h-20 px-8">
+                          <div className="relative flex items-center h-24">
                             <div className="flex-1"></div>
                             <div className="flex-1"></div>
                             <div className="flex-1"></div>
                             <div className="flex-1 flex justify-center">
                               <div className="relative">
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-red-400"></div>
-                                <div className="bg-red-600 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg whitespace-nowrap">
-                                  Aug 1: Tier 3 + Step-Edits + $450 Copay
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-px h-6 bg-gray-300"></div>
+                                <div className="bg-gray-900 text-white text-xs px-6 py-3 rounded-full tracking-wide whitespace-nowrap">
+                                  Aug 1 Policy Changes
                                 </div>
                               </div>
                             </div>
@@ -690,49 +680,41 @@ export default function HCPDetail() {
                           </div>
                         </div>
 
-                        {/* Call Notes Friction - Gradient Intensity */}
-                        <div className="relative">
-                          <div className="flex items-center justify-between mb-4 px-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-orange-600 rounded-full"></div>
-                              <span className="text-sm font-medium text-gray-900">Access Barrier Friction</span>
-                            </div>
-                            <span className="text-xs text-gray-500">Escalating intensity post-Aug 1st</span>
+                        {/* Access Friction Intensity */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-8">
+                            <h4 className="text-sm font-medium text-gray-900">Access Friction Intensity</h4>
+                            <span className="text-xs text-gray-400 tracking-wide">Escalating post-Aug 1st</span>
                           </div>
-                          <div className="flex items-center h-16 gap-2 px-8">
+                          <div className="flex items-end gap-4 h-24">
                             {[
-                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
-                              { label: 'Low', color: 'from-green-100 to-green-200', text: 'text-green-800', height: 'h-6' },
-                              { label: 'Med', color: 'from-yellow-200 to-yellow-300', text: 'text-yellow-900', height: 'h-8' },
-                              { label: 'High', color: 'from-orange-300 to-orange-400', text: 'text-orange-900', height: 'h-12' },
-                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' },
-                              { label: 'Critical', color: 'from-red-400 to-red-500', text: 'text-white', height: 'h-16' }
+                              { height: 'h-8', opacity: 'opacity-20' },
+                              { height: 'h-8', opacity: 'opacity-20' },
+                              { height: 'h-12', opacity: 'opacity-40' },
+                              { height: 'h-16', opacity: 'opacity-60' },
+                              { height: 'h-20', opacity: 'opacity-80' },
+                              { height: 'h-24', opacity: 'opacity-100' }
                             ].map((item, idx) => (
-                              <div key={idx} className={`flex-1 flex items-center justify-center ${item.height} bg-gradient-to-t ${item.color} rounded-lg ${item.text} text-xs font-medium shadow-sm`}>
-                                {item.label}
-                              </div>
+                              <div key={idx} className={`flex-1 ${item.height} bg-gray-900 ${item.opacity}`}></div>
                             ))}
                           </div>
                         </div>
 
-                        {/* Patient Switches - Elegant Dot Matrix */}
-                        <div className="relative">
-                          <div className="flex items-center justify-between mb-4 px-1">
-                            <div className="flex items-center gap-2">
-                              <div className="w-1 h-8 bg-red-600 rounded-full"></div>
-                              <span className="text-sm font-medium text-gray-900">Patient Abandonment</span>
-                            </div>
-                            <span className="text-xs text-gray-500">10 patients switched to competitor</span>
+                        {/* Patient Switches */}
+                        <div>
+                          <div className="flex items-baseline justify-between mb-8">
+                            <h4 className="text-sm font-medium text-gray-900">Patient Abandonment</h4>
+                            <span className="text-xs text-gray-400 tracking-wide">10 patients switched</span>
                           </div>
-                          <div className="flex items-center h-16 gap-2 px-8">
+                          <div className="flex items-center gap-4 h-16">
                             {[0, 0, 0, 2, 4, 4].map((count, idx) => (
                               <div key={idx} className="flex-1 flex items-center justify-center">
                                 {count === 0 ? (
-                                  <span className="text-xs text-gray-300">—</span>
+                                  <div className="w-2 h-px bg-gray-200"></div>
                                 ) : (
-                                  <div className="flex flex-wrap gap-1.5 justify-center max-w-[40px]">
+                                  <div className="flex flex-wrap gap-2 justify-center max-w-[50px]">
                                     {Array.from({ length: count }).map((_, i) => (
-                                      <div key={i} className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-sm"></div>
+                                      <div key={i} className="w-2 h-2 bg-gray-900 rounded-full"></div>
                                     ))}
                                   </div>
                                 )}
@@ -742,10 +724,10 @@ export default function HCPDetail() {
                         </div>
                       </div>
 
-                      {/* Insight Summary */}
-                      <div className="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6">
-                        <p className="text-sm leading-relaxed text-gray-700">
-                          <span className="font-semibold text-gray-900">Causal Evidence:</span> All four independent data signals demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers (UHC, Aetna, Cigna, BCBS) implemented formulary restrictions. This temporal alignment establishes clear causal relationship between policy changes and prescription decline.
+                      {/* Insight */}
+                      <div className="mt-20 pt-12 border-t border-gray-100">
+                        <p className="text-sm leading-relaxed text-gray-600 max-w-3xl">
+                          All four independent data signals demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers implemented formulary restrictions. This temporal alignment establishes clear causal relationship between policy changes and prescription decline.
                         </p>
                       </div>
                     </div>
