@@ -1664,6 +1664,115 @@ export default function HCPDetail() {
                       </Accordion>
                     </div>
 
+                    {/* Counterfactual Analysis - What If? Scenarios */}
+                    {hcpId === "2" && (
+                      <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6 mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-sm font-semibold text-gray-900">Counterfactual Analysis</h4>
+                          <span className="text-xs text-gray-500">Predicted vs Actual Outcomes</span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-5">
+                          Alternative scenarios showing what would have happened if key interventions or events had occurred differently.
+                        </p>
+
+                        <div className="space-y-3">
+                          {/* Counterfactual 1: No Policy Changes */}
+                          <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-semibold text-blue-700">1</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900 mb-1">
+                                  What if Aug 1st policy changes didn't occur?
+                                </p>
+                                <p className="text-xs text-gray-600 mb-3">
+                                  If UHC, Aetna, Cigna, BCBS maintained previous coverage policies
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Predicted</p>
+                                    <p className="text-sm font-semibold text-gray-900">12 patients maintained</p>
+                                    <p className="text-xs text-gray-600 mt-1">100% retention rate</p>
+                                  </div>
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Actual</p>
+                                    <p className="text-sm font-semibold text-gray-900">3 patients remaining</p>
+                                    <p className="text-xs text-gray-600 mt-1">75% loss</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Counterfactual 2: Copay Assistance */}
+                          <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-semibold text-blue-700">2</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900 mb-1">
+                                  What if copay assistance was proactively offered?
+                                </p>
+                                <p className="text-xs text-gray-600 mb-3">
+                                  If field team enrolled patients in copay cards before Aug 1st shock
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Predicted</p>
+                                    <p className="text-sm font-semibold text-gray-900">8 patients recovered</p>
+                                    <p className="text-xs text-gray-600 mt-1">67% recovery potential</p>
+                                  </div>
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Actual</p>
+                                    <p className="text-sm font-semibold text-gray-900">0 patients recovered</p>
+                                    <p className="text-xs text-gray-600 mt-1">No intervention offered</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Counterfactual 3: PA Appeals */}
+                          <div className="bg-white rounded-xl border border-gray-200 p-4">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-semibold text-blue-700">3</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900 mb-1">
+                                  What if PA denials were systematically appealed?
+                                </p>
+                                <p className="text-xs text-gray-600 mb-3">
+                                  If MSL team provided clinical evidence for step-edit exceptions
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Predicted</p>
+                                    <p className="text-sm font-semibold text-gray-900">3 patients approved</p>
+                                    <p className="text-xs text-gray-600 mt-1">~40% appeal success rate</p>
+                                  </div>
+                                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                    <p className="text-xs font-medium text-gray-500 mb-1">Actual</p>
+                                    <p className="text-sm font-semibold text-gray-900">0 appeals filed</p>
+                                    <p className="text-xs text-gray-600 mt-1">No appeal process initiated</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Counterfactual Impact Summary */}
+                        <div className="mt-5 pt-4 border-t border-gray-200">
+                          <p className="text-xs text-gray-600">
+                            <span className="font-semibold text-gray-900">Combined Intervention Potential:</span> If all three interventions had been deployed, up to 11 of 12 patients (92%) could have been retained vs actual 3 patients (25%).
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Evidence Review */}
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 mb-6">
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">Evidence Gathered Across Signals</h4>
