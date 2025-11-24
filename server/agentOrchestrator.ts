@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import type { Hcp, PrescriptionHistory, SwitchingEvent } from "@shared/schema";
 import { EventEmitter } from "events";
 import { z } from "zod";
+import { generateCallScript, generateEmailDraft, generateMeetingAgenda, type AIGeneratedNBA } from "./aiService";
 
 // Initialize Azure OpenAI client
 const azureOpenAI = new AzureOpenAI({
@@ -509,6 +510,71 @@ OUTPUT (JSON):
       nbaId: createdNba.id,
       confidence: synthesis.confidenceScore,
     });
+    
+    // Generate artifact based on action type
+    await this.logThought("synthesizer", "observation", `Generating ready-to-use ${synthesis.actionType} artifact...`);
+    
+    const nbaForArtifact: AIGeneratedNBA = {
+      action: synthesis.action,
+      actionType: synthesis.actionType,
+      priority: synthesis.priority,
+      reason: synthesis.reason,
+      aiInsight: synthesis.aiInsight,
+      expectedOutcome: synthesis.expectedOutcome,
+      timeframe: synthesis.timeframe,
+    };
+    
+    const contextSummary = `Risk Score: ${hcp.switchRiskScore}/100. ${evidence.keyFindings.join('. ')}`;
+    
+    try {
+      if (synthesis.actionType === "call") {
+        const callScript = await generateCallScript(hcp, nbaForArtifact, contextSummary);
+        await storage.createGeneratedArtifact({
+          hcpId: hcpId,
+          nbaId: createdNba.id,
+          artifactType: "call_script",
+          actionType: synthesis.actionType,
+          title: `Call Script: ${synthesis.action}`,
+          content: callScript,
+          context: contextSummary,
+        });
+        await this.logAction("synthesizer", "generate_artifact", "Generated call script artifact", {
+          artifactType: "call_script",
+        });
+      } else if (synthesis.actionType === "email") {
+        const emailDraft = await generateEmailDraft(hcp, nbaForArtifact, contextSummary);
+        await storage.createGeneratedArtifact({
+          hcpId: hcpId,
+          nbaId: createdNba.id,
+          artifactType: "email_draft",
+          actionType: synthesis.actionType,
+          title: `Email Draft: ${synthesis.action}`,
+          content: emailDraft,
+          context: contextSummary,
+        });
+        await this.logAction("synthesizer", "generate_artifact", "Generated email draft artifact", {
+          artifactType: "email_draft",
+        });
+      } else if (synthesis.actionType === "meeting" || synthesis.actionType === "event") {
+        const meetingAgenda = await generateMeetingAgenda(hcp, nbaForArtifact, contextSummary);
+        await storage.createGeneratedArtifact({
+          hcpId: hcpId,
+          nbaId: createdNba.id,
+          artifactType: "meeting_agenda",
+          actionType: synthesis.actionType,
+          title: `Meeting Agenda: ${synthesis.action}`,
+          content: meetingAgenda,
+          context: contextSummary,
+        });
+        await this.logAction("synthesizer", "generate_artifact", "Generated meeting agenda artifact", {
+          artifactType: "meeting_agenda",
+        });
+      }
+    } catch (artifactError) {
+      console.error("Failed to generate artifact, continuing without it:", artifactError);
+      // Don't fail the entire NBA generation if artifact creation fails
+      await this.logThought("synthesizer", "reasoning", "Failed to generate artifact, but NBA was created successfully");
+    }
     
     // Return with correct field names
     return { 

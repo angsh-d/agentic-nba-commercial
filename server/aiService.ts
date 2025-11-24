@@ -469,3 +469,220 @@ function generateFallbackNBA(hcp: Hcp, switchingEvent?: SwitchingEvent): AIGener
     timeframe: "Next 7 days",
   };
 }
+
+/**
+ * Generate a call script artifact based on NBA context
+ */
+export async function generateCallScript(
+  hcp: Hcp,
+  nba: AIGeneratedNBA,
+  context: string
+): Promise<import("@shared/schema").CallScriptContent> {
+  const systemPrompt = `You are an expert pharmaceutical sales trainer. Generate practical, professional call scripts for field representatives. Focus on consultative selling, active listening, and addressing HCP needs with data-driven insights.`;
+
+  const userPrompt = `Generate a call script for this scenario:
+
+**HCP:** ${hcp.name}, ${hcp.specialty} at ${hcp.hospital}
+**Recommended Action:** ${nba.action}
+**Context:** ${context}
+**AI Insight:** ${nba.aiInsight}
+
+Create a professional call script with:
+1. Opening (warm greeting + purpose)
+2. 3-5 key talking points
+3. 2-3 common objections with responses
+4. Closing statement
+5. Follow-up action
+
+Return ONLY valid JSON with this structure:
+{
+  "type": "call_script",
+  "opening": "Brief opening statement",
+  "keyPoints": ["Point 1", "Point 2", "Point 3"],
+  "objectionHandling": [{"objection": "...", "response": "..."}],
+  "closingStatement": "Brief closing",
+  "followUpAction": "Next step"
+}`;
+
+  try {
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 1,
+      max_completion_tokens: 6000,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    return JSON.parse(content);
+  } catch (error) {
+    console.error("Call script generation error:", error);
+    // Return fallback
+    return {
+      type: "call_script",
+      opening: `Hello Dr. ${hcp.name}, this is [Your Name] from [Company]. I wanted to follow up on ${nba.action.toLowerCase()}.`,
+      keyPoints: [
+        `Discuss recent clinical data supporting product efficacy`,
+        `Address any concerns about ${context}`,
+        `Explore current treatment patterns and patient outcomes`,
+      ],
+      objectionHandling: [
+        { objection: "I'm satisfied with current therapies", response: "I understand. Can we discuss any specific patient cases where outcomes could be improved?" },
+      ],
+      closingStatement: `Thank you for your time, Dr. ${hcp.name}. I'll follow up with the materials we discussed.`,
+      followUpAction: "Send follow-up email with clinical data within 24 hours",
+    };
+  }
+}
+
+/**
+ * Generate an email draft artifact based on NBA context
+ */
+export async function generateEmailDraft(
+  hcp: Hcp,
+  nba: AIGeneratedNBA,
+  context: string
+): Promise<import("@shared/schema").EmailDraftContent> {
+  const systemPrompt = `You are an expert pharmaceutical communications specialist. Generate professional, concise emails for field representatives to send to HCPs. Keep tone professional yet warm, focus on value and data, respect the HCP's time.`;
+
+  const userPrompt = `Generate an email draft for this scenario:
+
+**HCP:** ${hcp.name}, ${hcp.specialty} at ${hcp.hospital}
+**Recommended Action:** ${nba.action}
+**Context:** ${context}
+**AI Insight:** ${nba.aiInsight}
+
+Create a professional email with:
+1. Compelling subject line
+2. Warm greeting
+3. 2-3 short body paragraphs (value-focused)
+4. Professional closing
+5. Signature placeholder
+6. Optional attachment suggestions
+
+Return ONLY valid JSON with this structure:
+{
+  "type": "email_draft",
+  "subject": "Subject line",
+  "greeting": "Greeting",
+  "body": ["Paragraph 1", "Paragraph 2"],
+  "closing": "Closing statement",
+  "signature": "Signature placeholder",
+  "attachmentSuggestions": ["Optional attachment 1"]
+}`;
+
+  try {
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 1,
+      max_completion_tokens: 6000,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    return JSON.parse(content);
+  } catch (error) {
+    console.error("Email draft generation error:", error);
+    // Return fallback
+    return {
+      type: "email_draft",
+      subject: `${nba.action} - Onco-Pro Update`,
+      greeting: `Dear Dr. ${hcp.name},`,
+      body: [
+        `I hope this message finds you well. I wanted to reach out regarding ${nba.action.toLowerCase()}.`,
+        `${nba.aiInsight}`,
+      ],
+      closing: "I'd be happy to discuss this further at your convenience. Please let me know a good time to connect.",
+      signature: "Best regards,\n[Your Name]\n[Title]\n[Contact Information]",
+      attachmentSuggestions: ["Latest clinical trial data", "Product monograph"],
+    };
+  }
+}
+
+/**
+ * Generate a meeting agenda artifact based on NBA context
+ */
+export async function generateMeetingAgenda(
+  hcp: Hcp,
+  nba: AIGeneratedNBA,
+  context: string
+): Promise<import("@shared/schema").MeetingAgendaContent> {
+  const systemPrompt = `You are an expert pharmaceutical sales strategist. Generate professional, structured meeting agendas for field representatives. Focus on clear objectives, time management, and measurable outcomes.`;
+
+  const userPrompt = `Generate a meeting agenda for this scenario:
+
+**HCP:** ${hcp.name}, ${hcp.specialty} at ${hcp.hospital}
+**Recommended Action:** ${nba.action}
+**Context:** ${context}
+**AI Insight:** ${nba.aiInsight}
+
+Create a professional meeting agenda with:
+1. Clear objective
+2. Suggested duration
+3. 3-5 timed agenda items
+4. 3-4 key messages to convey
+5. Materials needed
+6. Desired outcome
+
+Return ONLY valid JSON with this structure:
+{
+  "type": "meeting_agenda",
+  "objective": "Clear objective",
+  "duration": "Duration estimate",
+  "agenda": [{"time": "0-5 min", "topic": "Topic", "details": "Details"}],
+  "keyMessages": ["Message 1", "Message 2"],
+  "materialsNeeded": ["Material 1"],
+  "desiredOutcome": "Desired outcome"
+}`;
+
+  try {
+    const response = await azureOpenAI.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      temperature: 1,
+      max_completion_tokens: 6000,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error("No response from AI");
+    
+    return JSON.parse(content);
+  } catch (error) {
+    console.error("Meeting agenda generation error:", error);
+    // Return fallback
+    return {
+      type: "meeting_agenda",
+      objective: `${nba.action} to address ${context}`,
+      duration: "30-45 minutes",
+      agenda: [
+        { time: "0-5 min", topic: "Introduction & Relationship Building", details: "Warm greeting, check-in on recent cases" },
+        { time: "5-20 min", topic: "Core Discussion", details: `${nba.aiInsight}` },
+        { time: "20-35 min", topic: "Clinical Data Review", details: "Present relevant efficacy and safety data" },
+        { time: "35-40 min", topic: "Q&A and Objection Handling", details: "Address concerns and questions" },
+        { time: "40-45 min", topic: "Next Steps & Closing", details: "Agree on follow-up actions" },
+      ],
+      keyMessages: [
+        "Our product offers differentiated clinical benefits",
+        "Strong safety profile in target population",
+        "Comprehensive patient support programs available",
+      ],
+      materialsNeeded: ["Clinical data slides", "Product monograph", "Patient case studies", "Samples (if applicable)"],
+      desiredOutcome: `Increase HCP confidence in product and commit to ${nba.expectedOutcome.toLowerCase()}`,
+    };
+  }
+}
