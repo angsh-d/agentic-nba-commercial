@@ -687,8 +687,8 @@ export default function HCPDetail() {
                             <div className="flex-1"></div>
                             <div className="flex-1 flex justify-center">
                               <div className="relative">
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-gray-400"></div>
-                                <div className="bg-gray-700 text-white text-xs px-4 py-2 rounded-full font-medium shadow-md whitespace-nowrap">
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-red-400"></div>
+                                <div className="bg-red-700 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg whitespace-nowrap">
                                   Aug 1: Tier 3 + Step-Edits + $450 Copay
                                 </div>
                               </div>
