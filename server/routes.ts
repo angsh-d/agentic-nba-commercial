@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertHcpSchema, insertNbaSchema, insertTerritoryPlanSchema, insertSwitchingAnalyticsSchema, insertPrescriptionHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
-import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis } from "./aiService";
+import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis, generateNBAWithProvenance } from "./aiService";
 import { agentOrchestrator, detectSignalsForHcp, discoverCorrelations, generateRiskInsight } from "./agentOrchestrator";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -242,6 +242,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Counterfactual analysis error:", error);
       res.status(500).json({ error: "Failed to generate counterfactual analysis" });
+    }
+  });
+
+  // NBA Provenance (shows RL, Rules, LLM contributions)
+  app.get("/api/hcps/:id/nba-provenance", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Fetch HCP data
+      const hcp = await storage.getHcp(id);
+      if (!hcp) {
+        return res.status(404).json({ error: "HCP not found" });
+      }
+      
+      const prescriptionHistory = await storage.getPrescriptionHistory(id);
+      const switchingEvents = await storage.getSwitchingEventsByStatus("active");
+      const switchingEvent = switchingEvents.find(e => e.hcp.id === id)?.switchingEvent;
+      
+      // Generate NBA with provenance
+      const provenance = await generateNBAWithProvenance(hcp, prescriptionHistory, switchingEvent);
+      
+      res.json(provenance);
+    } catch (error) {
+      console.error("NBA provenance error:", error);
+      res.status(500).json({ error: "Failed to generate NBA provenance" });
     }
   });
 

@@ -1,6 +1,12 @@
 import { AzureOpenAI } from "openai";
 import "@azure/openai/types";
 import type { Hcp, PrescriptionHistory, SwitchingEvent } from "@shared/schema";
+import { 
+  simulateRLEngine, 
+  simulateRulesEngine, 
+  simulateLLMContextualization,
+  type NBAProvenance 
+} from "./simulatedEngines";
 
 // Initialize Azure OpenAI client
 const azureOpenAI = new AzureOpenAI({
@@ -105,6 +111,57 @@ Generate the single most impactful Next Best Action. Return ONLY valid JSON with
     // Fallback to rule-based generation
     return generateFallbackNBA(hcp, switchingEvent);
   }
+}
+
+/**
+ * Generate NBA with provenance showing RL, Rules, and LLM contributions
+ * This is a DEMO version using simulated engines
+ */
+export async function generateNBAWithProvenance(
+  hcp: Hcp,
+  prescriptionHistory: PrescriptionHistory[],
+  switchingEvent?: SwitchingEvent
+): Promise<NBAProvenance> {
+  // Step 1: Get RL Engine recommendations
+  const rlOutput = simulateRLEngine(hcp, prescriptionHistory, switchingEvent);
+  
+  // Step 2: Get Rules Engine decisions
+  const rulesOutput = simulateRulesEngine(hcp, prescriptionHistory, switchingEvent);
+  
+  // Step 3: Get LLM contextualization
+  const llmOutput = simulateLLMContextualization(hcp, rlOutput, rulesOutput);
+  
+  // Step 4: Synthesize final NBA
+  // Priority: Rules > RL > LLM defaults
+  let finalAction = rlOutput.topActions[0];
+  let priority: "High" | "Medium" | "Low" = "Medium";
+  
+  // Rules can override priority
+  if (rulesOutput.triggeredRules.length > 0) {
+    const highPriorityRule = rulesOutput.triggeredRules.find(r => r.priority === "High");
+    if (highPriorityRule) {
+      priority = "High";
+      // If rules suggest a specific action, use it
+      if (highPriorityRule.action.toLowerCase().includes("meeting")) {
+        finalAction = rlOutput.topActions.find(a => a.actionType === "meeting") || finalAction;
+      }
+    }
+  }
+  
+  const synthesisRationale = `Combined RL policy recommendation (Q=${finalAction.qValue}, confidence=${finalAction.confidence}) with ${rulesOutput.triggeredRules.length} triggered business rules${rulesOutput.escalations.length > 0 ? ` and ${rulesOutput.escalations.length} escalation(s)` : ''}. ${llmOutput.narrative}`;
+  
+  return {
+    rlContribution: rlOutput,
+    rulesContribution: rulesOutput,
+    llmContribution: llmOutput,
+    finalSynthesis: {
+      action: finalAction.action,
+      actionType: finalAction.actionType,
+      priority,
+      reason: finalAction.reasoning,
+      synthesisRationale
+    }
+  };
 }
 
 /**
