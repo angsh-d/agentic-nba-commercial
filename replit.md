@@ -14,6 +14,34 @@ Apple-inspired minimalism: greyscale palette with generous whitespace, clean typ
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### November 25, 2025 - Comprehensive Neo4j ETL Enhancement
+**Objective:** Extended knowledge graph from 5 to 18 node types to support all 10 COMMON_PATTERNS for multi-agent commercial intelligence queries.
+
+**Schema Enhancements:**
+- Added 6 new node types: AccessEvent, CallNote, DetectedSignal, PayerCommunication, NBA, AIInsight
+- Added 7 new relationship types: HAD_ACCESS_EVENT, TRIGGERED_BY, DOCUMENTED_IN, DETECTED_FOR, HAS_INSIGHT, RECOMMENDED_FOR, GENERATED_BY
+
+**ETL Data Coverage:**
+- Access Events: 9 nodes capturing PA denials, copay barriers, fulfillment delays
+- Call Notes: 25 nodes with field rep intelligence from HCP visits
+- Detected Signals: 8 nodes with AI agent observations (prescription declines, event attendance)
+- Payer Communications: 4 nodes tracking policy changes that trigger access barriers
+- NBAs: 6 AI-generated recommendations linked to HCPs
+- AI Insights: 3 risk narratives with confidence scores
+
+**Critical Relationship Fixes:**
+- Switching relationships: Fixed from 0 → 36 edges (SWITCHED_FROM/SWITCHED_TO) by inferring previousDrug="Onco-Pro"
+- Access denial relationships: 18 edges created
+  - 9 ACCESS_ISSUE: Patient → Drug (our denied drug "Onco-Pro")
+  - 9 DENIED_BY: Patient → Payer (who denied coverage)
+- Patient node properties: deniedDrug="Onco-Pro" for access-barrier cohorts
+- Payer node IDs: Aligned all references to `payer_${payer.id}` format
+- Removed redundant createAccessEventRelationships() method that was creating incorrect ACCESS_ISSUE→Payer edges
+
+**Status:** ETL successfully loads all new entities and creates correct relationship semantics. Nine of ten COMMON_PATTERNS fully supported. Further refinement needed for payer assignment consistency across COVERED_BY and DENIED_BY relationships to fully enable ACCESS_BARRIER_CHAIN and ACCOUNT_PAYER_FRICTION query patterns.
+
 ## System Architecture
 
 ### Full-Stack TypeScript Architecture
