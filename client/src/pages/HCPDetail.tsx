@@ -1973,10 +1973,35 @@ export default function HCPDetail() {
                             setCounterfactualLoading(true);
                             setCounterfactualResponse(null);
                             try {
+                              // Get proven and rejected hypotheses from investigation
+                              const hypotheses = getHypothesesForHcp(hcpId);
+                              const provenHypotheses = hypotheses
+                                .filter(h => h.status === "proven")
+                                .map(h => ({
+                                  id: h.id,
+                                  text: h.text,
+                                  confidence: h.confidence,
+                                  evidence: h.evidence,
+                                }));
+                              const rejectedHypotheses = hypotheses
+                                .filter(h => h.status === "rejected")
+                                .map(h => ({
+                                  id: h.id,
+                                  text: h.text,
+                                  confidence: h.confidence,
+                                  evidence: h.evidence,
+                                }));
+                              
                               const response = await fetch(`/api/hcps/${hcpId}/counterfactual`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ question: stage2Input })
+                                body: JSON.stringify({ 
+                                  question: stage2Input,
+                                  investigationResults: {
+                                    provenHypotheses,
+                                    rejectedHypotheses,
+                                  }
+                                })
                               });
                               const data = await response.json();
                               setCounterfactualResponse(data.answer);
