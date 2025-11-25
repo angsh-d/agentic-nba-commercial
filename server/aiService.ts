@@ -363,31 +363,76 @@ export async function generateCounterfactualAnalysis(
     payerCommunications?: any[];
     patients?: any[];
     clinicalEvents?: any[];
+    investigationResults?: {
+      provenHypotheses?: Array<{
+        id: string;
+        text: string;
+        confidence: number;
+        evidence: string[];
+      }>;
+      rejectedHypotheses?: Array<{
+        id: string;
+        text: string;
+        confidence: number;
+        evidence: string[];
+      }>;
+    };
   }
 ): Promise<string> {
   const isWhyQuestion = question.toLowerCase().trim().startsWith("why");
   
   const systemPrompt = isWhyQuestion 
-    ? `You are an elite pharmaceutical commercial AI agent specializing in root cause analysis for oncology HCPs. Your role is to answer "Why?" questions by analyzing causal factors, business dynamics, and healthcare market forces that drive HCP prescribing behavior.
+    ? `You are an elite pharmaceutical commercial AI agent specializing in root cause analysis for oncology HCPs. Your role is to answer "Why?" questions by analyzing causal factors that were ALREADY DISCOVERED in the investigation.
+
+CRITICAL RULES:
+- ONLY cite evidence from the "Investigation Results" section below - these are proven findings
+- NEVER fabricate dates, events, publications, or details not explicitly provided
+- If investigation results are provided, use ONLY those findings
+- Be concise and to-the-point (2-3 SHORT paragraphs maximum)
+- Reference specific proven hypotheses and their confidence levels
+- If information isn't in the investigation results, say "The investigation did not examine this factor"
 
 Key Principles:
-- Provide crisp, data-driven causal explanations
-- Reference specific evidence from the HCP data and timeline
-- Consider multiple causal factors (payer policies, market dynamics, clinical evidence, competitive actions)
-- Be concise and to-the-point (2-3 SHORT paragraphs maximum)
+- Provide crisp, data-driven causal explanations based on documented evidence
+- Reference specific evidence from the proven hypotheses
 - Focus on actionable insights that explain the underlying mechanisms
 - Avoid verbose language - get straight to the point`
-    : `You are an elite pharmaceutical commercial AI agent specializing in counterfactual analysis for oncology HCPs. Your role is to answer "What if?" questions by analyzing alternative scenarios and their predicted outcomes compared to actual results.
+    : `You are an elite pharmaceutical commercial AI agent specializing in counterfactual analysis for oncology HCPs. Your role is to answer "What if?" questions using ONLY the evidence already gathered in the investigation.
+
+CRITICAL RULES:
+- ONLY use proven hypotheses and documented evidence from "Investigation Results" section
+- NEVER fabricate scenarios, dates, or outcomes not explicitly supported by the evidence
+- If investigation results are provided, ground all predictions in those findings
+- Be concise and to-the-point (2-3 SHORT paragraphs maximum)
+- If the counterfactual scenario wasn't tested in the investigation, clearly state limitations
 
 Key Principles:
-- Provide crisp, data-driven counterfactual analysis
-- Compare predicted vs actual outcomes with specific numbers when possible
-- Reference specific evidence from the HCP data provided
-- Be concise and to-the-point (2-3 SHORT paragraphs maximum)
+- Provide crisp, data-driven counterfactual analysis based on documented evidence
+- Compare predicted vs actual outcomes with specific numbers from investigation
+- Reference specific evidence from the proven hypotheses
 - Focus on actionable insights and intervention potential
 - Avoid verbose language - get straight to the point`;
 
-  // Build dynamic context from database
+  // Build investigation results context (PRIMARY SOURCE OF TRUTH)
+  const investigationContext = hcpData?.investigationResults ? `
+**INVESTIGATION RESULTS (PRIMARY SOURCE - USE THESE FINDINGS ONLY):**
+
+${hcpData.investigationResults.provenHypotheses && hcpData.investigationResults.provenHypotheses.length > 0 ? `
+**Proven Hypotheses (Validated Root Causes):**
+${hcpData.investigationResults.provenHypotheses.map(h => `
+- ${h.text} (${h.confidence}% confidence)
+  Evidence:
+${h.evidence.map(e => `  * ${e}`).join("\n")}
+`).join("\n")}
+` : ""}
+
+${hcpData.investigationResults.rejectedHypotheses && hcpData.investigationResults.rejectedHypotheses.length > 0 ? `
+**Rejected Hypotheses (Ruled Out):**
+${hcpData.investigationResults.rejectedHypotheses.map(h => `- ${h.text} (${h.confidence}% confidence - insufficient evidence)`).join("\n")}
+` : ""}
+` : "";
+
+  // Build dynamic context from database (SUPPLEMENTARY DATA)
   const hcpContext = `**HCP Context:**
 ${hcpData?.hcp ? `
 - HCP: ${hcpData.hcp.name}
@@ -430,30 +475,51 @@ ${hcpData?.switchingEvent ? `
 ` : ""}`;
 
   const userPrompt = isWhyQuestion 
-    ? `Answer this causal "Why?" question based on the HCP data:
+    ? `Answer this causal "Why?" question based STRICTLY on the investigation results:
 
 **Question:** ${question}
 
+${investigationContext}
+
 ${hcpContext}
 
+${investigationContext ? `
+REMEMBER: The investigation results above are the ONLY validated findings. Use them as your primary source. Do NOT make up additional explanations, dates, or events not documented in the proven hypotheses.
+
+Provide a concise causal explanation that:
+1. Cites ONLY the proven hypotheses and their documented evidence
+2. References the specific confidence levels from the investigation
+3. Explains why rejected hypotheses were ruled out (if relevant to the question)
+4. Stays grounded in the documented timeline and evidence
+` : `
 Provide a comprehensive causal explanation that:
-1. Identifies the primary driving forces (payer business decisions, market dynamics, competitive pressures)
-2. Explains the timing and coordination based on the evidence
-3. Analyzes the business rationale from the payer's perspective
-4. Connects to broader healthcare market trends (cost containment, value-based care, competitor rebate strategies)
-5. References specific evidence from the call notes, payer communications, prescription data, and clinical events provided`
-    : `Answer this counterfactual question based on the HCP data:
+1. Identifies the primary driving forces based on available evidence
+2. Explains the timing and coordination based on the data
+3. References specific evidence from the call notes, payer communications, and prescription data
+`}`
+    : `Answer this counterfactual question based STRICTLY on the investigation results:
 
 **Question:** ${question}
 
+${investigationContext}
+
 ${hcpContext}
 
+${investigationContext ? `
+REMEMBER: The investigation results above are the ONLY validated findings. Ground all predictions in these proven hypotheses. Do NOT fabricate alternative scenarios not supported by the documented evidence.
+
+Provide a concise counterfactual analysis that:
+1. Uses ONLY the proven hypotheses to predict the alternative outcome
+2. References specific patient numbers and evidence from the investigation
+3. Compares to actual outcomes documented in the proven findings
+4. Clearly states if the counterfactual scenario wasn't explicitly tested in the investigation
+` : `
 Provide a comprehensive counterfactual analysis that:
 1. States the hypothetical scenario clearly
-2. Predicts what would have happened (with specific patient/prescription numbers if possible)
-3. Compares to actual outcomes
-4. Explains the key differences and intervention potential
-5. Quantifies the impact when possible (e.g., "8 of 12 patients retained vs actual 3")`;
+2. Predicts outcomes based on available evidence
+3. Compares to actual outcomes when possible
+4. Quantifies impact when data supports it
+`}`;
 
   try {
     const response = await azureOpenAI.chat.completions.create({
