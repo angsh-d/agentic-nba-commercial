@@ -578,15 +578,15 @@ export default function HCPDetail() {
                     <div className="flex items-center gap-3">
                       <span className="text-xs uppercase tracking-wider text-gray-400 font-medium">Scanning</span>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>Prescription Data</span>
+                        <span>Prescription Data <span className="text-gray-400 text-xs">(IQVIA)</span></span>
                         <span className="text-gray-300">•</span>
-                        <span>Clinical Events</span>
+                        <span>Clinical Events <span className="text-gray-400 text-xs">(ASCO, ASH)</span></span>
                         <span className="text-gray-300">•</span>
-                        <span>Payer Communications</span>
+                        <span>Payer Comms <span className="text-gray-400 text-xs">(UHC, CVS)</span></span>
                         <span className="text-gray-300">•</span>
-                        <span>Call Notes</span>
+                        <span>Call Notes <span className="text-gray-400 text-xs">(Veeva CRM)</span></span>
                         <span className="text-gray-300">•</span>
-                        <span>Patient Cohorts</span>
+                        <span>Patient Cohorts <span className="text-gray-400 text-xs">(Claims)</span></span>
                       </div>
                     </div>
                   </div>
