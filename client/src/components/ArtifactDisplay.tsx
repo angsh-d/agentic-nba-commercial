@@ -92,15 +92,13 @@ ${content.followUpAction}
         </div>
 
         <Button
-          variant="outline"
-          size="sm"
           onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200"
           data-testid={`button-copy-${artifactId}`}
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-gray-600" />
+              <Check className="w-4 h-4 mr-2" />
               Copied!
             </>
           ) : (
@@ -165,15 +163,13 @@ ${content.attachmentSuggestions && content.attachmentSuggestions.length > 0 ? `\
         )}
 
         <Button
-          variant="outline"
-          size="sm"
           onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200"
           data-testid={`button-copy-${artifactId}`}
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-gray-600" />
+              <Check className="w-4 h-4 mr-2" />
               Copied!
             </>
           ) : (
@@ -266,15 +262,13 @@ ${content.desiredOutcome}
         </div>
 
         <Button
-          variant="outline"
-          size="sm"
           onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200"
           data-testid={`button-copy-${artifactId}`}
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-gray-600" />
+              <Check className="w-4 h-4 mr-2" />
               Copied!
             </>
           ) : (
