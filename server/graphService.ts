@@ -26,6 +26,15 @@ class GraphService {
         );
         this.useInMemory = false;
         console.log('[GraphService] Connected to graph database at', graphDbUrl);
+        
+        // Verify connectivity asynchronously (don't block constructor)
+        this.verifyConnection().catch(error => {
+          console.warn('[GraphService] Connection verification failed, falling back to in-memory mode', error);
+          this.driver?.close();
+          this.driver = null;
+          this.inMemoryGraph = new Graph();
+          this.useInMemory = true;
+        });
       } catch (error) {
         console.warn('[GraphService] Failed to connect to graph database, using in-memory mode', error);
         this.inMemoryGraph = new Graph();
@@ -35,6 +44,21 @@ class GraphService {
       console.log('[GraphService] No graph database configured, using in-memory mode');
       this.inMemoryGraph = new Graph();
       this.useInMemory = true;
+    }
+  }
+
+  /**
+   * Verify Neo4j connection on startup
+   */
+  private async verifyConnection(): Promise<void> {
+    if (!this.driver) return;
+    
+    try {
+      await this.driver.verifyConnectivity();
+      console.log('[GraphService] Neo4j connection verified successfully');
+    } catch (error) {
+      console.error('[GraphService] Neo4j connection verification failed:', error);
+      throw error;
     }
   }
 
@@ -438,13 +462,15 @@ class GraphService {
     } else {
       const session = this.driver!.session();
       try {
-        console.log('[GraphService] Querying Neo4j for full graph, limit:', limit);
-        // Use inline limit to avoid float conversion issues
+        // Sanitize and cap limit to prevent injection and unbounded queries
+        const safeLimit = Math.max(1, Math.min(500, Math.floor(Number(limit)) || 200));
+        console.log('[GraphService] Querying Neo4j for full graph, limit:', safeLimit);
+        
         const result = await session.run(
           `MATCH (n)
            OPTIONAL MATCH (n)-[r]->(m)
-           RETURN n, r, m
-           LIMIT ${Math.floor(limit)}`
+           RETURN n, labels(n) as nLabels, r, m, labels(m) as mLabels
+           LIMIT ${safeLimit}`
         );
 
         console.log('[GraphService] Neo4j returned', result.records.length, 'records');
@@ -454,17 +480,23 @@ class GraphService {
 
         result.records.forEach(record => {
           const node = record.get('n');
+          const nLabels = record.get('nLabels');
           if (node && !nodesMap.has(node.identity.toString())) {
             nodesMap.set(node.identity.toString(), {
               id: node.identity.toString(),
+              type: nLabels && nLabels.length > 0 ? nLabels[0] : 'Unknown',
+              label: node.properties.name || node.properties.id || node.identity.toString(),
               ...node.properties
             });
           }
 
           const relatedNode = record.get('m');
+          const mLabels = record.get('mLabels');
           if (relatedNode && !nodesMap.has(relatedNode.identity.toString())) {
             nodesMap.set(relatedNode.identity.toString(), {
               id: relatedNode.identity.toString(),
+              type: mLabels && mLabels.length > 0 ? mLabels[0] : 'Unknown',
+              label: relatedNode.properties.name || relatedNode.properties.id || relatedNode.identity.toString(),
               ...relatedNode.properties
             });
           }
