@@ -312,7 +312,7 @@ export default function Home() {
               <span className="text-gray-400">Smarter Territory Intelligence</span>
             </h1>
             <p className="text-xl text-gray-500 mb-16 leading-relaxed font-normal max-w-3xl mx-auto">
-              Augments existing NBA systems. Structured and unstructured data sources. Investigates switching patterns. Reasons through evidence. Generates context-aware actions.
+              Autonomous investigation. Evidence synthesis. Intelligent action. Augments existing NBA engines with agentic reasoning.
             </p>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
