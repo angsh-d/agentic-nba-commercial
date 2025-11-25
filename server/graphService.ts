@@ -39,6 +39,37 @@ class GraphService {
   }
 
   /**
+   * Sanitize properties for Neo4j - convert nested objects to JSON strings
+   */
+  private sanitizePropertiesForNeo4j(properties: Record<string, any>): Record<string, any> {
+    const sanitized: Record<string, any> = {};
+    
+    for (const [key, value] of Object.entries(properties)) {
+      if (value === null || value === undefined) {
+        continue; // Skip null/undefined
+      } else if (value instanceof Date) {
+        // Convert Date objects to ISO strings for Neo4j
+        sanitized[key] = value.toISOString();
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        // Convert nested objects to JSON strings
+        sanitized[key] = JSON.stringify(value);
+      } else if (Array.isArray(value)) {
+        // Check if array contains primitives only
+        const isPrimitive = value.every(item => 
+          typeof item === 'string' || 
+          typeof item === 'number' || 
+          typeof item === 'boolean'
+        );
+        sanitized[key] = isPrimitive ? value : JSON.stringify(value);
+      } else {
+        sanitized[key] = value;
+      }
+    }
+    
+    return sanitized;
+  }
+
+  /**
    * Add a node to the knowledge graph
    */
   async addNode(id: string, type: string, properties: Record<string, any>): Promise<void> {
@@ -51,11 +82,21 @@ class GraphService {
     } else {
       const session = this.driver!.session();
       try {
-        await session.run(
-          `MERGE (n:${type} {id: $id}) 
-           SET n += $properties`,
-          { id, properties }
-        );
+        const sanitizedProps = this.sanitizePropertiesForNeo4j(properties);
+        
+        // Exclude 'id' from SET clause since it's already in MERGE
+        const { id: _, ...propsWithoutId } = sanitizedProps;
+        
+        // Build SET clause dynamically for each property (excluding id)
+        const setClause = Object.keys(propsWithoutId).length > 0
+          ? 'SET ' + Object.keys(propsWithoutId).map(key => `n.${key} = $${key}`).join(', ')
+          : '';
+        
+        const query = `MERGE (n:${type} {id: $id}) ${setClause}`;
+        const params = { id, ...propsWithoutId };
+        
+        // Flatten properties directly into params to avoid nested objects
+        await session.run(query, params);
       } finally {
         await session.close();
       }
@@ -78,12 +119,18 @@ class GraphService {
     } else {
       const session = this.driver!.session();
       try {
-        await session.run(
-          `MATCH (from {id: $fromId}), (to {id: $toId})
-           MERGE (from)-[r:${type}]->(to)
-           SET r += $properties`,
-          { fromId, toId, properties: properties || {} }
-        );
+        const sanitizedProps = properties ? this.sanitizePropertiesForNeo4j(properties) : {};
+        
+        // Build SET clause dynamically for each property
+        const setClause = Object.keys(sanitizedProps).length > 0
+          ? 'SET ' + Object.keys(sanitizedProps).map(key => `r.${key} = $${key}`).join(', ')
+          : '';
+        
+        const query = `MATCH (from {id: $fromId}), (to {id: $toId})
+                       MERGE (from)-[r:${type}]->(to)
+                       ${setClause}`;
+        // Flatten properties directly into params to avoid nested objects
+        await session.run(query, { fromId, toId, ...sanitizedProps });
       } finally {
         await session.close();
       }
@@ -391,14 +438,17 @@ class GraphService {
     } else {
       const session = this.driver!.session();
       try {
+        console.log('[GraphService] Querying Neo4j for full graph, limit:', limit);
+        // Use inline limit to avoid float conversion issues
         const result = await session.run(
           `MATCH (n)
            OPTIONAL MATCH (n)-[r]->(m)
            RETURN n, r, m
-           LIMIT $limit`,
-          { limit }
+           LIMIT ${Math.floor(limit)}`
         );
 
+        console.log('[GraphService] Neo4j returned', result.records.length, 'records');
+        
         const nodesMap = new Map();
         const edges: any[] = [];
 
