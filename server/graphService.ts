@@ -383,6 +383,95 @@ class GraphService {
   }
 
   /**
+   * Get the full knowledge graph (all nodes and relationships)
+   */
+  async getFullGraph(limit: number = 200): Promise<{ nodes: any[]; edges: any[] }> {
+    if (this.useInMemory) {
+      return this.getFullGraphInMemory(limit);
+    } else {
+      const session = this.driver!.session();
+      try {
+        const result = await session.run(
+          `MATCH (n)
+           OPTIONAL MATCH (n)-[r]->(m)
+           RETURN n, r, m
+           LIMIT $limit`,
+          { limit }
+        );
+
+        const nodesMap = new Map();
+        const edges: any[] = [];
+
+        result.records.forEach(record => {
+          const node = record.get('n');
+          if (node && !nodesMap.has(node.identity.toString())) {
+            nodesMap.set(node.identity.toString(), {
+              id: node.identity.toString(),
+              ...node.properties
+            });
+          }
+
+          const relatedNode = record.get('m');
+          if (relatedNode && !nodesMap.has(relatedNode.identity.toString())) {
+            nodesMap.set(relatedNode.identity.toString(), {
+              id: relatedNode.identity.toString(),
+              ...relatedNode.properties
+            });
+          }
+
+          const rel = record.get('r');
+          if (rel) {
+            edges.push({
+              source: node.identity.toString(),
+              target: relatedNode.identity.toString(),
+              type: rel.type,
+              ...rel.properties
+            });
+          }
+        });
+
+        return {
+          nodes: Array.from(nodesMap.values()),
+          edges
+        };
+      } finally {
+        await session.close();
+      }
+    }
+  }
+
+  private getFullGraphInMemory(limit: number = 200): { nodes: any[]; edges: any[] } {
+    if (!this.inMemoryGraph) {
+      return { nodes: [], edges: [] };
+    }
+
+    const nodes: any[] = [];
+    const edges: any[] = [];
+    let nodeCount = 0;
+
+    // Get all nodes
+    this.inMemoryGraph.forEachNode((nodeId, attributes) => {
+      if (nodeCount >= limit) return;
+      nodes.push({
+        id: nodeId,
+        ...attributes
+      });
+      nodeCount++;
+    });
+
+    // Get all edges
+    this.inMemoryGraph.forEachEdge((edgeId, attributes, source, target) => {
+      edges.push({
+        source,
+        target,
+        ...attributes
+      });
+    });
+
+    return { nodes, edges };
+  }
+
+  /**
    * Clear all data from the graph
    */
   async clearGraph(): Promise<void> {

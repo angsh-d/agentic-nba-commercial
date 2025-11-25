@@ -1107,6 +1107,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get full knowledge graph (all nodes and relationships)
+  app.get("/api/graph/full", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 200;
+      const graph = await graphService.getFullGraph(limit);
+      res.json(graph);
+    } catch (error: any) {
+      console.error('[API] Failed to get full graph:', error);
+      res.status(500).json({ 
+        error: "Failed to retrieve full knowledge graph",
+        details: error.message 
+      });
+    }
+  });
+
   // Get HCP network (all connected entities with edges)
   app.get("/api/graph/hcp/:id/network", async (req, res) => {
     try {
