@@ -279,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/hcps/:id/counterfactual", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { question } = req.body;
+      const { question, investigationResults } = req.body;
 
       if (!question) {
         return res.status(400).json({ error: "Question is required" });
@@ -303,6 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payerCommunications: payerComms,
         patients,
         clinicalEvents,
+        investigationResults,
       });
 
       res.json({ answer });
