@@ -173,21 +173,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const startTime = Date.now();
       
-      // Simulated agent activities for Stage 1: Observe & Correlate (~30 seconds)
+      // Simulated agent activities for Stage 1: Observe & Correlate (~15 seconds)
       const activities = [
         { id: 1, timestamp: startTime, agent: "Signal Detector", activity: "Scanning prescription history database...", status: "in_progress" },
-        { id: 2, timestamp: startTime + 4000, agent: "Signal Detector", activity: "Analyzing 8 months of prescription data...", status: "in_progress" },
-        { id: 3, timestamp: startTime + 7000, agent: "Signal Detector", activity: "Detected 44% Rx volume decline (45→25)", status: "completed" },
-        { id: 4, timestamp: startTime + 8000, agent: "NLP Analyzer", activity: "Processing 15 field call notes...", status: "in_progress" },
-        { id: 5, timestamp: startTime + 12000, agent: "NLP Analyzer", activity: "Running sentiment analysis on HCP feedback...", status: "in_progress" },
-        { id: 6, timestamp: startTime + 15000, agent: "NLP Analyzer", activity: "Extracted sentiment shift: positive→frustrated", status: "completed" },
-        { id: 7, timestamp: startTime + 16000, agent: "Document Parser", activity: "Analyzing payer communications...", status: "in_progress" },
-        { id: 8, timestamp: startTime + 19000, agent: "Document Parser", activity: id === 1 ? "No formulary changes detected" : "Found Tier 3 policy change (Aug 1)", status: "completed" },
-        { id: 9, timestamp: startTime + 20000, agent: "Cohort Tracker", activity: "Mapping patient cohorts and switching patterns...", status: "in_progress" },
-        { id: 10, timestamp: startTime + 24000, agent: "Cohort Tracker", activity: id === 1 ? "Identified 6 switches in 2 cohorts" : "Identified 9 switches across 4 access cohorts", status: "completed" },
-        { id: 11, timestamp: startTime + 25000, agent: "Correlation Engine", activity: "Cross-referencing temporal signals...", status: "in_progress" },
-        { id: 12, timestamp: startTime + 28000, agent: "Correlation Engine", activity: "Building causal hypothesis tree...", status: "in_progress" },
-        { id: 13, timestamp: startTime + 30000, agent: "Correlation Engine", activity: id === 1 ? "Dual causality detected: safety events + ASCO conference" : "Causality: Aug 1 multi-payer policy changes", status: "completed" },
+        { id: 2, timestamp: startTime + 2000, agent: "Signal Detector", activity: "Analyzing 8 months of prescription data...", status: "in_progress" },
+        { id: 3, timestamp: startTime + 3500, agent: "Signal Detector", activity: "Detected 44% Rx volume decline (45→25)", status: "completed" },
+        { id: 4, timestamp: startTime + 4000, agent: "NLP Analyzer", activity: "Processing 15 field call notes...", status: "in_progress" },
+        { id: 5, timestamp: startTime + 6000, agent: "NLP Analyzer", activity: "Running sentiment analysis on HCP feedback...", status: "in_progress" },
+        { id: 6, timestamp: startTime + 7500, agent: "NLP Analyzer", activity: "Extracted sentiment shift: positive→frustrated", status: "completed" },
+        { id: 7, timestamp: startTime + 8000, agent: "Document Parser", activity: "Analyzing payer communications...", status: "in_progress" },
+        { id: 8, timestamp: startTime + 9500, agent: "Document Parser", activity: id === 1 ? "No formulary changes detected" : "Found Tier 3 policy change (Aug 1)", status: "completed" },
+        { id: 9, timestamp: startTime + 10000, agent: "Cohort Tracker", activity: "Mapping patient cohorts and switching patterns...", status: "in_progress" },
+        { id: 10, timestamp: startTime + 12000, agent: "Cohort Tracker", activity: id === 1 ? "Identified 6 switches in 2 cohorts" : "Identified 9 switches across 4 access cohorts", status: "completed" },
+        { id: 11, timestamp: startTime + 12500, agent: "Correlation Engine", activity: "Cross-referencing temporal signals...", status: "in_progress" },
+        { id: 12, timestamp: startTime + 14000, agent: "Correlation Engine", activity: "Building causal hypothesis tree...", status: "in_progress" },
+        { id: 13, timestamp: startTime + 15000, agent: "Correlation Engine", activity: id === 1 ? "Dual causality detected: safety events + ASCO conference" : "Causality: Aug 1 multi-payer policy changes", status: "completed" },
       ];
 
       res.json(activities);

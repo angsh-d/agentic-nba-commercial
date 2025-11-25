@@ -324,7 +324,7 @@ export default function HCPDetail() {
       setStage1Activities(visibleActivities);
 
       // Calculate overall progress (0-100%)
-      const totalDuration = 30000; // 30 seconds
+      const totalDuration = 15000; // 15 seconds
       const progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
       setProcessingProgress(progress);
 
