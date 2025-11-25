@@ -1748,7 +1748,7 @@ Questions: BCBS Provider Services 1-800-BCBS-PROV`,
       expiresAt: new Date("2025-12-31")
     });
 
-    // Update Dr. Chen's risk score manually (switching detection algorithm missed the full 6-month trend)
+    // Update Dr. Chen's risk score manually (switching detection algorithm only looks at recent 2 months, misses 6-month trend)
     await db
       .update(hcps)
       .set({
@@ -1760,11 +1760,34 @@ Questions: BCBS Provider Services 1-800-BCBS-PROV`,
           "Multi-payer formulary deterioration across 3 major payers",
           "Competitor gaining share (+infinite% from 0 baseline)"
         ],
+        riskScoreBreakdown: [
+          {
+            factorKey: "declining_prescriptions",
+            label: "Declining Onco-Pro Prescriptions",
+            points: 40,
+            evidence: "Severe 6-month decline (-44%): 45→25 RX",
+            maxPoints: 40
+          },
+          {
+            factorKey: "rising_competitor",
+            label: "Rising Competitor Prescriptions",
+            points: 35,
+            evidence: "New competitor adoption: 0→15 RX",
+            maxPoints: 35
+          },
+          {
+            factorKey: "market_share",
+            label: "Market Share Position",
+            points: 17,
+            evidence: "Below parity (63% → 40% over 6 months)",
+            maxPoints: 25
+          }
+        ],
         lastRiskUpdate: new Date(),
       })
       .where(eq(hcps.id, drMichaelChen.id));
 
-    console.log("✅ HCP 2 signals and risk score updated (92% critical risk)");
+    console.log("✅ HCP 2 signals, risk score, and breakdown updated (92% critical risk)");
     
     console.log("✅ Database seeded successfully with rich multi-cohort scenario");
   } catch (error) {
