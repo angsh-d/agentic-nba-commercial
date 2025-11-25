@@ -197,6 +197,59 @@ export const selectSwitchingEventSchema = createSelectSchema(switchingEvents);
 export type InsertSwitchingEvent = z.infer<typeof insertSwitchingEventSchema>;
 export type SwitchingEvent = typeof switchingEvents.$inferSelect;
 
+// Payers - Insurance payers with policies and denial rates
+export const payers = pgTable("payers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // e.g., "United Healthcare", "Aetna"
+  payerType: text("payer_type").notNull(), // "commercial", "medicare", "medicaid"
+  marketShare: integer("market_share"), // Percentage 0-100
+  priorAuthRequired: integer("prior_auth_required").notNull().default(1), // 1 = yes, 0 = no
+  denialRate: integer("denial_rate").notNull().default(0), // Percentage 0-100 of PAs denied
+  averageApprovalDays: integer("average_approval_days"), // Days to PA approval
+  formularyTier: text("formulary_tier"), // "preferred", "non-preferred", "step_therapy"
+  copayRange: text("copay_range"), // e.g., "$50-$200"
+  policies: jsonb("policies").$type<string[]>().default([]), // ["step_edit_required", "quantity_limits"]
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPayerSchema = createInsertSchema(payers).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectPayerSchema = createSelectSchema(payers);
+export type InsertPayer = z.infer<typeof insertPayerSchema>;
+export type Payer = typeof payers.$inferSelect;
+
+// Access Events - Real-Time Transactional (RTT) data for access barriers
+export const accessEvents = pgTable("access_events", {
+  id: serial("id").primaryKey(),
+  patientId: integer("patient_id").notNull().references(() => patients.id),
+  hcpId: integer("hcp_id").notNull().references(() => hcps.id),
+  payerId: integer("payer_id").references(() => payers.id),
+  eventType: text("event_type").notNull(), // "pa_denial", "copay_issue", "prescription_abandonment", "fulfillment_delay"
+  eventDate: timestamp("event_date").notNull(),
+  drugName: text("drug_name").notNull(), // Drug affected
+  denialReason: text("denial_reason"), // For PA denials
+  denialCode: text("denial_code"), // Standardized code
+  copayAmount: integer("copay_amount"), // For copay issues
+  expectedCopay: integer("expected_copay"), // What patient expected
+  lagDays: integer("lag_days"), // For fulfillment delays
+  switchedToDrug: text("switched_to_drug"), // If they switched as a result
+  switchDate: timestamp("switch_date"), // When they switched
+  resolved: integer("resolved").notNull().default(0), // 1 = resolved, 0 = unresolved
+  resolutionNotes: text("resolution_notes"),
+  impact: text("impact").notNull(), // "high", "medium", "low"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertAccessEventSchema = createInsertSchema(accessEvents).omit({ 
+  id: true, 
+  createdAt: true 
+});
+export const selectAccessEventSchema = createSelectSchema(accessEvents);
+export type InsertAccessEvent = z.infer<typeof insertAccessEventSchema>;
+export type AccessEvent = typeof accessEvents.$inferSelect;
+
 // Agent Sessions - Track multi-agent reasoning sessions
 export const agentSessions = pgTable("agent_sessions", {
   id: serial("id").primaryKey(),

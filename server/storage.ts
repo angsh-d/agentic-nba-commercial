@@ -1,6 +1,6 @@
 import { db } from "../drizzle/db";
-import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications, generatedArtifacts } from "@shared/schema";
-import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication, GeneratedArtifact, InsertGeneratedArtifact } from "@shared/schema";
+import { hcps, nextBestActions, territoryPlans, switchingAnalytics, prescriptionHistory, switchingEvents, agentSessions, agentThoughts, agentActions, agentFeedback, patients, clinicalEvents, detectedSignals, signalCorrelations, aiInsights, callNotes, payerCommunications, generatedArtifacts, payers, accessEvents } from "@shared/schema";
+import type { Hcp, InsertHcp, Nba, InsertNba, TerritoryPlan, InsertTerritoryPlan, SwitchingAnalytics, InsertSwitchingAnalytics, PrescriptionHistory, InsertPrescriptionHistory, SwitchingEvent, InsertSwitchingEvent, AgentSession, InsertAgentSession, AgentThought, InsertAgentThought, AgentAction, InsertAgentAction, AgentFeedback, InsertAgentFeedback, Patient, InsertPatient, ClinicalEvent, InsertClinicalEvent, DetectedSignal, InsertDetectedSignal, SignalCorrelation, InsertSignalCorrelation, AiInsight, InsertAiInsight, CallNote, InsertCallNote, PayerCommunication, InsertPayerCommunication, GeneratedArtifact, InsertGeneratedArtifact, Payer, InsertPayer, AccessEvent, InsertAccessEvent } from "@shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -83,6 +83,16 @@ export interface IStorage {
   
   // Payer Communication operations
   createPayerCommunication(communication: InsertPayerCommunication): Promise<PayerCommunication>;
+  
+  // Payer operations
+  createPayer(payer: InsertPayer): Promise<Payer>;
+  getAllPayers(): Promise<Payer[]>;
+  getPayerByName(name: string): Promise<Payer | undefined>;
+  
+  // Access Event operations
+  createAccessEvent(event: InsertAccessEvent): Promise<AccessEvent>;
+  getAccessEventsByHcp(hcpId: number): Promise<AccessEvent[]>;
+  getAccessEventsByPatient(patientId: number): Promise<AccessEvent[]>;
   getPayerCommunicationsByHcp(hcpId: number): Promise<PayerCommunication[]>;
   
   // Generated Artifact operations
@@ -455,6 +465,35 @@ export class DatabaseStorage implements IStorage {
       .from(generatedArtifacts)
       .where(eq(generatedArtifacts.nbaId, nbaId))
       .orderBy(desc(generatedArtifacts.generatedAt));
+  }
+  
+  // Payer operations
+  async createPayer(insertPayer: InsertPayer): Promise<Payer> {
+    const results = await db.insert(payers).values(insertPayer).returning();
+    return results[0];
+  }
+  
+  async getAllPayers(): Promise<Payer[]> {
+    return await db.select().from(payers);
+  }
+  
+  async getPayerByName(name: string): Promise<Payer | undefined> {
+    const results = await db.select().from(payers).where(eq(payers.name, name));
+    return results[0];
+  }
+  
+  // Access Event operations
+  async createAccessEvent(insertEvent: InsertAccessEvent): Promise<AccessEvent> {
+    const results = await db.insert(accessEvents).values(insertEvent).returning();
+    return results[0];
+  }
+  
+  async getAccessEventsByHcp(hcpId: number): Promise<AccessEvent[]> {
+    return await db.select().from(accessEvents).where(eq(accessEvents.hcpId, hcpId));
+  }
+  
+  async getAccessEventsByPatient(patientId: number): Promise<AccessEvent[]> {
+    return await db.select().from(accessEvents).where(eq(accessEvents.patientId, patientId));
   }
 }
 
