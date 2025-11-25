@@ -534,31 +534,39 @@ export default function HCPDetail() {
                           {hcp.switchRiskScore}
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-sm p-4">
-                        <div className="space-y-3">
-                          <div className="font-semibold text-sm mb-2">Risk Score Breakdown</div>
+                      <TooltipContent 
+                        side="left" 
+                        className="max-w-md p-6 bg-white border-2 border-gray-900 shadow-2xl"
+                        sideOffset={20}
+                      >
+                        <div className="space-y-5">
+                          <div className="font-semibold text-base text-gray-900 pb-2 border-b-2 border-gray-200">
+                            Risk Score Breakdown
+                          </div>
                           {hcp.riskScoreBreakdown && hcp.riskScoreBreakdown.length > 0 ? (
                             hcp.riskScoreBreakdown.map((factor) => (
-                              <div key={factor.factorKey} className="space-y-1">
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="font-medium">{factor.label}</span>
-                                  <span className="text-gray-600">
+                              <div key={factor.factorKey} className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-semibold text-sm text-gray-900">
+                                    {factor.label}
+                                  </span>
+                                  <span className="font-bold text-sm text-gray-900 bg-gray-100 px-3 py-1 rounded-full">
                                     {factor.points} / {factor.maxPoints} pts
                                   </span>
                                 </div>
-                                <div className="text-xs text-gray-500 leading-relaxed">
+                                <div className="text-sm text-gray-700 leading-relaxed font-light">
                                   {factor.evidence}
                                 </div>
-                                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                                   <div
-                                    className="h-full bg-gray-900 transition-all"
+                                    className="h-full bg-gray-900 transition-all rounded-full"
                                     style={{ width: `${(factor.points / factor.maxPoints) * 100}%` }}
                                   />
                                 </div>
                               </div>
                             ))
                           ) : (
-                            <div className="text-xs text-gray-500">No breakdown available</div>
+                            <div className="text-sm text-gray-500">No breakdown available</div>
                           )}
                         </div>
                       </TooltipContent>
