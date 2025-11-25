@@ -6,6 +6,8 @@ import { z } from "zod";
 import { detectSwitchingPatterns, runSwitchingDetectionForAllHCPs } from "./switchingDetection";
 import { generateIntelligentNBA, generateTerritoryPlanWithAI, processCopilotQuery, generateCounterfactualAnalysis, generateNBAWithProvenance, generateCallScript, generateEmailDraft, generateMeetingAgenda } from "./aiService";
 import { agentOrchestrator, detectSignalsForHcp, discoverCorrelations, generateRiskInsight } from "./agentOrchestrator";
+import { graphService } from "./graphService";
+import { graphETL } from "./graphETL";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // HCP routes
@@ -1082,6 +1084,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     req.on('close', cleanup);
     req.on('error', cleanup);
     res.on('error', cleanup);
+  });
+
+  // Knowledge Graph API Routes
+  
+  // Run ETL pipeline to populate knowledge graph
+  app.post("/api/graph/etl/run", async (_req, res) => {
+    try {
+      console.log('[API] Running knowledge graph ETL pipeline...');
+      const stats = await graphETL.runFullETL();
+      res.json({ 
+        success: true, 
+        message: 'Knowledge graph ETL completed successfully',
+        stats 
+      });
+    } catch (error: any) {
+      console.error('[API] Knowledge graph ETL failed:', error);
+      res.status(500).json({ 
+        error: "Failed to run knowledge graph ETL", 
+        details: error.message 
+      });
+    }
+  });
+
+  // Get HCP network (all connected entities)
+  app.get("/api/graph/hcp/:id/network", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.id);
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const network = await graphService.getHCPNetwork(hcpId, limit);
+      res.json(network);
+    } catch (error: any) {
+      console.error('[API] Failed to get HCP network:', error);
+      res.status(500).json({ 
+        error: "Failed to retrieve HCP network",
+        details: error.message 
+      });
+    }
+  });
+
+  // Find influencing clinical events
+  app.get("/api/graph/hcp/:id/influencing-events", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.id);
+      const competitorDrug = req.query.drug as string || 'competitor';
+      
+      const events = await graphService.findInfluencingEvents(hcpId, competitorDrug);
+      res.json(events);
+    } catch (error: any) {
+      console.error('[API] Failed to find influencing events:', error);
+      res.status(500).json({ 
+        error: "Failed to find influencing events",
+        details: error.message 
+      });
+    }
+  });
+
+  // Find patient switching paths
+  app.get("/api/graph/hcp/:id/switching-paths", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.id);
+      const ourCompany = req.query.company as string || 'NexCure RX';
+      
+      const paths = await graphService.findPatientSwitchingPaths(hcpId, ourCompany);
+      res.json(paths);
+    } catch (error: any) {
+      console.error('[API] Failed to find switching paths:', error);
+      res.status(500).json({ 
+        error: "Failed to find switching paths",
+        details: error.message 
+      });
+    }
+  });
+
+  // Find access barriers (PA denials, copay issues)
+  app.get("/api/graph/hcp/:id/access-barriers", async (req, res) => {
+    try {
+      const hcpId = parseInt(req.params.id);
+      const ourCompany = req.query.company as string || 'NexCure RX';
+      
+      const barriers = await graphService.findAccessBarriers(hcpId, ourCompany);
+      res.json(barriers);
+    } catch (error: any) {
+      console.error('[API] Failed to find access barriers:', error);
+      res.status(500).json({ 
+        error: "Failed to find access barriers",
+        details: error.message 
+      });
+    }
+  });
+
+  // Clear knowledge graph (dev only)
+  app.post("/api/graph/clear", async (_req, res) => {
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ error: "Cannot clear graph in production" });
+      }
+      
+      await graphService.clearGraph();
+      res.json({ success: true, message: 'Knowledge graph cleared successfully' });
+    } catch (error: any) {
+      console.error('[API] Failed to clear graph:', error);
+      res.status(500).json({ 
+        error: "Failed to clear knowledge graph",
+        details: error.message 
+      });
+    }
   });
 
   const httpServer = createServer(app);

@@ -338,6 +338,49 @@ export class GraphETL {
   }
 
   /**
+   * Run full ETL pipeline
+   */
+  async runFullETL(): Promise<any> {
+    console.log('[GraphETL] Starting full ETL pipeline...');
+    const startTime = Date.now();
+    
+    try {
+      // Clear existing graph
+      await graphService.clearGraph();
+      console.log('[GraphETL] Cleared existing graph');
+      
+      // Load nodes
+      await this.loadHCPs();
+      await this.loadPatients();
+      await this.loadDrugs();
+      await this.loadClinicalEvents();
+      
+      // Create relationships
+      await this.createPrescriptionRelationships();
+      await this.createPatientRelationships();
+      await this.createEventRelationships();
+      await this.createSwitchingRelationships();
+      
+      const duration = Date.now() - startTime;
+      const stats = await this.getStats();
+      
+      const result = {
+        success: true,
+        duration,
+        message: `ETL pipeline completed in ${duration}ms`,
+        timestamp: new Date().toISOString(),
+        ...stats,
+      };
+      
+      console.log('[GraphETL] ETL pipeline completed:', result);
+      return result;
+    } catch (error) {
+      console.error('[GraphETL] ETL pipeline failed:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get ETL statistics
    */
   async getStats(): Promise<{
