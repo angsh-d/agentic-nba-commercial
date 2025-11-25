@@ -289,15 +289,15 @@ export default function Home() {
             
             {/* Agent Pipeline - Sleek Horizontal Flow */}
             <div className="relative max-w-6xl mx-auto mb-32">
-              <div className="grid grid-cols-3 gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch">
                 {/* Stage 1: Detect */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="relative group"
+                  className="relative group h-full"
                 >
-                  <div className="relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
                     <div className="relative">
                       <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Detect</div>
                       <div className="space-y-6">
@@ -333,9 +333,9 @@ export default function Home() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="relative group"
+                  className="relative group h-full"
                 >
-                  <div className="relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
                     <div className="relative">
                       <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Investigate</div>
                       <div className="space-y-6">
@@ -371,9 +371,9 @@ export default function Home() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="group"
+                  className="group h-full"
                 >
-                  <div className="relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
                     <div className="relative">
                       <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Act</div>
                       <div className="space-y-6">
