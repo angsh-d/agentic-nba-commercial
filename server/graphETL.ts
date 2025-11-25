@@ -77,6 +77,28 @@ export class GraphETL {
       totalPatients += patients.length;
       
       for (const patient of patients) {
+        // Determine switch reason and denied drug based on demo personas
+        let switchReason = null;
+        let deniedDrug = null;
+        
+        if (patient.switchedToDrug && patient.switchedDate) {
+          // For Dr. Sarah Smith's patients (hcp 1): safety/efficacy switches
+          if (hcp.id === 1) {
+            switchReason = patient.id % 2 === 0 ? 'safety_concern' : 'efficacy_failure';
+            deniedDrug = null; // No access issues for Dr. Smith's switches
+          }
+          // For Dr. Michael Chen's patients (hcp 2): access barrier switches
+          else if (hcp.id === 2) {
+            switchReason = 'access_barrier';
+            deniedDrug = patient.currentDrug; // They were denied their preferred drug
+          }
+          // For other HCPs: mixed reasons
+          else {
+            switchReason = patient.id % 3 === 0 ? 'access_barrier' : 'clinical_reason';
+            deniedDrug = switchReason === 'access_barrier' ? patient.currentDrug : null;
+          }
+        }
+        
         await graphService.addNode(`patient_${patient.id}`, NODE_TYPES.PATIENT, {
           id: patient.id,
           indication: patient.cancerType,
@@ -84,6 +106,8 @@ export class GraphETL {
           currentDrug: patient.currentDrug,
           switchedToDrug: patient.switchedToDrug,
           switchDate: patient.switchedDate,
+          switchReason,
+          deniedDrug,
         });
 
         // Create TREATS relationship
@@ -153,7 +177,7 @@ export class GraphETL {
             category: record.productCategory,
             manufacturer,
             indication,
-            launchDate: isOurDrug ? '2023-05-15' : '2024-02-10',
+            firstPrescriptionDate: isOurDrug ? '2023-05-15' : '2024-02-10',
             competitorDrugs: isOurDrug ? ['Onco-Rival'] : ['Onco-Pro'],
           });
         }
@@ -176,6 +200,17 @@ export class GraphETL {
       
       for (const event of events) {
         const eventId = `event_${event.id}`;
+        
+        // Determine event topic based on event type and description
+        let topic = 'general';
+        if (event.eventType === 'conference') {
+          topic = event.eventDescription?.toLowerCase().includes('immuno') ? 'immunotherapy' : 'oncology';
+        } else if (event.eventType === 'workshop') {
+          topic = 'clinical_practice';
+        } else if (event.eventType === 'publication') {
+          topic = 'research';
+        }
+        
         await graphService.addNode(eventId, NODE_TYPES.CLINICAL_EVENT, {
           id: event.id,
           name: event.eventTitle,
@@ -184,6 +219,7 @@ export class GraphETL {
           description: event.eventDescription,
           impact: event.impact,
           relatedDrug: event.relatedDrug,
+          topic,
         });
 
         // Create ATTENDED relationship
@@ -523,9 +559,18 @@ export class GraphETL {
    * Create HCP referral network relationships
    */
   private async createReferralRelationships(): Promise<void> {
-    // Demo: Dr. Smith refers to Dr. Chen (KOL influence pattern)
-    await graphService.addRelationship('hcp_1', 'hcp_2', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 12, primaryIndication: 'RCC' });
-    console.log('[GraphETL] Created 1 referral relationship');
+    // Demo: Create a multi-hop referral network for KOL cascade queries
+    // Dr. Sarah Smith (HCP 1) is a KOL who refers to other oncologists
+    await graphService.addRelationship('hcp_1', 'hcp_2', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 12, primaryIndication: 'RCC', referralType: 'complex_cases' });
+    await graphService.addRelationship('hcp_1', 'hcp_3', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 8, primaryIndication: 'Bladder Cancer', referralType: 'second_opinion' });
+    
+    // Dr. Michael Chen (HCP 2) also makes some referrals
+    await graphService.addRelationship('hcp_2', 'hcp_3', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 5, primaryIndication: 'Prostate Cancer', referralType: 'specialty_consult' });
+    
+    // HCP 3 refers back to Dr. Smith for advanced immunotherapy (creates a network)
+    await graphService.addRelationship('hcp_3', 'hcp_1', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 3, primaryIndication: 'RCC', referralType: 'immunotherapy_expert' });
+    
+    console.log('[GraphETL] Created 4 referral relationships for multi-hop cascades');
   }
 
   /**
@@ -708,6 +753,63 @@ export class GraphETL {
   }
 
   /**
+   * Create patient→drug DENIED_BY relationships for access barrier chains
+   */
+  private async createAccessDenialRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      const patients = await storage.getPatientsByHcp(hcp.id);
+      
+      for (const patient of patients) {
+        // Create DENIED_BY edges for patients who had access barriers
+        // These are patients whose switchReason was 'access_barrier'
+        if (patient.switchedToDrug && patient.switchedDate) {
+          // For Dr. Michael Chen's patients (hcp 2): all had access barriers
+          if (hcp.id === 2 && patient.currentDrug) {
+            const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
+            const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
+            
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              deniedDrugId,
+              RELATIONSHIP_TYPES.DENIED_BY,
+              {
+                denialReason: 'prior_authorization_denied',
+                denialDate: patient.switchedDate,
+                payerId,
+                appealAttempts: patient.id % 2,
+              }
+            );
+            relationshipCount++;
+          }
+          // For other HCPs: 1/3 had access barriers
+          else if (hcp.id !== 1 && patient.id % 3 === 0 && patient.currentDrug) {
+            const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
+            const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
+            
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              deniedDrugId,
+              RELATIONSHIP_TYPES.DENIED_BY,
+              {
+                denialReason: 'formulary_tier_restriction',
+                denialDate: patient.switchedDate,
+                payerId,
+                appealAttempts: 1,
+              }
+            );
+            relationshipCount++;
+          }
+        }
+      }
+    }
+    
+    console.log(`[GraphETL] Created ${relationshipCount} access denial relationships`);
+  }
+
+  /**
    * Run full ETL pipeline
    */
   async runFullETL(): Promise<any> {
@@ -752,6 +854,7 @@ export class GraphETL {
       await this.createHospitalRelationships();
       await this.createGuidelineProtocolRelationships();
       await this.createDrugManufacturerRelationships();
+      await this.createAccessDenialRelationships();
       
       const duration = Date.now() - startTime;
       const stats = await this.getStats();
