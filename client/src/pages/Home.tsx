@@ -303,8 +303,9 @@ export default function Home() {
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-8 py-40">
           <div className="text-center max-w-5xl mx-auto">
-            <h1 className="text-8xl font-semibold text-gray-900 mb-10 tracking-tight leading-[1.05] -tracking-[0.02em]">
-              Smart Territory Intelligence
+            <h1 className="text-8xl font-semibold mb-10 tracking-tight leading-[1.05] -tracking-[0.02em]">
+              <span className="text-gray-900">Smart Territory </span>
+              <span className="text-gray-400">Intelligence</span>
             </h1>
             <p className="text-xl text-gray-500 mb-20 leading-relaxed font-normal max-w-3xl mx-auto">
               Detect switching signals. Investigate root causes. Generate targeted actions.
