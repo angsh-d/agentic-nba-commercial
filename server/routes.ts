@@ -1107,10 +1107,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get HCP network (all connected entities)
+  // Get HCP network (all connected entities with edges)
   app.get("/api/graph/hcp/:id/network", async (req, res) => {
     try {
       const hcpId = parseInt(req.params.id);
+      if (isNaN(hcpId)) {
+        return res.status(400).json({ error: "Invalid HCP ID" });
+      }
+      
       const limit = parseInt(req.query.limit as string) || 50;
       
       const network = await graphService.getHCPNetwork(hcpId, limit);

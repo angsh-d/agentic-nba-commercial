@@ -5,6 +5,7 @@ import type { Hcp, PrescriptionHistory, SwitchingEvent } from "@shared/schema";
 import { EventEmitter } from "events";
 import { z } from "zod";
 import { generateCallScript, generateEmailDraft, generateMeetingAgenda, type AIGeneratedNBA } from "./aiService";
+import { graphService } from "./graphService";
 
 // Initialize Azure OpenAI client
 const azureOpenAI = new AzureOpenAI({
@@ -317,7 +318,7 @@ You must respond ONLY with valid JSON in exactly this format:
    */
   private async evidenceAnalyst(context: any) {
     await this.logThought("analyst", "observation", 
-      `Gathering evidence about prescription patterns, patient cohorts, and clinical events for HCP ${context.hcpId}`);
+      `Gathering evidence about prescription patterns, patient cohorts, and clinical events for HCP ${context.hcpId} using multi-hop graph reasoning`);
     
     const hcp = await storage.getHcp(context.hcpId);
     if (!hcp) throw new Error("HCP not found");
@@ -326,6 +327,17 @@ You must respond ONLY with valid JSON in exactly this format:
     const patients = await storage.getPatientsByHcp(context.hcpId);
     const clinicalEvents = await storage.getClinicalEventsByHcp(context.hcpId);
     const allHcps = await storage.getAllHcps();
+    
+    // NEW: Multi-hop graph queries for deeper causal analysis
+    const graphInfluencingEvents = await graphService.findInfluencingEvents(context.hcpId, 'competitor');
+    const graphSwitchingPaths = await graphService.findPatientSwitchingPaths(context.hcpId, 'NexCure RX');
+    const graphAccessBarriers = await graphService.findAccessBarriers(context.hcpId, 'NexCure RX');
+    
+    await this.logAction("analyst", "query_knowledge_graph", "Executed multi-hop graph queries", {
+      influencingEvents: graphInfluencingEvents.length,
+      switchingPaths: graphSwitchingPaths.length,
+      accessBarriers: graphAccessBarriers.length,
+    });
     
     // Cohort analysis
     const cohortBreakdown = patients.reduce((acc: any, p) => {
@@ -372,7 +384,23 @@ PEER COMPARISON:
 - Territory ${hcp.territory} has ${allHcps.filter(h => h.territory === hcp.territory).length} HCPs
 - Average risk score in territory: ${Math.round(allHcps.filter(h => h.territory === hcp.territory).reduce((sum, h) => sum + (h.switchRiskScore || 0), 0) / allHcps.filter(h => h.territory === hcp.territory).length)}
 
-TASK: Perform CAUSAL ANALYSIS:
+MULTI-HOP KNOWLEDGE GRAPH INSIGHTS:
+${graphInfluencingEvents.length > 0 ? `
+Influencing Events (temporal correlations):
+${graphInfluencingEvents.slice(0, 3).map((e: any) => `- ${e.eventName || 'Event'} on ${e.eventDate || 'N/A'}: ${e.topic || e.description || 'Clinical event'}`).join('\n')}
+` : 'No influencing event patterns detected'}
+
+${graphSwitchingPaths.length > 0 ? `
+Patient Switching Paths (drug transition patterns):
+${graphSwitchingPaths.slice(0, 5).map((p: any) => `- Patient ${p.patientId}: ${p.switchedFrom} → ${p.switchedTo} on ${p.switchDate || 'N/A'} (Reason: ${p.switchReason || 'Unknown'})`).join('\n')}
+` : 'No switching paths identified'}
+
+${graphAccessBarriers.length > 0 ? `
+Access Barriers (payer-driven constraints):
+${graphAccessBarriers.slice(0, 3).map((b: any) => `- ${b.payer}: Denied ${b.deniedDrug}, patient switched to ${b.alternativeDrug} on ${b.denialDate || 'N/A'}`).join('\n')}
+` : 'No access barriers detected'}
+
+TASK: Perform CAUSAL ANALYSIS with MULTI-HOP REASONING:
 1. Identify temporal correlations between clinical events and switching patterns
 2. Segment patients by cohort and analyze switching behavior per cohort
 3. Hypothesize causal relationships (e.g., "Did ASCO conference trigger young RCC patient switches?")

@@ -138,17 +138,20 @@ class GraphService {
   }
 
   /**
-   * Get HCP network (all connected entities)
+   * Get HCP network (all connected entities) with edges
    */
-  async getHCPNetwork(hcpId: number, limit: number = 50): Promise<any[]> {
+  async getHCPNetwork(hcpId: number, limit: number = 50): Promise<{ nodes: any[]; edges: any[] }> {
     if (this.useInMemory) {
       return this.getHCPNetworkInMemory(hcpId.toString(), limit);
     }
 
-    return this.runQuery(COMMON_PATTERNS.HCP_NETWORK.pattern, {
+    const results = await this.runQuery(COMMON_PATTERNS.HCP_NETWORK.pattern, {
       hcpId: hcpId.toString(),
       limit,
     });
+    
+    // Transform results into nodes and edges
+    return { nodes: results, edges: [] };
   }
 
   /**
@@ -220,24 +223,52 @@ class GraphService {
     return results;
   }
 
-  private getHCPNetworkInMemory(hcpId: string, limit: number): any[] {
-    if (!this.inMemoryGraph || !this.inMemoryGraph.hasNode(hcpId)) return [];
+  private getHCPNetworkInMemory(hcpId: string, limit: number): { nodes: any[]; edges: any[] } {
+    if (!this.inMemoryGraph || !this.inMemoryGraph.hasNode(hcpId)) {
+      return { nodes: [], edges: [] };
+    }
     
-    const results: any[] = [];
+    const nodes: any[] = [];
+    const edges: any[] = [];
+    const visitedNodes = new Set<string>();
     let count = 0;
 
-    this.inMemoryGraph.forEachNeighbor(hcpId, (neighbor, attrs) => {
+    // Add the HCP node itself
+    const hcpAttrs = this.inMemoryGraph.getNodeAttributes(hcpId);
+    nodes.push({
+      id: hcpId,
+      type: hcpAttrs.type,
+      label: hcpAttrs.name || hcpId,
+      ...hcpAttrs,
+    });
+    visitedNodes.add(hcpId);
+
+    // Traverse neighbors
+    this.inMemoryGraph.forEachNeighbor(hcpId, (neighbor, edgeAttrs) => {
       if (count >= limit) return;
-      const neighborAttrs = this.inMemoryGraph!.getNodeAttributes(neighbor);
-      results.push({
-        id: neighbor,
-        type: neighborAttrs.type,
-        ...neighborAttrs,
+      
+      if (!visitedNodes.has(neighbor)) {
+        const neighborAttrs = this.inMemoryGraph!.getNodeAttributes(neighbor);
+        nodes.push({
+          id: neighbor,
+          type: neighborAttrs.type,
+          label: neighborAttrs.name || neighbor,
+          ...neighborAttrs,
+        });
+        visitedNodes.add(neighbor);
+      }
+      
+      // Add edge
+      edges.push({
+        from: hcpId,
+        to: neighbor,
+        type: edgeAttrs.type || 'CONNECTED',
       });
+      
       count++;
     });
 
-    return results;
+    return { nodes, edges };
   }
 
   private findAccessBarriersInMemory(hcpId: string, ourCompany: string): any[] {
