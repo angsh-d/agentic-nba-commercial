@@ -183,20 +183,20 @@ export function NBAProvenancePanel({ hcpId }: NBAProvenancePanelProps) {
               <Sparkles className="w-4 h-4 text-green-600" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-gray-900">LLM Contextualization</h4>
-              <p className="text-xs text-gray-500">GPT-5-mini</p>
+              <h4 className="text-xs font-semibold text-gray-900">Customized for This HCP</h4>
+              <p className="text-xs text-gray-500">AI-tailored approach</p>
             </div>
           </div>
 
           <div className="space-y-3">
             <div className="bg-green-50 rounded-lg p-3">
-              <p className="text-xs font-medium text-gray-900 mb-1">Narrative:</p>
+              <p className="text-xs font-medium text-gray-900 mb-1">Recommended Approach:</p>
               <p className="text-xs text-gray-700">{provenance.llmContribution.narrative}</p>
             </div>
 
             {provenance.llmContribution.adjustments.length > 0 && (
               <div className="bg-green-50 rounded-lg p-3">
-                <p className="text-xs font-medium text-gray-900 mb-2">Adjustments:</p>
+                <p className="text-xs font-medium text-gray-900 mb-2">How This is Customized:</p>
                 <ul className="space-y-1">
                   {provenance.llmContribution.adjustments.map((adj, idx) => (
                     <li key={idx} className="text-xs text-gray-700 flex items-start gap-1">
@@ -210,7 +210,7 @@ export function NBAProvenancePanel({ hcpId }: NBAProvenancePanelProps) {
 
             {provenance.llmContribution.hcpSpecificInsights.length > 0 && (
               <div className="bg-green-50 rounded-lg p-3">
-                <p className="text-xs font-medium text-gray-900 mb-2">HCP Insights:</p>
+                <p className="text-xs font-medium text-gray-900 mb-2">Key Topics to Emphasize:</p>
                 <ul className="space-y-1">
                   {provenance.llmContribution.hcpSpecificInsights.map((insight, idx) => (
                     <li key={idx} className="text-xs text-gray-700 flex items-start gap-1">

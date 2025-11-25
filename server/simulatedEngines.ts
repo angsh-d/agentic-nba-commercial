@@ -226,49 +226,49 @@ export function simulateLLMContextualization(
   rlOutput: RLEngineOutput,
   rulesOutput: RulesEngineOutput
 ): LLMContextualization {
-  // Create provocative narrative headline based on HCP scenario (case-insensitive check)
-  let headline = "";
+  // Create call theme based on HCP scenario (case-insensitive check)
+  let callTheme = "";
   const hasAccessBarriers = hcp.switchRiskReasons?.some(r => 
     r.toLowerCase().includes("access") || r.toLowerCase().includes("barrier") || r.toLowerCase().includes("payer")
   );
   
   if (hasAccessBarriers) {
-    headline = "🚨 Stop the $450 Copay Freefall";
+    callTheme = "🚨 Stop the $450 Copay Freefall";
   } else {
-    headline = "Critical Intervention Window Open";
+    callTheme = "Critical Intervention Window Open";
   }
   
-  const narrative = `${headline} — Based on ${hcp.name}'s profile, the optimal approach combines ${rlOutput.topActions[0]?.action.toLowerCase()} (highest Q-value: ${rlOutput.topActions[0]?.qValue}) with immediate ${rulesOutput.triggeredRules.length > 0 ? 'compliance with triggered business rules' : 'standard engagement protocols'}.`;
+  const narrative = `${callTheme} — The AI recommends starting with "${rlOutput.topActions[0]?.action}" because it has the highest historical success rate (Q-value: ${rlOutput.topActions[0]?.qValue}, ${Math.round((rlOutput.topActions[0]?.confidence || 0) * 100)}% confidence).`;
   
   const adjustments = [];
   const hcpSpecificInsights = [];
   
-  // Add explicit LLM adjustments vs RL recommendation
+  // Add what's customized vs standard script
   if (hasAccessBarriers) {
-    adjustments.push("LLM Override: Prioritize financial toxicity language over clinical data (3 patients cited '$450+ copay shock' in recent visits)");
-    adjustments.push("Script Personalization: Reference specific patient 'Mr. Daniels' who switched due to Aetna PA denial");
+    adjustments.push("Mentions the specific $450 copay amount and names 3 affected patients (instead of generic 'financial barriers')");
+    adjustments.push("Uses real patient name 'Mr. Daniels' who switched due to Aetna PA denial (builds credibility)");
   }
   
-  // Add timing adjustments (can coexist with access-barrier guidance)
+  // Add timing considerations (can coexist with access-barrier guidance)
   const lastVisit = hcp.lastVisitDate ? new Date(hcp.lastVisitDate) : null;
   if (lastVisit) {
     const daysSinceVisit = (Date.now() - lastVisit.getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceVisit < 14) {
-      adjustments.push("Recent visit detected - consider email follow-up instead of in-person to avoid over-engagement");
+      adjustments.push(`Recommends email instead of office visit (${hcp.name} was just visited ${Math.round(daysSinceVisit)} days ago)`);
     }
   }
   
-  // Add adjustments based on HCP characteristics
+  // Add communication style adjustments
   if (hcp.engagementLevel === "low") {
-    adjustments.push("Adjust communication style to be less technical, more relationship-focused");
+    adjustments.push("Uses relationship-focused language instead of clinical data (matches low-engagement style)");
   }
   
   if (hcp.specialty === "Oncologist - RCC" || hcp.specialty === "Oncologist") {
-    hcpSpecificInsights.push("Emphasize RCC-specific efficacy data and renal safety profile");
+    hcpSpecificInsights.push("RCC (kidney cancer) efficacy data and renal safety (matches ${hcp.name}'s specialty)");
   }
   
   if (hcp.hospital?.includes("Academic") || hcp.hospital?.includes("Cancer")) {
-    hcpSpecificInsights.push("Frame discussion around latest clinical research and trial data");
+    hcpSpecificInsights.push("Latest clinical research and trial data (academic centers value evidence-based discussions)");
   }
   
   return {
