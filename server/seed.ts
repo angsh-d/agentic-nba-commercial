@@ -650,6 +650,117 @@ export async function seedDatabase() {
 
     console.log("✅ Signal detection data seeded");
 
+    // === CALL NOTES FOR DR. SARAH SMITH ===
+    console.log("📝 Seeding call notes for Dr. Sarah Smith...");
+    
+    // Early engagement - baseline (May-June)
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-05-10"),
+      noteText: "Excellent visit with Dr. Smith. She's treating 35+ RCC patients with Onco-Pro and very satisfied with outcomes. Mentioned she'll be attending ASCO in June to review latest trial data. Strong relationship - rated us 9/10 on recent survey.",
+      noteType: "routine_visit",
+      keyTopics: ["patient_outcomes", "asco_attendance", "high_satisfaction"],
+      sentiment: "positive"
+    });
+
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-05-28"),
+      noteText: "Follow-up on patient census. Dr. Smith confirmed 28 active Onco-Pro patients across various RCC subtypes. She's particularly impressed with tolerability in elderly patients. Planning to present case series at next tumor board.",
+      noteType: "follow_up",
+      keyTopics: ["census_update", "tolerability", "tumor_board"],
+      sentiment: "positive"
+    });
+
+    // Post-ASCO - first concerns emerge (Late June - Early July)
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-06-25"),
+      noteText: "Dr. Smith just returned from ASCO. She brought up the ORION-Y trial showing Onco-Rival's superior PFS in younger RCC patients. Asked thoughtful questions about our data in the <55 age group. Seemed genuinely curious, not adversarial. Provided published head-to-head comparisons for her review.",
+      noteType: "routine_visit",
+      keyTopics: ["asco_orion_trial", "competitive_data", "young_rcc_patients"],
+      sentiment: "neutral"
+    });
+
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-07-08"),
+      noteText: "Dr. Smith mentioned she switched 2 young RCC patients (P001, P002) to Onco-Rival based on ORION-Y data. She was apologetic but said the evidence was compelling for this specific subgroup. Emphasized she's still using Onco-Pro for her other patients. We discussed our upcoming Phase 3 data that might change the picture.",
+      noteType: "follow_up",
+      keyTopics: ["patient_switches", "orion_trial_impact", "subgroup_analysis"],
+      sentiment: "concerned"
+    });
+
+    // Escalating switches - young RCC cohort (Mid-July)
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-07-18"),
+      noteText: "Update: Dr. Smith has now switched 5 of her younger RCC patients (<55 years) to Onco-Rival. All switches occurred within 2-3 weeks of ASCO. She shared that her tumor board discussed the ORION-Y results and reached consensus that younger patients benefit more from Onco-Rival. This is becoming a pattern.",
+      noteType: "urgent",
+      keyTopics: ["cohort_switching", "tumor_board_decision", "competitive_pressure"],
+      sentiment: "concerned"
+    });
+
+    // New safety concerns emerge - CV risk patients (August)
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-08-12"),
+      noteText: "URGENT: Dr. Smith called about patient P004 (elderly, hypertension, prior MI) who experienced arrhythmia while on Onco-Pro. Patient was hospitalized briefly. She's concerned about cardiovascular safety profile in high-risk patients and considering switching 3 other CV-risk patients as a precaution.",
+      noteType: "urgent",
+      keyTopics: ["adverse_event", "cardiovascular_safety", "patient_hospitalization"],
+      sentiment: "very_concerned"
+    });
+
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-08-19"),
+      noteText: "Follow-up on CV safety concerns. Dr. Smith proactively switched 3 additional patients with cardiovascular risk factors (P005, P006, P007) off Onco-Pro. She emphasized this is purely precautionary based on the P004 adverse event. Requested all published CV safety data and FDA label information.",
+      noteType: "follow_up",
+      keyTopics: ["proactive_switches", "cv_risk_mitigation", "safety_data_request"],
+      sentiment: "concerned"
+    });
+
+    // September - Pattern solidified
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-09-05"),
+      noteText: "Census review: Only 8 remaining Onco-Pro patients (down from 28 in May). Dr. Smith explained her current prescribing pattern: Young RCC → Onco-Rival (ORION-Y data), CV risk → alternatives (safety concerns), Remaining 8 → low-risk, older RCC patients where Onco-Pro still performs well. She's segmenting her practice based on evidence.",
+      noteType: "routine_visit",
+      keyTopics: ["census_decline", "segmentation_strategy", "evidence_based_prescribing"],
+      sentiment: "neutral"
+    });
+
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-09-18"),
+      noteText: "Dr. Smith shared that her approach has been validated by recent cardio-oncology literature highlighting CV risks with TKIs in high-risk populations. She's now using Onco-Pro very selectively - only in patients without CV comorbidities and outside the young RCC demographic. Asked if we have any new safety or efficacy data that might change her risk/benefit calculus.",
+      noteType: "routine_visit",
+      keyTopics: ["literature_validation", "selective_prescribing", "risk_benefit_analysis"],
+      sentiment: "neutral"
+    });
+
+    // October - Attempted re-engagement
+    await storage.createCallNote({
+      hcpId: drSmith.id,
+      repName: "James Thompson",
+      visitDate: new Date("2025-10-10"),
+      noteText: "Strategy discussion with Dr. Smith. She's open to reconsidering Onco-Pro IF we can provide: (1) Subgroup analysis showing comparable efficacy to Onco-Rival in young RCC, (2) CV safety meta-analysis with clear risk stratification guidance, (3) Updated clinical decision algorithm for patient selection. She's evidence-driven, not lost to competition permanently.",
+      noteType: "urgent",
+      keyTopics: ["re_engagement_opportunity", "evidence_requirements", "clinical_decision_support"],
+      sentiment: "neutral"
+    });
+
+    console.log("✅ Call notes for Dr. Sarah Smith seeded");
+
     // === HCP 2: DR. MICHAEL CHEN - PATIENT ACCESS BARRIER SCENARIO ===
     console.log("🏥 Seeding HCP 2: Dr. Michael Chen (Access Barrier Scenario)...");
     console.log("✅ HCP 2 created");
