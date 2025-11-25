@@ -307,9 +307,25 @@ export default function Home() {
               <span className="text-gray-900">Smart Territory </span>
               <span className="text-gray-400">Intelligence</span>
             </h1>
-            <p className="text-xl text-gray-500 mb-20 leading-relaxed font-normal max-w-3xl mx-auto">
+            <p className="text-xl text-gray-500 mb-12 leading-relaxed font-normal max-w-3xl mx-auto">
               Detect switching signals. Investigate root causes. Generate targeted actions.
             </p>
+            
+            {/* Data Sources - Sleek Display */}
+            <div className="flex items-center justify-center gap-3 mb-20">
+              <span className="text-xs uppercase tracking-wider text-gray-400 font-medium">Scanning</span>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <span>Prescription Data</span>
+                <span className="text-gray-300">•</span>
+                <span>Clinical Events</span>
+                <span className="text-gray-300">•</span>
+                <span>Payer Communications</span>
+                <span className="text-gray-300">•</span>
+                <span>Call Notes</span>
+                <span className="text-gray-300">•</span>
+                <span>Patient Cohorts</span>
+              </div>
+            </div>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
             <div className="relative max-w-6xl mx-auto mb-20">
