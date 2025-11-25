@@ -312,7 +312,7 @@ export default function Home() {
               <span className="text-gray-400">Smarter NBAs</span>
             </h1>
             <p className="text-xl text-gray-500 mb-16 leading-relaxed font-normal max-w-3xl mx-auto">
-              Augments existing NBA systems by investigating switching patterns, reasoning through evidence, and generating context-aware actions.
+              Augments existing NBA systems, provides additional context from structured and unstructured data sources, investigates switching patterns, reasons through evidence and generates context-aware actions.
             </p>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
