@@ -36,7 +36,7 @@ import {
   Network
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import { useState, useEffect } from "react";
 
@@ -203,6 +203,7 @@ const getHypothesesForHcp = (hcpId: string) => {
 export default function HCPDetail() {
   const [, params] = useRoute("/hcp/:id");
   const hcpId = params?.id;
+  const queryClient = useQueryClient();
   const [hypothesisConfirmed, setHypothesisConfirmed] = useState(false);
   const [graphModalOpen, setGraphModalOpen] = useState(false);
   
@@ -216,6 +217,9 @@ export default function HCPDetail() {
   const [stage1Input, setStage1Input] = useState("");
   const [stage2Input, setStage2Input] = useState("");
   const [stage3Input, setStage3Input] = useState("");
+  
+  // Recomputation state
+  const [isRecomputing, setIsRecomputing] = useState(false);
   
   // Counterfactual Q&A state
   const [counterfactualResponse, setCounterfactualResponse] = useState<string | null>(null);
@@ -1347,15 +1351,53 @@ export default function HCPDetail() {
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
+                      if (stage1Input.trim()) {
+                        // User provided input - recompute observations
+                        setIsRecomputing(true);
+                        try {
+                          const response = await fetch(`/api/hcps/${hcpId}/recompute-stage1`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ userInput: stage1Input }),
+                          });
+                          
+                          if (response.ok) {
+                            // Invalidate and refetch the stage1 activity
+                            await queryClient.invalidateQueries({ queryKey: ["stage1-activity", hcpId] });
+                            // Reset activity display for animation
+                            setStage1Activities([]);
+                            setActivityStartTime(null);
+                            setProcessingProgress(0);
+                          }
+                        } catch (error) {
+                          console.error("Failed to recompute:", error);
+                        } finally {
+                          setIsRecomputing(false);
+                          // Small delay to allow new data to load
+                          await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                      }
+                      
+                      // Continue to next stage
                       setStage1Complete(true);
                       setWizardStage(2);
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    disabled={isRecomputing}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     data-testid="button-approve-stage1"
                   >
-                    Continue to Investigation
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    {isRecomputing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Recomputing...
+                      </>
+                    ) : (
+                      <>
+                        Continue to Investigation
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
