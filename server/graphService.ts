@@ -452,9 +452,10 @@ class GraphService {
     // Get all nodes
     this.inMemoryGraph.forEachNode((nodeId, attributes) => {
       if (nodeCount >= limit) return;
+      const { id: _, ...restAttributes } = attributes;
       nodes.push({
         id: nodeId,
-        ...attributes
+        ...restAttributes
       });
       nodeCount++;
     });
