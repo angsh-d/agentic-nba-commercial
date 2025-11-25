@@ -570,9 +570,25 @@ export default function HCPDetail() {
                     <h2 className="text-3xl font-semibold text-gray-900 mb-3 tracking-tight">
                       Observe & Correlate Signals
                     </h2>
-                    <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl">
+                    <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl mb-6">
                       AI agents analyze multiple data signals to detect switching patterns and anomalies impossible to find with traditional BI tools.
                     </p>
+                    
+                    {/* Data Sources - Sleek Display */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-wider text-gray-400 font-medium">Scanning</span>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <span>Prescription Data</span>
+                        <span className="text-gray-300">•</span>
+                        <span>Clinical Events</span>
+                        <span className="text-gray-300">•</span>
+                        <span>Payer Communications</span>
+                        <span className="text-gray-300">•</span>
+                        <span>Call Notes</span>
+                        <span className="text-gray-300">•</span>
+                        <span>Patient Cohorts</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
