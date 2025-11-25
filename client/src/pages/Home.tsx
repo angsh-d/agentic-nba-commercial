@@ -309,7 +309,7 @@ export default function Home() {
           <div className="text-center max-w-5xl mx-auto">
             <h1 className="text-8xl font-semibold mb-10 tracking-tight leading-[1.05] -tracking-[0.02em]">
               <span className="text-gray-900">AI Agents for </span>
-              <span className="text-gray-400">Smarter NBAs</span>
+              <span className="text-gray-400">Smarter Territory Intelligence</span>
             </h1>
             <p className="text-xl text-gray-500 mb-16 leading-relaxed font-normal max-w-3xl mx-auto">
               Augments existing NBA systems, provides additional context from structured and unstructured data sources, investigates switching patterns, reasons through evidence and generates context-aware actions.
