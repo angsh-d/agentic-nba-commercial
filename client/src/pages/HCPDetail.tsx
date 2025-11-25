@@ -702,7 +702,7 @@ export default function HCPDetail() {
                         <>
                           <strong>Multi-Signal Analysis:</strong> Investigated 8 data sources — identified 4 signals with synchronized Aug 1st inflection.
                           <br /><br />
-                          <strong>Core Finding:</strong> 83% patient abandonment (10/12) correlating with multi-payer formulary restrictions (Tier 3, step-edits, $450 copays) across 3 access-barrier cohorts.
+                          <strong>Core Finding:</strong> 75% patient abandonment (9/12) correlating with multi-payer formulary restrictions (Tier 3, step-edits, $450 copays) across 3 access-barrier cohorts.
                           <br /><br />
                           <strong>Ruled Out:</strong> Clinical safety, conferences, competitive activity, publications showed no temporal correlation — confirming reimbursement-driven causality.
                         </>
@@ -1566,8 +1566,8 @@ export default function HCPDetail() {
                       <div className="flex justify-center">
                         <div className="bg-gray-900 border-2 border-gray-900 rounded-2xl px-6 py-4 shadow-sm">
                           <p className="text-xs font-medium text-gray-400 mb-1">Final Outcome</p>
-                          <p className="text-sm font-semibold text-white">83% Patient Abandonment</p>
-                          <p className="text-xs text-gray-500 mt-1">10 of 12 patients switched to competitor</p>
+                          <p className="text-sm font-semibold text-white">75% Patient Abandonment</p>
+                          <p className="text-xs text-gray-500 mt-1">9 of 12 patients switched to competitor</p>
                         </div>
                       </div>
 
@@ -1685,7 +1685,7 @@ export default function HCPDetail() {
                                                     <span className="text-xs font-semibold text-gray-900">Dr. Chen Reports Copay Shock</span>
                                                     <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
                                                   </div>
-                                                  <p className="text-xs text-gray-600">"4 patients shocked by $450 copay, 3 abandoning fills"</p>
+                                                  <p className="text-xs text-gray-600">"4 patients shocked by $450 copay, abandoning fills"</p>
                                                 </div>
                                               </div>
                                               <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
@@ -1696,6 +1696,16 @@ export default function HCPDetail() {
                                                     <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">"3 patients denied due to step-edit requirements"</p>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-shrink-0 w-16 text-xs text-gray-500">Sep 1</div>
+                                                <div className="flex-1">
+                                                  <div className="flex items-center gap-1 mb-1">
+                                                    <span className="text-xs font-semibold text-gray-900">PA Denial Cohort</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Patient Data</span>
+                                                  </div>
+                                                  <p className="text-xs text-gray-600">3/3 middle-aged RCC patients (40-55) switched after PA denials</p>
                                                 </div>
                                               </div>
                                               <div className="flex gap-2 p-2 bg-gray-50 rounded-lg">
@@ -1741,7 +1751,7 @@ export default function HCPDetail() {
                                                     <span className="text-xs font-semibold text-gray-900">Competitor Switch</span>
                                                     <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Rx Data</span>
                                                   </div>
-                                                  <p className="text-xs text-gray-600">10 patients switched to lower-cost competitor products</p>
+                                                  <p className="text-xs text-gray-600">9 patients switched to lower-cost competitor products</p>
                                                 </div>
                                               </div>
                                             </>
