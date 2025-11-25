@@ -52,7 +52,7 @@
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   
   --radius: 0.75rem;
   
@@ -118,15 +118,41 @@
   --input: 0 0% 86%;
   --ring: 0 0% 0%;
 
-  /* Radius - 10px for buttons/inputs feels very Apple-ish */
-  --radius: 0.625rem;
+  /* Apple Spacing Scale - 8px base */
+  --spacing-xs: 0.5rem;  /* 8px */
+  --spacing-sm: 1rem;     /* 16px */
+  --spacing-md: 1.5rem;   /* 24px */
+  --spacing-lg: 2rem;     /* 32px */
+  --spacing-xl: 3rem;     /* 48px */
+  --spacing-2xl: 4rem;    /* 64px */
+  
+  /* Apple Shadows - Subtle and refined */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+  
+  /* Radius - 12px for Apple-like feel */
+  --radius: 0.75rem;
 
-  /* Chart Colors */
+  /* Apple Blue Accent - #007AFF - Override Tailwind blue-* utilities */
+  --color-blue-50: 211 100% 96%;      /* Very light blue for backgrounds */
+  --color-blue-100: 211 100% 92%;
+  --color-blue-200: 211 100% 82%;
+  --color-blue-300: 211 100% 72%;
+  --color-blue-400: 211 100% 60%;
+  --color-blue-500: 211 100% 50%;     /* #007AFF - Primary Apple blue */
+  --color-blue-600: 211 100% 45%;     /* Hover state */
+  --color-blue-700: 211 100% 40%;     /* Pressed state */
+  --color-blue-800: 211 90% 35%;
+  --color-blue-900: 211 80% 25%;
+  
+  /* Chart Colors - Monochrome with blue accent */
   --chart-1: 0 0% 20%;
   --chart-2: 0 0% 40%;
   --chart-3: 0 0% 60%;
   --chart-4: 0 0% 80%;
-  --chart-5: 200 10% 50%;
+  --chart-5: 211 100% 50%; /* Apple blue for accent */
   
   --sidebar: 0 0% 98%;
   --sidebar-foreground: 0 0% 10%;
@@ -182,6 +208,12 @@
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 0 0% 14.9%;
   --sidebar-ring: 0 0% 83.1%;
+}
+
+@layer components {
+  .apple-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
 }
 
 @layer base {

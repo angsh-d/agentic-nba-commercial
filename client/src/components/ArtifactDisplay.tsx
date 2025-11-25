@@ -100,7 +100,7 @@ ${content.followUpAction}
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
+              <Check className="w-4 h-4 mr-2 text-gray-600" />
               Copied!
             </>
           ) : (
@@ -173,7 +173,7 @@ ${content.attachmentSuggestions && content.attachmentSuggestions.length > 0 ? `\
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
+              <Check className="w-4 h-4 mr-2 text-gray-600" />
               Copied!
             </>
           ) : (
@@ -274,7 +274,7 @@ ${content.desiredOutcome}
         >
           {copiedId === artifactId ? (
             <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
+              <Check className="w-4 h-4 mr-2 text-gray-600" />
               Copied!
             </>
           ) : (

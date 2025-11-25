@@ -523,34 +523,34 @@ export default function HCPDetail() {
               <div className="flex items-center justify-between max-w-3xl">
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    wizardStage >= 1 ? 'bg-blue-600' : 'bg-gray-200'
+                    wizardStage >= 1 ? 'bg-blue-500' : 'bg-gray-200'
                   } transition-colors`}>
                     <span className={`text-sm font-semibold ${wizardStage >= 1 ? 'text-white' : 'text-gray-500'}`}>1</span>
                   </div>
                   <span className={`text-xs mt-2 ${wizardStage >= 1 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Observe</span>
                 </div>
-                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 2 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 2 ? 'bg-blue-500' : 'bg-gray-200'} transition-colors`} />
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    wizardStage >= 2 ? 'bg-blue-600' : 'bg-gray-200'
+                    wizardStage >= 2 ? 'bg-blue-500' : 'bg-gray-200'
                   } transition-colors`}>
                     <span className={`text-sm font-semibold ${wizardStage >= 2 ? 'text-white' : 'text-gray-500'}`}>2</span>
                   </div>
                   <span className={`text-xs mt-2 ${wizardStage >= 2 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Investigate</span>
                 </div>
-                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 3 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 3 ? 'bg-blue-500' : 'bg-gray-200'} transition-colors`} />
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    wizardStage >= 3 ? 'bg-blue-600' : 'bg-gray-200'
+                    wizardStage >= 3 ? 'bg-blue-500' : 'bg-gray-200'
                   } transition-colors`}>
                     <span className={`text-sm font-semibold ${wizardStage >= 3 ? 'text-white' : 'text-gray-500'}`}>3</span>
                   </div>
                   <span className={`text-xs mt-2 ${wizardStage >= 3 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>Synthesize</span>
                 </div>
-                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 4 ? 'bg-blue-600' : 'bg-gray-200'} transition-colors`} />
+                <div className={`flex-1 h-0.5 mx-3 ${wizardStage >= 4 ? 'bg-blue-500' : 'bg-gray-200'} transition-colors`} />
                 <div className="flex flex-col items-center">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    wizardStage >= 4 ? 'bg-blue-600' : 'bg-gray-200'
+                    wizardStage >= 4 ? 'bg-blue-500' : 'bg-gray-200'
                   } transition-colors`}>
                     <span className={`text-sm font-semibold ${wizardStage >= 4 ? 'text-white' : 'text-gray-500'}`}>4</span>
                   </div>
@@ -587,7 +587,7 @@ export default function HCPDetail() {
                     {/* Subtle progress bar */}
                     <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
                       <div 
-                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${processingProgress}%` }}
                       />
                     </div>
@@ -634,7 +634,7 @@ export default function HCPDetail() {
 
                 {/* Temporal Correlation Visualization */}
                 {processingProgress === 100 && (
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-200 p-10 mb-8 shadow-sm">
+                  <div className="bg-white rounded-3xl border border-gray-200 p-10 mb-8 shadow-sm">
                     <div className="flex items-center justify-between mb-8">
                       <h3 className="text-base font-semibold text-gray-900">Temporal Correlation Analysis</h3>
                       <p className="text-xs text-gray-500">All signals aligned to August 1st inflection point</p>
@@ -657,7 +657,7 @@ export default function HCPDetail() {
                             </div>
                           ))}
                         </div>
-                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200"></div>
+                        <div className="absolute top-[7px] left-8 right-8 h-px bg-gray-300"></div>
                       </div>
                       
                       {/* Signal Visualizations */}
@@ -679,7 +679,7 @@ export default function HCPDetail() {
                                   <div className="relative w-full">
                                     <div 
                                       className={`w-full rounded-t-lg transition-all ${
-                                        idx >= 3 ? 'bg-gradient-to-t from-gray-400 to-gray-500' : 'bg-gradient-to-t from-gray-500 to-gray-600'
+                                        idx >= 3 ? 'bg-gray-400' : 'bg-gray-600'
                                       }`}
                                       style={{ height: `${height}px` }}
                                     ></div>
@@ -706,8 +706,8 @@ export default function HCPDetail() {
                             <div className="flex-1"></div>
                             <div className="flex-1 flex justify-center">
                               <div className="relative">
-                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-red-400"></div>
-                                <div className="bg-red-700 text-white text-xs px-4 py-2 rounded-full font-medium shadow-lg whitespace-nowrap">
+                                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-6 bg-gray-400"></div>
+                                <div className="bg-gray-900 text-white text-xs px-4 py-2 rounded-full font-medium shadow-sm whitespace-nowrap">
                                   Aug 1: Tier 3 + Step-Edits + $450 Copay
                                 </div>
                               </div>
@@ -728,14 +728,14 @@ export default function HCPDetail() {
                           </div>
                           <div className="flex items-center h-16 gap-2 px-8">
                             {[
-                              { label: 'Low', color: 'from-gray-200 to-gray-300', text: 'text-gray-700', height: 'h-6' },
-                              { label: 'Low', color: 'from-gray-200 to-gray-300', text: 'text-gray-700', height: 'h-6' },
-                              { label: 'Med', color: 'from-gray-300 to-gray-400', text: 'text-gray-800', height: 'h-8' },
-                              { label: 'High', color: 'from-gray-400 to-gray-500', text: 'text-gray-900', height: 'h-12' },
-                              { label: 'Critical', color: 'from-gray-600 to-gray-700', text: 'text-white', height: 'h-16' },
-                              { label: 'Critical', color: 'from-gray-600 to-gray-700', text: 'text-white', height: 'h-16' }
+                              { label: 'Low', color: 'bg-gray-200', text: 'text-gray-700', height: 'h-6' },
+                              { label: 'Low', color: 'bg-gray-200', text: 'text-gray-700', height: 'h-6' },
+                              { label: 'Med', color: 'bg-gray-300', text: 'text-gray-800', height: 'h-8' },
+                              { label: 'High', color: 'bg-gray-400', text: 'text-gray-900', height: 'h-12' },
+                              { label: 'Critical', color: 'bg-gray-600', text: 'text-white', height: 'h-16' },
+                              { label: 'Critical', color: 'bg-gray-600', text: 'text-white', height: 'h-16' }
                             ].map((item, idx) => (
-                              <div key={idx} className={`flex-1 flex items-center justify-center ${item.height} bg-gradient-to-t ${item.color} rounded-lg ${item.text} text-xs font-medium shadow-sm`}>
+                              <div key={idx} className={`flex-1 flex items-center justify-center ${item.height} ${item.color} rounded-lg ${item.text} text-xs font-medium shadow-sm`}>
                                 {item.label}
                               </div>
                             ))}
@@ -891,20 +891,20 @@ export default function HCPDetail() {
                           {/* Summary Stats */}
                           <div className="grid grid-cols-4 gap-4 mb-6">
                             <div className="bg-blue-50 rounded-lg p-4 text-center">
-                              <p className="text-2xl font-semibold text-blue-900">
+                              <p className="text-2xl font-semibold text-blue-500">
                                 {prescriptionTrends.length > 0 ? prescriptionTrends[0].ownDrug : 0}
                               </p>
-                              <p className="text-xs text-blue-700 mt-1">May Baseline</p>
+                              <p className="text-xs text-blue-500 mt-1">May Baseline</p>
                             </div>
-                            <div className="bg-red-50 rounded-lg p-4 text-center">
-                              <p className="text-2xl font-semibold text-red-900">
+                            <div className="bg-gray-100 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-gray-900">
                                 {prescriptionTrends.length > 0 ? prescriptionTrends[prescriptionTrends.length - 1].ownDrug : 0}
                               </p>
-                              <p className="text-xs text-red-700 mt-1">Oct Current</p>
+                              <p className="text-xs text-gray-700 mt-1">Oct Current</p>
                             </div>
-                            <div className="bg-amber-50 rounded-lg p-4 text-center">
-                              <p className="text-2xl font-semibold text-amber-900">44%</p>
-                              <p className="text-xs text-amber-700 mt-1">Total Decline</p>
+                            <div className="bg-gray-100 rounded-lg p-4 text-center">
+                              <p className="text-2xl font-semibold text-gray-900">44%</p>
+                              <p className="text-xs text-gray-700 mt-1">Total Decline</p>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-4 text-center">
                               <p className="text-2xl font-semibold text-gray-900">Aug 1st</p>
@@ -924,24 +924,24 @@ export default function HCPDetail() {
                               return (
                                 <div 
                                   key={idx} 
-                                  className={`border rounded-lg p-4 ${isPolicyChangeMonth ? 'border-red-400 bg-red-50' : isPostPolicyChange ? 'border-orange-200 bg-orange-50' : 'border-gray-200 bg-white'}`}
+                                  className={`border rounded-lg p-4 ${isPolicyChangeMonth ? 'border-gray-900 bg-gray-50' : isPostPolicyChange ? 'border-gray-300 bg-gray-50' : 'border-gray-200 bg-white'}`}
                                 >
                                   <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
                                       <span className="text-sm font-semibold text-gray-900">2025-{record.month}</span>
                                       {isPolicyChangeMonth && (
-                                        <span className="text-xs px-2 py-0.5 bg-red-100 text-red-900 rounded font-medium">
+                                        <span className="text-xs px-2 py-0.5 bg-gray-900 text-white rounded font-medium">
                                           ⚠️ Policy Change Date
                                         </span>
                                       )}
                                       {isPostPolicyChange && !isPolicyChangeMonth && (
-                                        <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-900 rounded">
+                                        <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-900 rounded">
                                           Post-Policy Impact
                                         </span>
                                       )}
                                     </div>
                                     {monthChange !== 0 && (
-                                      <span className={`text-xs font-medium ${monthChange < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                      <span className={`text-xs font-medium ${monthChange < 0 ? 'text-gray-600' : 'text-gray-900'}`}>
                                         {monthChange > 0 ? '+' : ''}{monthChange} from prev month
                                       </span>
                                     )}
@@ -956,7 +956,7 @@ export default function HCPDetail() {
                                       </div>
                                       <div className="w-full bg-gray-200 rounded-full h-2">
                                         <div 
-                                          className="bg-blue-600 h-2 rounded-full transition-all"
+                                          className="bg-blue-500 h-2 rounded-full transition-all"
                                           style={{ width: `${(record.ownDrug / 45) * 100}%` }}
                                         />
                                       </div>
@@ -970,7 +970,7 @@ export default function HCPDetail() {
                                       </div>
                                       <div className="w-full bg-gray-200 rounded-full h-2">
                                         <div 
-                                          className="bg-red-600 h-2 rounded-full transition-all"
+                                          className="bg-gray-600 h-2 rounded-full transition-all"
                                           style={{ width: `${(record.competitorDrug / 15) * 100}%` }}
                                         />
                                       </div>
@@ -1004,15 +1004,15 @@ export default function HCPDetail() {
                         <div className="mt-4">
                           <div className="flex items-center gap-3 mb-4 text-xs">
                             <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+                              <div className="w-3 h-3 bg-gray-900 border border-gray-900 rounded"></div>
                               <span className="text-gray-600">High Friction</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+                              <div className="w-3 h-3 bg-gray-500 border border-gray-500 rounded"></div>
                               <span className="text-gray-600">Moderate Friction</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+                              <div className="w-3 h-3 bg-gray-300 border border-gray-300 rounded"></div>
                               <span className="text-gray-600">Positive/Solution</span>
                             </div>
                           </div>
@@ -1048,17 +1048,17 @@ export default function HCPDetail() {
                               let badge = null;
                               
                               if (isPositive) {
-                                borderColor = 'border-green-500';
-                                bgColor = 'bg-green-50';
-                                badge = <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded">Solution Discussed</span>;
+                                borderColor = 'border-gray-300';
+                                bgColor = 'bg-gray-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-gray-300 text-gray-900 rounded">Solution Discussed</span>;
                               } else if (hasHighFriction && isPostPolicyChange) {
-                                borderColor = 'border-red-500';
-                                bgColor = 'bg-red-50';
-                                badge = <span className="text-xs px-2 py-0.5 bg-red-100 text-red-800 rounded">High Friction - Post Aug 1st</span>;
+                                borderColor = 'border-gray-900';
+                                bgColor = 'bg-gray-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-gray-900 text-white rounded">High Friction - Post Aug 1st</span>;
                               } else if (hasModerateFriction && isPostPolicyChange) {
-                                borderColor = 'border-yellow-500';
-                                bgColor = 'bg-yellow-50';
-                                badge = <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">Access Barrier - Post Aug 1st</span>;
+                                borderColor = 'border-gray-600';
+                                bgColor = 'bg-gray-50';
+                                badge = <span className="text-xs px-2 py-0.5 bg-gray-600 text-white rounded">Access Barrier - Post Aug 1st</span>;
                               }
                               
                               return (
@@ -1116,16 +1116,16 @@ export default function HCPDetail() {
                             return (
                               <div 
                                 key={doc.id} 
-                                className={`rounded-lg p-4 ${isHighlighted ? 'bg-amber-50 border-2 border-amber-400' : 'bg-gray-50'}`}
+                                className={`rounded-lg p-4 ${isHighlighted ? 'bg-gray-100 border-2 border-gray-900' : 'bg-gray-50'}`}
                               >
                                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                                   <span className="text-xs font-medium text-gray-900">{doc.payerName}</span>
-                                  <span className={`text-xs px-2 py-0.5 rounded ${isHighlighted ? 'bg-amber-200 text-amber-900 font-medium' : 'bg-gray-200'}`}>
+                                  <span className={`text-xs px-2 py-0.5 rounded ${isHighlighted ? 'bg-gray-900 text-white font-medium' : 'bg-gray-200'}`}>
                                     {doc.documentType.replace(/_/g, ' ')}
                                   </span>
                                   <span className="text-xs text-gray-500">{new Date(doc.effectiveDate).toLocaleDateString()}</span>
                                   {isHighlighted && (
-                                    <span className="text-xs px-2 py-0.5 bg-red-100 text-red-900 rounded font-medium">
+                                    <span className="text-xs px-2 py-0.5 bg-gray-900 text-white rounded font-medium">
                                       ⚠️ Reimbursement Restriction
                                     </span>
                                   )}
@@ -1258,7 +1258,7 @@ export default function HCPDetail() {
                     value={stage1Input}
                     onChange={(e) => setStage1Input(e.target.value)}
                     placeholder="Example: 'I've noticed increased PA denials from UnitedHealthcare specifically' or 'Confirm the Aug 1st policy change timing aligns with my field observations'"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl apple-focus resize-none text-sm font-light transition-all"
                     rows={4}
                     data-testid="input-stage1-sme"
                   />
@@ -1276,7 +1276,7 @@ export default function HCPDetail() {
                       setStage1Complete(true);
                       setWizardStage(2);
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    className="bg-blue-500 hover:bg-blue-500 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-approve-stage1"
                   >
                     Continue to Investigation
@@ -1314,7 +1314,7 @@ export default function HCPDetail() {
                     {/* Progress bar */}
                     <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
                       <div 
-                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${stage2Progress}%` }}
                       />
                     </div>
@@ -1402,7 +1402,7 @@ export default function HCPDetail() {
                       <div className="grid grid-cols-3 gap-4 mb-6">
                         <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <p className="text-xs font-semibold text-gray-900">High Copay Shock</p>
                           </div>
                           <p className="text-xs text-gray-600">$35 → $450 copay</p>
@@ -1414,7 +1414,7 @@ export default function HCPDetail() {
 
                         <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <p className="text-xs font-semibold text-gray-900">PA Denials</p>
                           </div>
                           <p className="text-xs text-gray-600">Step-edit requirement</p>
@@ -1426,7 +1426,7 @@ export default function HCPDetail() {
 
                         <div className="bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <p className="text-xs font-semibold text-gray-900">Fulfillment Delays</p>
                           </div>
                           <p className="text-xs text-gray-600">3 days → 10-14 days</p>
@@ -1475,7 +1475,7 @@ export default function HCPDetail() {
                       {/* Proven Hypotheses - Always Expanded */}
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                          <CheckCircle2 className="w-4 h-4 text-blue-500" />
                           <p className="text-xs font-semibold text-gray-900">
                             {getHypothesesForHcp(hcpId).filter(h => h.status === "proven").length} Proven Hypotheses
                           </p>
@@ -1488,13 +1488,13 @@ export default function HCPDetail() {
                               {/* Header with ranking */}
                               <div className="flex items-start justify-between mb-2 gap-3">
                                 <div className="flex items-start gap-2 flex-1">
-                                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center mt-0.5">
+                                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center mt-0.5">
                                     <span className="text-xs font-bold text-white">#{hypIndex + 1}</span>
                                   </div>
                                   <p className="text-sm font-semibold text-gray-900">{hyp.text.split(' - ')[0]}</p>
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
-                                  <span className="text-xs font-medium text-blue-700 px-2 py-0.5 bg-blue-50 rounded whitespace-nowrap">
+                                  <span className="text-xs font-medium text-blue-500 px-2 py-0.5 bg-blue-50 rounded whitespace-nowrap">
                                     {hyp.confidence}% ± {hyp.confidence >= 90 ? 3 : hyp.confidence >= 80 ? 5 : 7}%
                                   </span>
                                   <span className="text-xs text-gray-500">Confidence interval</span>
@@ -1505,7 +1505,7 @@ export default function HCPDetail() {
                               <div className="mb-3">
                                 <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                   <div 
-                                    className="h-full bg-blue-600 rounded-full transition-all"
+                                    className="h-full bg-blue-500 rounded-full transition-all"
                                     style={{ width: `${hyp.confidence}%` }}
                                   ></div>
                                 </div>
@@ -1556,7 +1556,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Payer Policy Changes</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Payer Comm</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Payer Comm</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">UHC, Aetna, Cigna, BCBS implemented new PA requirements and copay increases</p>
                                                 </div>
@@ -1566,7 +1566,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Dr. Chen Reports Copay Shock</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Call Note</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">"4 patients shocked by $450 copay, 3 abandoning fills"</p>
                                                 </div>
@@ -1576,7 +1576,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">PA Denial Impact</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Call Note</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">"3 patients denied due to step-edit requirements"</p>
                                                 </div>
@@ -1586,7 +1586,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Prescription Decline</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Rx Data</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Rx Data</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">75% drop in monthly prescriptions (12 → 3) after Aug 1st</p>
                                                 </div>
@@ -1602,7 +1602,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Copay Increase</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Payer Comm</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Payer Comm</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">Copay jumped from $35 to $450 across 4 major payers</p>
                                                 </div>
@@ -1612,7 +1612,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Patient Abandonment</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Patient Data</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Patient Data</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">4/4 young RCC patients (25-35) abandoned due to copay shock</p>
                                                 </div>
@@ -1622,7 +1622,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Competitor Switch</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Rx Data</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Rx Data</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">10 patients switched to lower-cost competitor products</p>
                                                 </div>
@@ -1638,7 +1638,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Specialty Pharmacy Delays</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Call Note</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">"specialty pharmacy delays now 10-14 days"</p>
                                                 </div>
@@ -1648,7 +1648,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">PA Processing Time</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Call Note</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Call Note</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">"patients give up waiting for PA approvals"</p>
                                                 </div>
@@ -1658,7 +1658,7 @@ export default function HCPDetail() {
                                                 <div className="flex-1">
                                                   <div className="flex items-center gap-1 mb-1">
                                                     <span className="text-xs font-semibold text-gray-900">Patient Impact</span>
-                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">Patient Data</span>
+                                                    <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-500 rounded">Patient Data</span>
                                                   </div>
                                                   <p className="text-xs text-gray-600">2/2 elderly RCC patients switched due to fulfillment delays</p>
                                                 </div>
@@ -1717,7 +1717,7 @@ export default function HCPDetail() {
                     </div>
 
                     {/* Evidence Review */}
-                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-6 mb-6">
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
                     <h4 className="text-sm font-semibold text-gray-900 mb-3">Evidence Gathered Across Signals</h4>
                     <p className="text-sm text-gray-600 mb-4">
                       Agents systematically gathered and cross-validated evidence from {callNotes.length + payerCommunications.length + patients.length} data points to test each hypothesis.
@@ -1776,49 +1776,49 @@ export default function HCPDetail() {
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => setStage2Input("What if Aug 1st policy changes didn't occur?")}
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-no-policy-changes"
                         >
                           💡 What if Aug 1st policy changes didn't occur?
                         </button>
                         <button
                           onClick={() => setStage2Input("What if copay assistance was proactively offered?")}
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-copay-assistance"
                         >
                           💡 What if copay assistance was proactively offered?
                         </button>
                         <button
                           onClick={() => setStage2Input("What if PA denials were systematically appealed?")}
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-pa-appeals"
                         >
                           💡 What if PA denials were systematically appealed?
                         </button>
                         <button
                           onClick={() => setStage2Input("Why did payers change formulary tier on Aug 1st?")}
-                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-why-tier-change"
                         >
                           🔍 Why did payers change formulary tier on Aug 1st?
                         </button>
                         <button
                           onClick={() => setStage2Input("Why did prior authorization denials increase after policy change?")}
-                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-why-pa-denials"
                         >
                           🔍 Why did prior authorization denials increase after policy change?
                         </button>
                         <button
                           onClick={() => setStage2Input("Why were pharmacies experiencing fulfillment delays?")}
-                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-why-fulfillment-delays"
                         >
                           🔍 Why were pharmacies experiencing fulfillment delays?
                         </button>
                         <button
                           onClick={() => setStage2Input("Why didn't Dr. Chen continue prescribing despite patient need?")}
-                          className="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-700 transition-colors"
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs text-blue-500 transition-colors"
                           data-testid="hint-why-stop-prescribing"
                         >
                           🔍 Why didn't Dr. Chen continue prescribing despite patient need?
@@ -1833,7 +1833,7 @@ export default function HCPDetail() {
                       value={stage2Input}
                       onChange={(e) => setStage2Input(e.target.value)}
                       placeholder="Example: 'Agree on access barriers as primary cause' or 'What if we had intervened earlier?'"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl apple-focus resize-none text-sm font-light transition-all"
                       rows={4}
                       data-testid="input-stage2-sme"
                     />
@@ -1861,7 +1861,7 @@ export default function HCPDetail() {
                             }
                           }}
                           disabled={counterfactualLoading}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-medium shadow-sm"
+                          className="bg-blue-500 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-medium shadow-sm"
                           data-testid="button-ask-ai"
                         >
                           {counterfactualLoading ? (
@@ -1884,7 +1884,7 @@ export default function HCPDetail() {
                   {counterfactualResponse && (
                     <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-xl">
                       <div className="flex items-start gap-2 mb-2">
-                        <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <Sparkles className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
                         <p className="text-xs font-semibold text-gray-900">AI Response:</p>
                       </div>
                       <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -1907,7 +1907,7 @@ export default function HCPDetail() {
                       setStage2Complete(true);
                       setWizardStage(3);
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
+                    className="bg-blue-500 hover:bg-blue-500 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-continue-synthesis"
                   >
                     Continue to Synthesis
@@ -1945,7 +1945,7 @@ export default function HCPDetail() {
                     {/* Progress bar */}
                     <div className="w-full h-1 bg-gray-200 rounded-full mb-3 overflow-hidden">
                       <div 
-                        className="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out"
+                        className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${stage3Progress}%` }}
                       />
                     </div>
@@ -2023,7 +2023,7 @@ export default function HCPDetail() {
                     value={stage3Input}
                     onChange={(e) => setStage3Input(e.target.value)}
                     placeholder="Example: 'Prioritize copay assistance first - fastest ROI' or 'Add HCP preference for digital-first engagement in recommendations'"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent resize-none text-sm font-light transition-all"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl apple-focus resize-none text-sm font-light transition-all"
                     rows={4}
                     data-testid="input-stage3-sme"
                   />
@@ -2079,7 +2079,7 @@ export default function HCPDetail() {
                       }
                     }}
                     disabled={generatingArtifact}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium disabled:opacity-50"
+                    className="bg-blue-500 hover:bg-blue-500 text-white px-8 py-3 rounded-lg text-sm font-medium disabled:opacity-50"
                     data-testid="button-approve-stage3"
                   >
                     {generatingArtifact ? (
@@ -2105,14 +2105,14 @@ export default function HCPDetail() {
                 {artifacts.length > 0 ? (
                   <>
                     {/* Success Message */}
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+                    <div className="bg-gray-50 border border-gray-300 rounded-lg p-6 mb-8">
                       <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-green-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                           ✓
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-green-900 mb-1">Artifact Generated Successfully</h3>
-                          <p className="text-sm text-green-700">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">Artifact Generated Successfully</h3>
+                          <p className="text-sm text-gray-700">
                             Your personalized {artifacts[0].artifactType === 'call_script' ? 'call script' : artifacts[0].artifactType === 'email_draft' ? 'email draft' : 'meeting agenda'} is ready.
                             You can copy it, edit it, or use it directly in your outreach.
                           </p>
@@ -2123,14 +2123,14 @@ export default function HCPDetail() {
                     <ArtifactDisplay artifacts={artifacts} />
                   </>
                 ) : (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                  <div className="bg-gray-50 border border-gray-300 rounded-lg p-6">
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
                         !
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-red-900 mb-1">Generation Failed</h3>
-                        <p className="text-sm text-red-700 mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">Generation Failed</h3>
+                        <p className="text-sm text-gray-700 mb-4">
                           Unable to generate artifact. Please try again or contact support.
                         </p>
                         <Button
@@ -2138,7 +2138,7 @@ export default function HCPDetail() {
                             setArtifacts([]);  // Clear failed artifacts to allow retry
                             setWizardStage(3);
                           }}
-                          className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                          className="bg-gray-900 hover:bg-gray-800 text-white text-sm"
                         >
                           Return to Stage 3
                         </Button>
@@ -2249,19 +2249,19 @@ export default function HCPDetail() {
                   {/* Legend */}
                   <div className="flex items-center justify-center gap-6 mt-6 text-xs flex-wrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 bg-blue-600" />
+                      <div className="w-8 h-0.5 bg-blue-500" />
                       <span className="text-gray-700">Onco-Pro</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 bg-purple-600" />
+                      <div className="w-8 h-0.5 bg-gray-600" />
                       <span className="text-gray-700">Nephro-X (Competitor)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 border-t-2 border-dashed border-red-600" />
+                      <div className="w-8 h-0.5 border-t-2 border-dashed border-gray-600" />
                       <span className="text-gray-700">ASCO Conference</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 border-t-2 border-dashed border-orange-600" />
+                      <div className="w-8 h-0.5 border-t-2 border-dashed border-gray-600" />
                       <span className="text-gray-700">Adverse Events</span>
                     </div>
                   </div>
@@ -2283,7 +2283,7 @@ export default function HCPDetail() {
               <h2 className="text-3xl font-semibold text-gray-900 tracking-tight">
                 Patient Cohort Analysis
               </h2>
-              <Badge className="bg-blue-600 text-white text-xs px-3 py-1">
+              <Badge className="bg-blue-500 text-white text-xs px-3 py-1">
                 Deep Dive
               </Badge>
             </div>

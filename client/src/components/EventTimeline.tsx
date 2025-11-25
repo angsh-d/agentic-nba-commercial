@@ -1,6 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Users, AlertTriangle, Award, Book } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ClinicalEvent {
@@ -47,40 +45,16 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
   const cvRiskPatients = patients.filter(p => p.cohort === 'cv_risk');
   const stablePatients = patients.filter(p => p.cohort === 'stable');
 
-  const getEventIcon = (eventType: string) => {
+  const getEventTypeLabel = (eventType: string) => {
     switch (eventType) {
       case "conference":
-        return <Award className="w-5 h-5" />;
+        return "Conference";
       case "adverse_event":
-        return <AlertTriangle className="w-5 h-5" />;
+        return "Adverse Event";
       case "webinar":
-        return <Book className="w-5 h-5" />;
+        return "Webinar";
       default:
-        return <Calendar className="w-5 h-5" />;
-    }
-  };
-
-  const getEventColor = (eventType: string) => {
-    switch (eventType) {
-      case "conference":
-        return "bg-blue-500";
-      case "adverse_event":
-        return "bg-red-500";
-      case "webinar":
-        return "bg-purple-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const getImpactBadge = (impact: string) => {
-    switch (impact) {
-      case "high":
-        return "bg-red-100 text-red-700 border-red-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "Event";
     }
   };
 
@@ -93,16 +67,15 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+          <Card className="border border-gray-200 bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-blue-900 flex items-center gap-2">
-                <Users className="w-4 h-4" />
+              <CardTitle className="text-sm font-medium text-blue-500">
                 Young RCC Cohort
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-3xl font-bold text-blue-500">
                   {youngRCCPatients.length}
                 </div>
                 <div className="text-sm text-gray-600">
@@ -124,16 +97,15 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-white">
+          <Card className="border border-gray-200 bg-gray-50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-red-900 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
+              <CardTitle className="text-sm font-medium text-gray-900">
                 CV-Risk Cohort
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-red-600">
+                <div className="text-3xl font-bold text-gray-600">
                   {cvRiskPatients.length}
                 </div>
                 <div className="text-sm text-gray-600">
@@ -155,16 +127,15 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-white">
+          <Card className="border border-gray-200 bg-gray-50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-green-900 flex items-center gap-2">
-                <Users className="w-4 h-4" />
+              <CardTitle className="text-sm font-medium text-gray-900">
                 Stable Cohort
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="text-3xl font-bold text-green-600">
+                <div className="text-3xl font-bold text-gray-600">
                   {stablePatients.length}
                 </div>
                 <div className="text-sm text-gray-600">
@@ -183,14 +154,10 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
       </div>
 
       {/* Clinical Events Timeline */}
-      <Card className="border-2">
+      <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-xl font-semibold flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-600" />
+          <CardTitle className="text-xl font-semibold">
             Clinical Event Timeline
-            <Badge variant="outline" className="ml-auto">
-              {events.length} Key Events
-            </Badge>
           </CardTitle>
           <p className="text-sm text-gray-500 mt-2">
             Causal factors influencing prescription behavior
@@ -204,56 +171,45 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="relative pl-12 pb-6 border-l-2 border-gray-200 last:border-l-0 last:pb-0"
+                className="relative pb-6 last:pb-0"
               >
-                {/* Event Icon */}
-                <div className={`absolute left-0 -translate-x-1/2 w-10 h-10 rounded-full ${getEventColor(event.eventType)} flex items-center justify-center text-white shadow-lg`}>
-                  {getEventIcon(event.eventType)}
-                </div>
-
                 {/* Event Content */}
-                <div className="bg-gray-50 rounded-lg p-5 hover:shadow-md transition-all duration-300 border border-gray-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {event.eventTitle}
-                        </h3>
-                        <Badge variant="outline" className={getImpactBadge(event.impact)}>
-                          {event.impact} impact
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {new Date(event.eventDate).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </div>
+                <div className="bg-white rounded-lg p-6 hover:shadow-md transition-all duration-300 border border-gray-200">
+                  <div className="mb-4">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                      {getEventTypeLabel(event.eventType)}
                     </div>
-                  </div>
-
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                    {event.eventDescription}
-                  </p>
-
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <span className="font-medium">Type:</span>
-                      <span className="capitalize">{event.eventType.replace('_', ' ')}</span>
-                    </span>
-                    {event.relatedDrug && (
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">Drug:</span>
-                        <span>{event.relatedDrug}</span>
-                      </span>
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                      {event.eventTitle}
+                    </h3>
+                    <div className="text-sm text-gray-500">
+                      {new Date(event.eventDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </div>
+                    {event.impact === 'high' && (
+                      <div className="text-sm font-semibold text-gray-900 mt-1">
+                        High Impact
+                      </div>
                     )}
                   </div>
 
+                  <p className="text-base text-gray-700 leading-relaxed mb-4">
+                    {event.eventDescription}
+                  </p>
+
+                  {event.relatedDrug && (
+                    <div className="text-sm text-gray-600">
+                      <span className="font-medium">Related Drug:</span> {event.relatedDrug}
+                    </div>
+                  )}
+
                   {/* Metadata if available */}
                   {event.metadata && Object.keys(event.metadata).length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="grid grid-cols-2 gap-3 text-sm">
                         {Object.entries(event.metadata).slice(0, 4).map(([key, value]) => (
                           <div key={key} className="text-gray-600">
                             <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>{' '}
@@ -271,7 +227,7 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
       </Card>
 
       {/* Causal Insights Summary */}
-      <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Card className="border border-gray-200 bg-gray-50">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900">
             Causal Analysis Summary
@@ -280,43 +236,49 @@ export function EventTimeline({ events, patients }: EventTimelineProps) {
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+              <div className="w-1 h-1 bg-gray-400 rounded-full mt-2.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 mb-1">
-                  ASCO Conference → Young RCC Switching (June-July 2025)
+                <div className="text-lg font-semibold text-gray-900 mb-2">
+                  ASCO Conference → Young RCC Switching
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 mb-1">
+                  June-July 2025
+                </div>
+                <div className="text-base text-gray-700 leading-relaxed">
                   Following ASCO's ORION-Y trial presentation showing 40% PFS improvement in RCC patients {'<'}55,
                   all {youngRCCPatients.length} young RCC patients systematically switched to Onco-Rival.
-                  <span className="font-semibold text-blue-700"> 95% confidence</span> this was evidence-driven.
+                  <span className="font-semibold text-blue-500"> 95% confidence</span> this was evidence-driven.
                 </div>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-red-500 rounded-full mt-2" />
+              <div className="w-1 h-1 bg-gray-400 rounded-full mt-2.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 mb-1">
-                  Adverse Event Cluster → CV-Risk Switching (August-September 2025)
+                <div className="text-lg font-semibold text-gray-900 mb-2">
+                  Adverse Event Cluster → CV-Risk Switching
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 mb-1">
+                  August-September 2025
+                </div>
+                <div className="text-base text-gray-700 leading-relaxed">
                   After experiencing 3 cardiac adverse events in 18 days (QT prolongation, arrhythmia, chest pain),
                   {cvRiskPatients.filter(p => p.switchedDate).length} of {cvRiskPatients.length} CV-risk patients
                   selectively switched for safety.
-                  <span className="font-semibold text-red-700"> 90% confidence</span> this was safety-driven.
+                  <span className="font-semibold text-gray-900"> 90% confidence</span> this was safety-driven.
                 </div>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full mt-2" />
+              <div className="w-1 h-1 bg-gray-400 rounded-full mt-2.5 flex-shrink-0" />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 mb-1">
+                <div className="text-lg font-semibold text-gray-900 mb-2">
                   Stable Cohort → Strategic, Not Categorical Switching
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-base text-gray-700 leading-relaxed">
                   {stablePatients.filter(p => !p.switchedDate).length} low-risk patients remain on Onco-Pro,
-                  demonstrating that Dr. Smith's switching is <span className="font-semibold text-green-700">evidence-based and patient-specific</span>,
+                  demonstrating that Dr. Smith's switching is <span className="font-semibold text-gray-900">evidence-based and patient-specific</span>,
                   not wholesale drug abandonment.
                 </div>
               </div>
