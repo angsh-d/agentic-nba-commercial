@@ -1342,62 +1342,66 @@ export default function HCPDetail() {
                     data-testid="input-stage1-sme"
                   />
                   {stage1Input && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      ✓ Your input will be considered in the causal investigation
-                    </p>
+                    <div className="mt-4">
+                      <Button
+                        onClick={async () => {
+                          setIsRecomputing(true);
+                          try {
+                            const response = await fetch(`/api/hcps/${hcpId}/recompute-stage1`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ userInput: stage1Input }),
+                            });
+                            
+                            if (response.ok) {
+                              // Invalidate and refetch the stage1 activity
+                              await queryClient.invalidateQueries({ queryKey: ["stage1-activity", hcpId] });
+                              // Reset activity display for animation
+                              setStage1Activities([]);
+                              setActivityStartTime(null);
+                              setProcessingProgress(0);
+                            }
+                          } catch (error) {
+                            console.error("Failed to recompute:", error);
+                          } finally {
+                            setIsRecomputing(false);
+                          }
+                        }}
+                        disabled={isRecomputing}
+                        className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        data-testid="button-recompute-stage1"
+                      >
+                        {isRecomputing ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Recomputing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Recompute Observations
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Agents will re-analyze signals based on your suggestion
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Human Approval */}
                 <div className="flex items-center justify-end gap-4 pt-8 border-t border-gray-100">
                   <Button
-                    onClick={async () => {
-                      if (stage1Input.trim()) {
-                        // User provided input - recompute observations
-                        setIsRecomputing(true);
-                        try {
-                          const response = await fetch(`/api/hcps/${hcpId}/recompute-stage1`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ userInput: stage1Input }),
-                          });
-                          
-                          if (response.ok) {
-                            // Invalidate and refetch the stage1 activity
-                            await queryClient.invalidateQueries({ queryKey: ["stage1-activity", hcpId] });
-                            // Reset activity display for animation
-                            setStage1Activities([]);
-                            setActivityStartTime(null);
-                            setProcessingProgress(0);
-                          }
-                        } catch (error) {
-                          console.error("Failed to recompute:", error);
-                        } finally {
-                          setIsRecomputing(false);
-                          // Small delay to allow new data to load
-                          await new Promise(resolve => setTimeout(resolve, 500));
-                        }
-                      }
-                      
-                      // Continue to next stage
+                    onClick={() => {
                       setStage1Complete(true);
                       setWizardStage(2);
                     }}
-                    disabled={isRecomputing}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-sm font-medium"
                     data-testid="button-approve-stage1"
                   >
-                    {isRecomputing ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Recomputing...
-                      </>
-                    ) : (
-                      <>
-                        Continue to Investigation
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
+                    Continue to Investigation
+                    <ChevronRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
               </div>
