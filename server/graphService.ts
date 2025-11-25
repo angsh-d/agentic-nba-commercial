@@ -114,11 +114,11 @@ class GraphService {
    */
   async findInfluencingEvents(hcpId: number, competitorDrug: string): Promise<any[]> {
     if (this.useInMemory) {
-      return this.findInfluencingEventsInMemory(hcpId.toString(), competitorDrug);
+      return this.findInfluencingEventsInMemory(`hcp_${hcpId}`, competitorDrug);
     }
 
     return this.runQuery(COMMON_PATTERNS.INFLUENCING_EVENTS.pattern, {
-      hcpId: hcpId.toString(),
+      hcpId: `hcp_${hcpId}`,
       competitorDrug,
     });
   }
@@ -128,11 +128,11 @@ class GraphService {
    */
   async findPatientSwitchingPaths(hcpId: number, ourCompany: string): Promise<any[]> {
     if (this.useInMemory) {
-      return this.findPatientSwitchingPathsInMemory(hcpId.toString(), ourCompany);
+      return this.findPatientSwitchingPathsInMemory(`hcp_${hcpId}`, ourCompany);
     }
 
     return this.runQuery(COMMON_PATTERNS.PATIENT_SWITCHING_PATH.pattern, {
-      hcpId: hcpId.toString(),
+      hcpId: `hcp_${hcpId}`,
       ourCompany,
     });
   }
@@ -142,16 +142,67 @@ class GraphService {
    */
   async getHCPNetwork(hcpId: number, limit: number = 50): Promise<{ nodes: any[]; edges: any[] }> {
     if (this.useInMemory) {
-      return this.getHCPNetworkInMemory(hcpId.toString(), limit);
+      // In-memory mode uses "hcp_" prefix for HCP node IDs
+      return this.getHCPNetworkInMemory(`hcp_${hcpId}`, limit);
     }
 
     const results = await this.runQuery(COMMON_PATTERNS.HCP_NETWORK.pattern, {
-      hcpId: hcpId.toString(),
+      hcpId: `hcp_${hcpId}`,
       limit,
     });
     
     // Transform results into nodes and edges
-    return { nodes: results, edges: [] };
+    const nodeMap = new Map<string, any>();
+    const edges: any[] = [];
+    
+    for (const record of results) {
+      const hcp = record.hcp;
+      const connected = record.connected;
+      const relationshipType = record.relationship;
+      
+      // Add HCP node if not already in map
+      if (hcp && hcp.properties && hcp.properties.id) {
+        const graphId = hcp.properties.id;
+        if (!nodeMap.has(graphId)) {
+          nodeMap.set(graphId, {
+            id: this.stripIdPrefix(graphId), // Return canonical numeric ID
+            graphId, // Keep internal graph ID for reference
+            type: 'HCP',
+            label: hcp.properties.name || graphId,
+            ...hcp.properties,
+          });
+        }
+      }
+      
+      // Add connected node if not already in map
+      if (connected && connected.properties && connected.properties.id) {
+        const graphId = connected.properties.id;
+        if (!nodeMap.has(graphId)) {
+          const connectedType = connected.labels?.[0] || 'Unknown';
+          nodeMap.set(graphId, {
+            id: this.stripIdPrefix(graphId), // Return canonical numeric ID
+            graphId, // Keep internal graph ID for reference
+            type: connectedType,
+            label: connected.properties.name || graphId,
+            ...connected.properties,
+          });
+        }
+      }
+      
+      // Add edge with canonical IDs
+      if (hcp && connected && relationshipType) {
+        const sourceGraphId = hcp.properties?.id || '';
+        const targetGraphId = connected.properties?.id || '';
+        edges.push({
+          source: this.stripIdPrefix(sourceGraphId), // Return canonical numeric IDs
+          target: this.stripIdPrefix(targetGraphId),
+          type: relationshipType,
+          label: relationshipType,
+        });
+      }
+    }
+    
+    return { nodes: Array.from(nodeMap.values()), edges };
   }
 
   /**
@@ -159,11 +210,11 @@ class GraphService {
    */
   async findAccessBarriers(hcpId: number, ourCompany: string): Promise<any[]> {
     if (this.useInMemory) {
-      return this.findAccessBarriersInMemory(hcpId.toString(), ourCompany);
+      return this.findAccessBarriersInMemory(`hcp_${hcpId}`, ourCompany);
     }
 
     return this.runQuery(COMMON_PATTERNS.ACCESS_BARRIER_CHAIN.pattern, {
-      hcpId: hcpId.toString(),
+      hcpId: `hcp_${hcpId}`,
       ourCompany,
     });
   }
@@ -223,6 +274,16 @@ class GraphService {
     return results;
   }
 
+  /**
+   * Strip graph ID prefix to get canonical ID
+   * Removes only the entity type prefix (e.g., "hcp_", "patient_", "cohort_")
+   * Preserves the rest of the ID (e.g., "cv_risk", "bladder_cancer")
+   */
+  private stripIdPrefix(graphId: string): string {
+    // Remove only the leading type token: hcp_1 → 1, cohort_cv_risk → cv_risk
+    return graphId.replace(/^[^_]+_/, '');
+  }
+
   private getHCPNetworkInMemory(hcpId: string, limit: number): { nodes: any[]; edges: any[] } {
     if (!this.inMemoryGraph || !this.inMemoryGraph.hasNode(hcpId)) {
       return { nodes: [], edges: [] };
@@ -231,42 +292,70 @@ class GraphService {
     const nodes: any[] = [];
     const edges: any[] = [];
     const visitedNodes = new Set<string>();
-    let count = 0;
+    const visitedEdges = new Set<string>();
 
     // Add the HCP node itself
     const hcpAttrs = this.inMemoryGraph.getNodeAttributes(hcpId);
     nodes.push({
-      id: hcpId,
+      id: this.stripIdPrefix(hcpId), // Return canonical numeric ID
+      graphId: hcpId, // Keep internal graph ID for reference
       type: hcpAttrs.type,
       label: hcpAttrs.name || hcpId,
       ...hcpAttrs,
     });
     visitedNodes.add(hcpId);
 
-    // Traverse neighbors
-    this.inMemoryGraph.forEachNeighbor(hcpId, (neighbor, edgeAttrs) => {
-      if (count >= limit) return;
+    // Use a queue for multi-hop traversal (BFS)
+    const queue: string[] = [hcpId];
+    let depth = 0;
+    const maxDepth = 2; // Go up to 2 hops deep
+
+    while (queue.length > 0 && depth < maxDepth && nodes.length < limit) {
+      const levelSize = queue.length;
       
-      if (!visitedNodes.has(neighbor)) {
-        const neighborAttrs = this.inMemoryGraph!.getNodeAttributes(neighbor);
-        nodes.push({
-          id: neighbor,
-          type: neighborAttrs.type,
-          label: neighborAttrs.name || neighbor,
-          ...neighborAttrs,
+      for (let i = 0; i < levelSize && nodes.length < limit; i++) {
+        const currentNode = queue.shift()!;
+        
+        // Traverse all edges from this node
+        this.inMemoryGraph.forEachEdge(currentNode, (edge, edgeAttrs, source, target) => {
+          if (nodes.length >= limit) return;
+          
+          const edgeKey = `${source}-${target}`;
+          const neighbor = source === currentNode ? target : source;
+          
+          // Add neighbor node if not visited
+          if (!visitedNodes.has(neighbor)) {
+            const neighborAttrs = this.inMemoryGraph!.getNodeAttributes(neighbor);
+            nodes.push({
+              id: this.stripIdPrefix(neighbor), // Return canonical numeric ID
+              graphId: neighbor, // Keep internal graph ID for reference
+              type: neighborAttrs.type,
+              label: neighborAttrs.name || neighbor,
+              ...neighborAttrs,
+            });
+            visitedNodes.add(neighbor);
+            
+            // Add to queue for next level traversal
+            if (depth < maxDepth - 1) {
+              queue.push(neighbor);
+            }
+          }
+          
+          // Add edge if not visited
+          if (!visitedEdges.has(edgeKey)) {
+            edges.push({
+              source: this.stripIdPrefix(source), // Return canonical numeric IDs
+              target: this.stripIdPrefix(target),
+              type: edgeAttrs?.type || 'CONNECTED',
+              label: edgeAttrs?.type || 'CONNECTED',
+            });
+            visitedEdges.add(edgeKey);
+          }
         });
-        visitedNodes.add(neighbor);
       }
       
-      // Add edge
-      edges.push({
-        from: hcpId,
-        to: neighbor,
-        type: edgeAttrs.type || 'CONNECTED',
-      });
-      
-      count++;
-    });
+      depth++;
+    }
 
     return { nodes, edges };
   }
