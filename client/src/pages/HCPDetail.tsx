@@ -393,7 +393,7 @@ export default function HCPDetail() {
       });
       setStage3Activities(visibleActivities);
 
-      const totalDuration = 40000; // 40 seconds
+      const totalDuration = 20000; // 20 seconds
       const progress = Math.min(100, Math.round((elapsed / totalDuration) * 100));
       setStage3Progress(progress);
 

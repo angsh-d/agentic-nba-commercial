@@ -105,26 +105,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const startTime = Date.now();
       
-      // Simulated agent activities for Stage 3: Synthesize & Reflect (~40 seconds)
+      // Simulated agent activities for Stage 3: Synthesize & Reflect (~20 seconds)
       const activities = [
         { id: 1, timestamp: startTime, agent: "Orchestrator Agent", activity: "Initializing ensemble synthesis pipeline...", status: "in_progress" },
-        { id: 2, timestamp: startTime + 3000, agent: "Orchestrator Agent", activity: "Routing to 3 parallel engines: LLM, RL-NBA, Rules", status: "completed" },
-        { id: 3, timestamp: startTime + 4000, agent: "LLM Engine", activity: "Generating strategic recommendations from proven hypotheses...", status: "in_progress" },
-        { id: 4, timestamp: startTime + 8000, agent: "LLM Engine", activity: id === 1 ? "Generated 4 safety-focused NBAs with contextual rationale" : "Generated 5 access-barrier NBAs with tactical steps", status: "completed" },
-        { id: 5, timestamp: startTime + 5000, agent: "RL-based NBA Engine", activity: "Analyzing historical effectiveness patterns...", status: "in_progress" },
-        { id: 6, timestamp: startTime + 10000, agent: "RL-based NBA Engine", activity: id === 1 ? "Scored actions: Medical Affairs +0.82, KOL Engagement +0.76" : "Scored actions: Benefits Investigation +0.88, Hub Services +0.79", status: "completed" },
-        { id: 7, timestamp: startTime + 6000, agent: "Rules Engine", activity: "Validating against compliance & commercial guardrails...", status: "in_progress" },
-        { id: 8, timestamp: startTime + 11000, agent: "Rules Engine", activity: id === 1 ? "3/4 actions approved, 1 flagged (promotional timing)" : "4/5 actions approved, 1 optimized (copay program eligibility)", status: "completed" },
-        { id: 9, timestamp: startTime + 12000, agent: "Ensemble Synthesizer", activity: "Weighing LLM creativity × RL effectiveness × Rules compliance...", status: "in_progress" },
-        { id: 10, timestamp: startTime + 17000, agent: "Ensemble Synthesizer", activity: id === 1 ? "Weighted ensemble: LLM 40% + RL 35% + Rules 25%" : "Weighted ensemble: RL 45% + LLM 30% + Rules 25%", status: "completed" },
-        { id: 11, timestamp: startTime + 18000, agent: "Ensemble Synthesizer", activity: "Ranking final NBA candidates by composite score...", status: "in_progress" },
-        { id: 12, timestamp: startTime + 22000, agent: "Ensemble Synthesizer", activity: id === 1 ? "Top NBA: Medical Affairs engagement (0.87 composite)" : "Top NBA: Benefits Investigation Service (0.91 composite)", status: "completed" },
-        { id: 13, timestamp: startTime + 23000, agent: "Reflector Agent", activity: "Assessing recommendation confidence & uncertainty...", status: "in_progress" },
-        { id: 14, timestamp: startTime + 28000, agent: "Reflector Agent", activity: id === 1 ? "High confidence (89%) - strong causal evidence + proven tactic" : "Very high confidence (94%) - clear barrier + high RL score", status: "completed" },
-        { id: 15, timestamp: startTime + 29000, agent: "Reflector Agent", activity: "Identifying adaptation triggers for monitoring...", status: "in_progress" },
-        { id: 16, timestamp: startTime + 33000, agent: "Reflector Agent", activity: id === 1 ? "Monitor: New cardiac events, ASCO follow-up, competitor moves" : "Monitor: Policy reversals, PA approval rates, patient access", status: "completed" },
-        { id: 17, timestamp: startTime + 34000, agent: "Contextualizer Agent", activity: "Generating field-ready tactical playbook...", status: "in_progress" },
-        { id: 18, timestamp: startTime + 40000, agent: "Contextualizer Agent", activity: id === 1 ? "Playbook ready: 3 NBAs with timing, talking points, resources" : "Playbook ready: 4 NBAs with sequencing, scripts, support tools", status: "completed" },
+        { id: 2, timestamp: startTime + 1500, agent: "Orchestrator Agent", activity: "Routing to 3 parallel engines: LLM, RL-NBA, Rules", status: "completed" },
+        { id: 3, timestamp: startTime + 2000, agent: "LLM Engine", activity: "Generating strategic recommendations from proven hypotheses...", status: "in_progress" },
+        { id: 4, timestamp: startTime + 4000, agent: "LLM Engine", activity: id === 1 ? "Generated 4 safety-focused NBAs with contextual rationale" : "Generated 5 access-barrier NBAs with tactical steps", status: "completed" },
+        { id: 5, timestamp: startTime + 2500, agent: "RL-based NBA Engine", activity: "Analyzing historical effectiveness patterns...", status: "in_progress" },
+        { id: 6, timestamp: startTime + 5000, agent: "RL-based NBA Engine", activity: id === 1 ? "Scored actions: Medical Affairs +0.82, KOL Engagement +0.76" : "Scored actions: Benefits Investigation +0.88, Hub Services +0.79", status: "completed" },
+        { id: 7, timestamp: startTime + 3000, agent: "Rules Engine", activity: "Validating against compliance & commercial guardrails...", status: "in_progress" },
+        { id: 8, timestamp: startTime + 5500, agent: "Rules Engine", activity: id === 1 ? "3/4 actions approved, 1 flagged (promotional timing)" : "4/5 actions approved, 1 optimized (copay program eligibility)", status: "completed" },
+        { id: 9, timestamp: startTime + 6000, agent: "Ensemble Synthesizer", activity: "Weighing LLM creativity × RL effectiveness × Rules compliance...", status: "in_progress" },
+        { id: 10, timestamp: startTime + 8500, agent: "Ensemble Synthesizer", activity: id === 1 ? "Weighted ensemble: LLM 40% + RL 35% + Rules 25%" : "Weighted ensemble: RL 45% + LLM 30% + Rules 25%", status: "completed" },
+        { id: 11, timestamp: startTime + 9000, agent: "Ensemble Synthesizer", activity: "Ranking final NBA candidates by composite score...", status: "in_progress" },
+        { id: 12, timestamp: startTime + 11000, agent: "Ensemble Synthesizer", activity: id === 1 ? "Top NBA: Medical Affairs engagement (0.87 composite)" : "Top NBA: Benefits Investigation Service (0.91 composite)", status: "completed" },
+        { id: 13, timestamp: startTime + 11500, agent: "Reflector Agent", activity: "Assessing recommendation confidence & uncertainty...", status: "in_progress" },
+        { id: 14, timestamp: startTime + 14000, agent: "Reflector Agent", activity: id === 1 ? "High confidence (89%) - strong causal evidence + proven tactic" : "Very high confidence (94%) - clear barrier + high RL score", status: "completed" },
+        { id: 15, timestamp: startTime + 14500, agent: "Reflector Agent", activity: "Identifying adaptation triggers for monitoring...", status: "in_progress" },
+        { id: 16, timestamp: startTime + 16500, agent: "Reflector Agent", activity: id === 1 ? "Monitor: New cardiac events, ASCO follow-up, competitor moves" : "Monitor: Policy reversals, PA approval rates, patient access", status: "completed" },
+        { id: 17, timestamp: startTime + 17000, agent: "Contextualizer Agent", activity: "Generating field-ready tactical playbook...", status: "in_progress" },
+        { id: 18, timestamp: startTime + 20000, agent: "Contextualizer Agent", activity: id === 1 ? "Playbook ready: 3 NBAs with timing, talking points, resources" : "Playbook ready: 4 NBAs with sequencing, scripts, support tools", status: "completed" },
       ];
 
       res.json(activities);
