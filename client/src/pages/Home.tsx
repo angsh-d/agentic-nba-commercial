@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { 
   AlertTriangle,
   MapPin,
@@ -15,7 +16,8 @@ import {
   Eye,
   Activity,
   FileText,
-  Brain
+  Brain,
+  Network
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +40,7 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from "recharts";
+import { KnowledgeGraphModal } from "@/components/KnowledgeGraphModal";
 
 interface HCP {
   id: number;
@@ -281,6 +284,7 @@ const agentDetails: Record<string, AgentInfo> = {
 export default function Home() {
   const [viewMode, setViewMode] = useState<"switch_risk" | "all">("switch_risk");
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [graphModalOpen, setGraphModalOpen] = useState(false);
   const [, setLocation] = useLocation();
   
   const { data: hcps = [], isLoading } = useQuery({
@@ -307,9 +311,18 @@ export default function Home() {
               <span className="text-gray-900">Smart Territory </span>
               <span className="text-gray-400">Intelligence</span>
             </h1>
-            <p className="text-xl text-gray-500 mb-20 leading-relaxed font-normal max-w-3xl mx-auto">
+            <p className="text-xl text-gray-500 mb-12 leading-relaxed font-normal max-w-3xl mx-auto">
               Detect switching signals. Investigate root causes. Generate targeted actions.
             </p>
+            
+            <Button
+              onClick={() => setGraphModalOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg mb-20"
+              data-testid="button-view-knowledge-graph"
+            >
+              <Network className="h-5 w-5 mr-2" />
+              View Knowledge Graph
+            </Button>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
             <div className="relative max-w-6xl mx-auto mb-20">
@@ -576,6 +589,13 @@ export default function Home() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Knowledge Graph Modal */}
+      <KnowledgeGraphModal
+        open={graphModalOpen}
+        onOpenChange={setGraphModalOpen}
+        title="Full Territory Knowledge Graph"
+      />
     </div>
   );
 }

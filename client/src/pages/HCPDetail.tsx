@@ -10,6 +10,7 @@ import { HypothesisTreeView } from "@/components/HypothesisTreeView";
 import { MultiSignalEvidencePanel } from "@/components/MultiSignalEvidencePanel";
 import { NBAProvenancePanel } from "@/components/NBAProvenancePanel";
 import { ArtifactDisplay } from "@/components/ArtifactDisplay";
+import { KnowledgeGraphModal } from "@/components/KnowledgeGraphModal";
 import {
   ArrowLeft,
   Brain,
@@ -25,7 +26,8 @@ import {
   Target,
   CheckCircle2,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Network
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine, Label as ChartLabel } from 'recharts';
 import { useQuery } from "@tanstack/react-query";
@@ -187,6 +189,7 @@ export default function HCPDetail() {
   const [, params] = useRoute("/hcp/:id");
   const hcpId = params?.id;
   const [hypothesisConfirmed, setHypothesisConfirmed] = useState(false);
+  const [graphModalOpen, setGraphModalOpen] = useState(false);
   
   // Wizard state management
   const [wizardStage, setWizardStage] = useState<1 | 2 | 3 | 4>(1);
@@ -516,6 +519,15 @@ export default function HCPDetail() {
                   <div className="mt-4 text-sm text-gray-600 font-light">
                     Multi-agent analysis
                   </div>
+                  <Button
+                    onClick={() => setGraphModalOpen(true)}
+                    variant="outline"
+                    className="mt-4"
+                    data-testid="button-view-hcp-graph"
+                  >
+                    <Network className="h-4 w-4 mr-2" />
+                    View Knowledge Graph
+                  </Button>
                 </div>
               </div>
 
@@ -2345,6 +2357,14 @@ export default function HCPDetail() {
         )}
 
       </main>
+
+      {/* Knowledge Graph Modal */}
+      <KnowledgeGraphModal
+        open={graphModalOpen}
+        onOpenChange={setGraphModalOpen}
+        hcpId={hcpId ? parseInt(hcpId) : undefined}
+        title={`${hcp.name} - Knowledge Graph`}
+      />
     </div>
   );
 }
