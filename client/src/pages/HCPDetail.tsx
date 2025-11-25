@@ -2244,7 +2244,47 @@ export default function HCPDetail() {
                       </div>
                     </div>
 
-                    <ArtifactDisplay artifacts={artifacts} />
+                    <ArtifactDisplay 
+                      artifacts={artifacts}
+                      onRegenerate={async () => {
+                        setGeneratingArtifact(true);
+                        try {
+                          // Fetch the NBA provenance to get action details
+                          const provenanceRes = await fetch(`/api/hcps/${hcpId}/nba-provenance`);
+                          if (!provenanceRes.ok) throw new Error("Failed to fetch NBA");
+                          const provenanceData = await provenanceRes.json();
+                          const finalNBA = provenanceData.finalSynthesis;
+
+                          // Trigger artifact generation
+                          const artifactRes = await fetch(`/api/ai/generate-artifact`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              hcpId: parseInt(hcpId),
+                              hcpName: hcp?.name || "Dr. Unknown",
+                              actionType: finalNBA.actionType,
+                              actionText: finalNBA.action,
+                              reason: finalNBA.reason,
+                              synthesisRationale: finalNBA.synthesisRationale,
+                            }),
+                          });
+
+                          if (!artifactRes.ok) throw new Error("Failed to generate artifact");
+                          const newArtifact = await artifactRes.json();
+                          
+                          if (newArtifact) {
+                            setArtifacts([newArtifact]);
+                          } else {
+                            throw new Error("No artifact returned");
+                          }
+                        } catch (error) {
+                          console.error("Artifact regeneration error:", error);
+                        } finally {
+                          setGeneratingArtifact(false);
+                        }
+                      }}
+                      isRegenerating={generatingArtifact}
+                    />
                   </>
                 ) : (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-6">

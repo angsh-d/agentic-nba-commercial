@@ -1,14 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Mail, Calendar, Copy, Check } from "lucide-react";
+import { FileText, Mail, Calendar, Copy, Check, RotateCw } from "lucide-react";
 import { useState } from "react";
 import type { GeneratedArtifact, CallScriptContent, EmailDraftContent, MeetingAgendaContent } from "@shared/schema";
 
 interface ArtifactDisplayProps {
   artifacts: GeneratedArtifact[];
+  onRegenerate?: () => void;
+  isRegenerating?: boolean;
 }
 
-export function ArtifactDisplay({ artifacts }: ArtifactDisplayProps) {
+export function ArtifactDisplay({ artifacts, onRegenerate, isRegenerating = false }: ArtifactDisplayProps) {
   const [copiedId, setCopiedId] = useState<number | null>(null);
 
   const copyToClipboard = (text: string, id: number) => {
@@ -91,25 +93,43 @@ ${content.followUpAction}
           <p className="text-sm text-gray-700 leading-relaxed font-light">{content.followUpAction}</p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
-          data-testid={`button-copy-${artifactId}`}
-        >
-          {copiedId === artifactId ? (
-            <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Call Script
-            </>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copyToClipboard(fullText, artifactId)}
+            className="flex-1 text-gray-700 border-gray-200 hover:bg-gray-50"
+            data-testid={`button-copy-${artifactId}`}
+          >
+            {copiedId === artifactId ? (
+              <>
+                <Check className="w-4 h-4 mr-2 text-green-600" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Call Script
+              </>
+            )}
+          </Button>
+          {onRegenerate && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRegenerate}
+              disabled={isRegenerating}
+              className="text-gray-700 border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+              data-testid="button-regenerate-artifact"
+            >
+              {isRegenerating ? (
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <RotateCw className="w-4 h-4" />
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
     );
   };
@@ -164,25 +184,43 @@ ${content.attachmentSuggestions && content.attachmentSuggestions.length > 0 ? `\
           </div>
         )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
-          data-testid={`button-copy-${artifactId}`}
-        >
-          {copiedId === artifactId ? (
-            <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Email Draft
-            </>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copyToClipboard(fullText, artifactId)}
+            className="flex-1 text-gray-700 border-gray-200 hover:bg-gray-50"
+            data-testid={`button-copy-${artifactId}`}
+          >
+            {copiedId === artifactId ? (
+              <>
+                <Check className="w-4 h-4 mr-2 text-green-600" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Email Draft
+              </>
+            )}
+          </Button>
+          {onRegenerate && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRegenerate}
+              disabled={isRegenerating}
+              className="text-gray-700 border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+              data-testid="button-regenerate-artifact"
+            >
+              {isRegenerating ? (
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <RotateCw className="w-4 h-4" />
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
     );
   };
@@ -265,25 +303,43 @@ ${content.desiredOutcome}
           <p className="text-sm text-gray-700 leading-relaxed font-light">{content.desiredOutcome}</p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => copyToClipboard(fullText, artifactId)}
-          className="w-full text-gray-700 border-gray-200 hover:bg-gray-50"
-          data-testid={`button-copy-${artifactId}`}
-        >
-          {copiedId === artifactId ? (
-            <>
-              <Check className="w-4 h-4 mr-2 text-green-600" />
-              Copied!
-            </>
-          ) : (
-            <>
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Meeting Agenda
-            </>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copyToClipboard(fullText, artifactId)}
+            className="flex-1 text-gray-700 border-gray-200 hover:bg-gray-50"
+            data-testid={`button-copy-${artifactId}`}
+          >
+            {copiedId === artifactId ? (
+              <>
+                <Check className="w-4 h-4 mr-2 text-green-600" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Meeting Agenda
+              </>
+            )}
+          </Button>
+          {onRegenerate && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRegenerate}
+              disabled={isRegenerating}
+              className="text-gray-700 border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+              data-testid="button-regenerate-artifact"
+            >
+              {isRegenerating ? (
+                <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <RotateCw className="w-4 h-4" />
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
     );
   };
