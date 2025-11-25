@@ -130,23 +130,27 @@ export function KnowledgeGraphModal({
   }, [open, fetchGraphData]);
 
   // Filter nodes based on search and active filters
+  const filteredNodes = graphData.nodes.filter(node => {
+    const matchesSearch = searchTerm === '' || 
+      node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      node.id.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = activeFilters.size === 0 || activeFilters.has(node.type);
+    
+    return matchesSearch && matchesFilter;
+  });
+
+  const filteredLinks = graphData.links.filter(link => {
+    const sourceId = typeof link.source === 'string' ? link.source : link.source.id;
+    const targetId = typeof link.target === 'string' ? link.target : link.target.id;
+    
+    return filteredNodes.some(n => n.id === sourceId) && 
+           filteredNodes.some(n => n.id === targetId);
+  });
+
   const filteredData = {
-    nodes: graphData.nodes.filter(node => {
-      const matchesSearch = searchTerm === '' || 
-        node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        node.id.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesFilter = activeFilters.size === 0 || activeFilters.has(node.type);
-      
-      return matchesSearch && matchesFilter;
-    }),
-    links: graphData.links.filter(link => {
-      const sourceId = typeof link.source === 'string' ? link.source : link.source.id;
-      const targetId = typeof link.target === 'string' ? link.target : link.target.id;
-      
-      return filteredData.nodes.some(n => n.id === sourceId) && 
-             filteredData.nodes.some(n => n.id === targetId);
-    })
+    nodes: filteredNodes,
+    links: filteredLinks
   };
 
   const toggleFilter = (type: string) => {
