@@ -440,7 +440,7 @@ export default function HCPDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
+        <Navbar onOpenGraph={() => setGraphModalOpen(true)} />
         <div className="flex items-center justify-center h-[80vh]">
           <div className="text-center">
             <div className="w-12 h-12 border-2 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-6" />
@@ -454,7 +454,7 @@ export default function HCPDetail() {
   if (!hcp) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
+        <Navbar onOpenGraph={() => setGraphModalOpen(true)} />
         <div className="max-w-6xl mx-auto px-8 py-20">
           <p className="text-center text-gray-500 font-light text-lg">Provider not found</p>
         </div>
@@ -476,7 +476,7 @@ export default function HCPDetail() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar onOpenGraph={() => setGraphModalOpen(true)} />
 
       <main className="max-w-6xl mx-auto px-8 py-20">
         {/* Back Button */}
@@ -519,15 +519,6 @@ export default function HCPDetail() {
                   <div className="mt-4 text-sm text-gray-600 font-light">
                     Multi-agent analysis
                   </div>
-                  <Button
-                    onClick={() => setGraphModalOpen(true)}
-                    variant="outline"
-                    className="mt-4"
-                    data-testid="button-view-hcp-graph"
-                  >
-                    <Network className="h-4 w-4 mr-2" />
-                    View Knowledge Graph
-                  </Button>
                 </div>
               </div>
 

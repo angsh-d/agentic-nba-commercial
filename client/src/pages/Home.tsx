@@ -301,7 +301,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navbar onOpenGraph={() => setGraphModalOpen(true)} />
       
       {/* Hero Section */}
       <section className="bg-white border-b border-gray-200">
@@ -311,18 +311,9 @@ export default function Home() {
               <span className="text-gray-900">Smart Territory </span>
               <span className="text-gray-400">Intelligence</span>
             </h1>
-            <p className="text-xl text-gray-500 mb-12 leading-relaxed font-normal max-w-3xl mx-auto">
+            <p className="text-xl text-gray-500 mb-16 leading-relaxed font-normal max-w-3xl mx-auto">
               Detect switching signals. Investigate root causes. Generate targeted actions.
             </p>
-            
-            <Button
-              onClick={() => setGraphModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg mb-20"
-              data-testid="button-view-knowledge-graph"
-            >
-              <Network className="h-5 w-5 mr-2" />
-              View Knowledge Graph
-            </Button>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
             <div className="relative max-w-6xl mx-auto mb-20">

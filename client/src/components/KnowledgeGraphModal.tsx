@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { 
   X, 
   Search, 
@@ -198,6 +199,9 @@ export function KnowledgeGraphModal({
         className={`${isFullscreen ? 'max-w-full h-screen' : 'max-w-7xl h-[90vh]'} p-0 gap-0 transition-all`}
         data-testid="modal-knowledge-graph"
       >
+        <VisuallyHidden>
+          <DialogTitle>{title}</DialogTitle>
+        </VisuallyHidden>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white">
