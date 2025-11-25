@@ -89,28 +89,34 @@ Benefits Investigation Service with Hub enrollment
 
 ---
 
-## Slide 5: Unique Capabilities
-### What Sets Us Apart
+## Slide 5: How We Augment Your Existing NBA Systems
+### The Missing Layer: Autonomous Root Cause Investigation
 
-**1. Multi-Hop Knowledge Graph (Neo4j)**
-- 18 node types, 300+ relationships
-- Connects clinical events → patient switches → payer policies → HCP networks
-- Enables "Why did this HCP switch?" multi-hop reasoning
+**Your Current NBA Stack:**
+- **RL-based Systems:** Recommend actions based on historical effectiveness patterns
+- **Rules-based Systems:** Apply compliance guardrails and commercial policies
+- **Gap:** Both assume you already know WHY the HCP switched
 
-**2. Explainable AI**
-- Risk score breakdown by factor (declining RX, competitor growth, market share)
-- Visual evidence with temporal correlation charts
-- Interactive agent reasoning logs
+**What We Add On Top:**
+1. **Autonomous Investigation Layer**
+   - AI agents investigate WHY across 18 connected data sources (knowledge graph)
+   - Connects scattered signals: patient switches → payer policies → clinical events → HCP networks
+   - Delivers root cause with 95% confidence in <1 minute
 
-**3. Interactive Human-in-the-Loop**
-- Reps can suggest: "Check clinical publications around this time"
-- Agents recompute observations with enhanced signals
-- Validates findings before taking action
+2. **Explainability & Human Guidance**
+   - Shows complete reasoning chain with temporal evidence
+   - Reps can guide investigation: "Check clinical publications"
+   - Validates causality before passing to your existing NBA engines
 
-**4. Production-Ready Artifacts**
-- Generated call scripts with objection handling
-- Email drafts with payer-specific messaging
-- One-click regenerate for fresh variations
+3. **Production-Ready Execution**
+   - Auto-generates field-ready call scripts with objection handling
+   - Integrates with your existing RL/Rules engines for final NBA selection
+   - Provides the "why" context that makes your NBAs more effective
+
+**The Value:**
+- **Enhances** your existing investments (doesn't replace them)
+- **Feeds** validated root causes to your RL/Rules engines
+- **Improves** NBA effectiveness by ensuring the right action for the right reason
 
 ---
 
