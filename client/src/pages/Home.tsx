@@ -310,48 +310,41 @@ export default function Home() {
               Autonomous agents detect signals, investigate causal drivers, and generate contextual Next Best Actions
             </p>
             
-            {/* Agent Pipeline - Sleek Horizontal Flow */}
+            {/* Agent Pipeline - Apple Minimalist Style */}
             <div className="relative max-w-6xl mx-auto mb-20">
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-4">
                 {/* Stage 1: Detect */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="relative group"
+                  className="relative"
                 >
-                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative">
-                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Detect</div>
-                      <div className="space-y-5">
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('observer')}
-                          data-testid="agent-observer"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <Eye className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Observer</div>
+                  <div className="bg-white rounded-xl p-8 border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div className="text-lg font-semibold text-gray-900 mb-6">Detect</div>
+                    <div className="space-y-4">
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('observer')}
+                        data-testid="agent-observer"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Eye className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('correlator')}
-                          data-testid="agent-correlator"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <Activity className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Correlator</div>
-                        </div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Observer</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                    </div>
-                  </div>
-                  {/* Sleek Connector */}
-                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
-                    <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
-                      <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('correlator')}
+                        data-testid="agent-correlator"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Activity className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Correlator</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -361,40 +354,33 @@ export default function Home() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="relative group"
+                  className="relative"
                 >
-                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative">
-                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Investigate</div>
-                      <div className="space-y-5">
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('planner')}
-                          data-testid="agent-planner"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <Target className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Planner</div>
+                  <div className="bg-white rounded-xl p-8 border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div className="text-lg font-semibold text-gray-900 mb-6">Investigate</div>
+                    <div className="space-y-4">
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('planner')}
+                        data-testid="agent-planner"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Target className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('gatherer')}
-                          data-testid="agent-gatherer"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <Search className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Gatherer</div>
-                        </div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Planner</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                    </div>
-                  </div>
-                  {/* Sleek Connector */}
-                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
-                    <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
-                      <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('gatherer')}
+                        data-testid="agent-gatherer"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Search className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Gatherer</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -404,33 +390,31 @@ export default function Home() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="group"
                 >
-                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative">
-                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Act</div>
-                      <div className="space-y-5">
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('synthesizer')}
-                          data-testid="agent-synthesizer"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <Sparkles className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Synthesizer</div>
+                  <div className="bg-white rounded-xl p-8 border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div className="text-lg font-semibold text-gray-900 mb-6">Act</div>
+                    <div className="space-y-4">
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('synthesizer')}
+                        data-testid="agent-synthesizer"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div 
-                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
-                          onClick={() => setSelectedAgent('reflector')}
-                          data-testid="agent-reflector"
-                        >
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
-                            <CheckCircle2 className="w-5.5 h-5.5 text-blue-600" />
-                          </div>
-                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Reflector</div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Synthesizer</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
+                      </div>
+                      <div 
+                        className="flex items-center gap-3 cursor-pointer group/item"
+                        onClick={() => setSelectedAgent('reflector')}
+                        data-testid="agent-reflector"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-5 h-5 text-blue-600" />
                         </div>
+                        <div className="text-[15px] text-gray-900 font-medium group-hover/item:text-blue-600 transition-colors">Reflector</div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 ml-auto opacity-0 group-hover/item:opacity-100 transition-opacity" />
                       </div>
                     </div>
                   </div>
