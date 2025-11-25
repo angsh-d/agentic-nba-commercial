@@ -1423,7 +1423,7 @@ For questions, contact Cigna PharmaCare Solutions at 1-800-CIGNA-RX`,
     });
 
     await storage.createPayerCommunication({
-      payerName: "Blue Cross Blue Shield",
+      payerName: "Humana",
       documentType: "tier_change",
       documentTitle: "Specialty Pharmacy Network Optimization",
       documentText: `BLUE CROSS BLUE SHIELD - MASSACHUSETTS

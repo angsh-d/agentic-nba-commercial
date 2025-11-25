@@ -654,7 +654,11 @@ export class GraphETL {
     // Demo: Mark competitive relationships
     await graphService.addRelationship('drug_onco-pro', 'drug_onco-rival', RELATIONSHIP_TYPES.COMPETES_WITH, { indication: 'RCC', marketSegment: 'Immunotherapy' });
     await graphService.addRelationship('drug_onco-rival', 'competitor_biopharma_rival', RELATIONSHIP_TYPES.MANUFACTURED_BY);
-    console.log('[GraphETL] Created 2 competitor relationships');
+    
+    // Link second competitor (Oncology Solutions Inc) - also competes in RCC/Prostate space
+    await graphService.addRelationship('drug_onco-pro', 'competitor_oncology_solutions', RELATIONSHIP_TYPES.COMPETES_WITH, { indication: 'RCC', marketSegment: 'Targeted Therapy' });
+    
+    console.log('[GraphETL] Created 3 competitor relationships');
   }
 
   /**
@@ -976,6 +980,9 @@ export class GraphETL {
       await this.createDrugManufacturerRelationships();
       await this.createAccessDenialRelationships();
       
+      // Run integrity check to detect orphaned nodes
+      await this.checkDataIntegrity();
+      
       const duration = Date.now() - startTime;
       const stats = await this.getStats();
       
@@ -1200,6 +1207,8 @@ export class GraphETL {
             documentType: comm.documentType 
           }
         );
+      } else {
+        console.warn(`[GraphETL] WARNING: PayerCommunication "${comm.documentTitle}" references unknown payer "${comm.payerName}" - node will be orphaned`);
       }
       totalComms++;
     }
@@ -1278,6 +1287,47 @@ export class GraphETL {
     }
     
     console.log(`[GraphETL] Loaded ${totalNBAs} NBAs and ${totalInsights} AI insights`);
+  }
+
+  /**
+   * Check data integrity after ETL - report orphaned nodes by type
+   */
+  private async checkDataIntegrity(): Promise<void> {
+    console.log('[GraphETL] Running data integrity checks...');
+    
+    try {
+      // Query Neo4j directly for orphaned nodes (nodes with degree 0)
+      const query = `
+        MATCH (n)
+        WHERE NOT (n)--()
+        RETURN labels(n)[0] as type, id(n) as nodeId
+        ORDER BY type
+      `;
+      
+      const result = await graphService.runQuery(query);
+      
+      if (result.length === 0) {
+        console.log('[GraphETL] ✅ Data integrity check passed - no orphaned nodes detected');
+        return;
+      }
+
+      const orphanedByType: Record<string, number> = {};
+      let totalOrphans = 0;
+
+      result.forEach((record: any) => {
+        // Extract fields from Neo4j record using .get() method
+        const type = record.get ? record.get('type') : (record.type || 'unknown');
+        orphanedByType[type] = (orphanedByType[type] || 0) + 1;
+        totalOrphans++;
+      });
+
+      console.warn(`[GraphETL] ⚠️  Found ${totalOrphans} orphaned nodes (no relationships):`);
+      Object.entries(orphanedByType).forEach(([type, count]) => {
+        console.warn(`  - ${type}: ${count} orphaned`);
+      });
+    } catch (error) {
+      console.error('[GraphETL] Failed to run integrity check:', error);
+    }
   }
 }
 
