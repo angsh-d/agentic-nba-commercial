@@ -7,16 +7,17 @@
 ### What Field Reps Face Today
 
 **The Problem:**
-- HCPs switching to competitor products with no early warning
-- 44% prescription declines going unnoticed until it's too late
-- Hundreds of data signals (call notes, payer policies, clinical events) but no way to connect the dots
-- Reps spending hours analyzing data instead of engaging with doctors
+- HCPs have already switched to competitors, but reps don't know why
+- 44% prescription declines are visible in the data, but root causes are hidden
+- Hundreds of data signals (call notes, payer policies, clinical events) scattered across systems
+- Reps spending hours manually investigating each switching event
+- No clear path from "Dr. X switched" to "Here's exactly why and what to do"
 
 **The Cost:**
-- Lost market share
-- Missed intervention opportunities
-- Inefficient territory planning
-- Reactive (not proactive) sales strategy
+- Unable to address root causes effectively
+- Trial-and-error engagement strategies
+- Wasted time on wrong interventions
+- Same switches happening to other HCPs in the territory
 
 ---
 
