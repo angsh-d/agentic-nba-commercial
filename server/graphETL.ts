@@ -594,17 +594,48 @@ export class GraphETL {
    * Create payer coverage relationships (formulary)
    */
   private async createCoverageRelationships(): Promise<void> {
-    // Demo: Create payer-drug coverage relationships
-    const coverages = [
-      { payerId: 'payer_1', drugId: 'drug_onco-pro', tier: 'tier2' },
-      { payerId: 'payer_1', drugId: 'drug_onco-rival', tier: 'tier1' },
-      { payerId: 'payer_2', drugId: 'drug_onco-pro', tier: 'tier3' },
-      { payerId: 'payer_3', drugId: 'drug_onco-rival', tier: 'tier2' },
-    ];
+    // Create payer-drug coverage relationships using actual payer IDs from storage
+    const payers = await storage.getAllPayers();
+    
+    if (payers.length === 0) {
+      console.warn('[GraphETL] No payers found, skipping coverage relationships');
+      return;
+    }
+
+    // Create coverage for each payer and drug combination
+    const coverages = [];
+    for (const payer of payers) {
+      const payerId = `payer_${payer.id}`;
+      
+      // Our drug (Onco-Pro) has variable coverage based on payer
+      coverages.push({
+        payerId,
+        drugId: 'drug_onco-pro',
+        tier: payer.id === 1 ? 'tier2' : (payer.id === 2 ? 'tier3' : 'tier3'),
+        priorAuthRequired: payer.id !== 1,
+      });
+      
+      // Competitor drug (Onco-Rival) generally has better coverage
+      coverages.push({
+        payerId,
+        drugId: 'drug_onco-rival',
+        tier: payer.id === 1 ? 'tier1' : 'tier2',
+        priorAuthRequired: false,
+      });
+    }
 
     for (const coverage of coverages) {
-      await graphService.addRelationship(coverage.payerId, coverage.drugId, RELATIONSHIP_TYPES.COVERS, { tier: coverage.tier });
+      await graphService.addRelationship(
+        coverage.payerId, 
+        coverage.drugId, 
+        RELATIONSHIP_TYPES.COVERS, 
+        { 
+          tier: coverage.tier,
+          priorAuthRequired: coverage.priorAuthRequired,
+        }
+      );
     }
+    
     console.log(`[GraphETL] Created ${coverages.length} coverage relationships`);
   }
 
@@ -644,6 +675,8 @@ export class GraphETL {
    * Create territory assignment relationships and account-payer contracts
    */
   private async createTerritoryRelationships(): Promise<void> {
+    const payers = await storage.getAllPayers(); // Get actual payers with real IDs
+    
     // Demo: Assign reps to territories
     await graphService.addRelationship('territory_northeast', 'rep_rep1', RELATIONSHIP_TYPES.ASSIGNED_TO);
     await graphService.addRelationship('territory_southwest', 'rep_rep2', RELATIONSHIP_TYPES.ASSIGNED_TO);
@@ -657,13 +690,30 @@ export class GraphETL {
     await graphService.addRelationship('hcp_2', 'territory_northeast', RELATIONSHIP_TYPES.IN_TERRITORY);
     await graphService.addRelationship('hcp_3', 'territory_southwest', RELATIONSHIP_TYPES.IN_TERRITORY);
     
-    // Create account-payer contracts (CONTRACTED_WITH relationships)
-    await graphService.addRelationship('account_city_general_hospital', 'payer_1', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-01-01' });
-    await graphService.addRelationship('account_city_general_hospital', 'payer_2', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-06-01' });
-    await graphService.addRelationship('account_riverside_medical_center', 'payer_1', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-03-01' });
-    await graphService.addRelationship('account_riverside_medical_center', 'payer_3', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-11-01' });
+    // Create account-payer contracts (CONTRACTED_WITH relationships) using actual payer IDs
+    // Match payers by name/type for robust selection independent of ordering
+    let contractCount = 7; // Territory + account + HCP assignments
     
-    console.log('[GraphETL] Created 11 territory and contract relationships');
+    if (payers.length >= 2) {
+      // Find payers by business keys (type/name) instead of positional index
+      const commercialPayers = payers.filter(p => p.payerType !== 'Government');
+      const governmentPayers = payers.filter(p => p.payerType === 'Government');
+      
+      // Create contracts using first available payer of each type
+      const preferredPayer = commercialPayers[0] || payers[0];
+      const standardPayer = commercialPayers[1] || governmentPayers[0] || payers[1];
+      const altPayer = governmentPayers[0] || payers[payers.length - 1];
+      
+      await graphService.addRelationship('account_city_general_hospital', `payer_${preferredPayer.id}`, RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-01-01', payerName: preferredPayer.name });
+      await graphService.addRelationship('account_city_general_hospital', `payer_${standardPayer.id}`, RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-06-01', payerName: standardPayer.name });
+      await graphService.addRelationship('account_riverside_medical_center', `payer_${preferredPayer.id}`, RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-03-01', payerName: preferredPayer.name });
+      await graphService.addRelationship('account_riverside_medical_center', `payer_${altPayer.id}`, RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-11-01', payerName: altPayer.name });
+      contractCount += 4;
+    } else {
+      console.warn('[GraphETL] Insufficient payers for account-payer contracts');
+    }
+    
+    console.log(`[GraphETL] Created ${contractCount} territory and contract relationships`);
   }
 
   /**
@@ -671,15 +721,33 @@ export class GraphETL {
    */
   private async createPatientPayerRelationships(): Promise<void> {
     const hcps = await storage.getAllHcps();
+    const payers = await storage.getAllPayers(); // Get actual payers with real IDs
     let relationshipCount = 0;
+
+    if (payers.length === 0) {
+      console.warn('[GraphETL] No payers found, skipping patient-payer relationships');
+      return;
+    }
 
     for (const hcp of hcps) {
       const patients = await storage.getPatientsByHcp(hcp.id);
       
       for (const patient of patients) {
-        // Assign patients to payers (most to payer 1, some to others)
-        const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
-        await graphService.addRelationship(`patient_${patient.id}`, payerId, RELATIONSHIP_TYPES.COVERED_BY, { enrollmentDate: '2023-01-01' });
+        // Assign patients to payers using actual payer IDs from storage
+        const payerIndex = patient.id % payers.length;
+        const payer = payers[payerIndex];
+        const payerId = `payer_${payer.id}`;
+        
+        await graphService.addRelationship(
+          `patient_${patient.id}`, 
+          payerId, 
+          RELATIONSHIP_TYPES.COVERED_BY, 
+          { 
+            enrollmentDate: '2023-01-01',
+            payerName: payer.name,
+            tier: payer.payerType === 'Government' ? 'medicare' : 'commercial',
+          }
+        );
         relationshipCount++;
       }
     }
@@ -757,7 +825,13 @@ export class GraphETL {
    */
   private async createAccessDenialRelationships(): Promise<void> {
     const hcps = await storage.getAllHcps();
+    const payers = await storage.getAllPayers(); // Get actual payers with real IDs
     let relationshipCount = 0;
+
+    if (payers.length === 0) {
+      console.warn('[GraphETL] No payers found, skipping access denial relationships');
+      return;
+    }
 
     for (const hcp of hcps) {
       const patients = await storage.getPatientsByHcp(hcp.id);
@@ -769,7 +843,9 @@ export class GraphETL {
           // For Dr. Michael Chen's patients (hcp 2): all had access barriers
           if (hcp.id === 2 && patient.currentDrug) {
             const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
-            const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
+            const payerIndex = patient.id % payers.length;
+            const payer = payers[payerIndex];
+            const payerId = `payer_${payer.id}`;
             
             await graphService.addRelationship(
               `patient_${patient.id}`,
@@ -779,6 +855,7 @@ export class GraphETL {
                 denialReason: 'prior_authorization_denied',
                 denialDate: patient.switchedDate,
                 payerId,
+                payerName: payer.name,
                 appealAttempts: patient.id % 2,
               }
             );
@@ -787,7 +864,9 @@ export class GraphETL {
           // For other HCPs: 1/3 had access barriers
           else if (hcp.id !== 1 && patient.id % 3 === 0 && patient.currentDrug) {
             const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
-            const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
+            const payerIndex = patient.id % payers.length;
+            const payer = payers[payerIndex];
+            const payerId = `payer_${payer.id}`;
             
             await graphService.addRelationship(
               `patient_${patient.id}`,
@@ -797,6 +876,7 @@ export class GraphETL {
                 denialReason: 'formulary_tier_restriction',
                 denialDate: patient.switchedDate,
                 payerId,
+                payerName: payer.name,
                 appealAttempts: 1,
               }
             );
