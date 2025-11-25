@@ -68,6 +68,17 @@ export default async function runApp(
   await db.execute(sql`SELECT 1`);
   log("Database connection established");
   
+  // Initialize knowledge graph ETL
+  try {
+    const { graphETL } = await import("./graphETL");
+    log("Running knowledge graph ETL...");
+    await graphETL.runFullETL();
+    log("Knowledge graph ETL completed");
+  } catch (error: any) {
+    log(`Knowledge graph ETL failed: ${error.message}`);
+    // Don't block server startup on ETL failure
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
