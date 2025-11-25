@@ -30,7 +30,8 @@ export class GraphETL {
       await this.createPatientRelationships();
       await this.createEventRelationships();
       await this.createSwitchingRelationships();
-      await this.createAccessEventRelationships();
+      // NOTE: createAccessEventRelationships() removed - it created incorrect ACCESS_ISSUE→Payer edges
+      // Access barriers are handled by createAccessDenialRelationships() if needed
       
       console.log('[GraphETL] Knowledge graph population completed');
     } catch (error) {
@@ -90,12 +91,12 @@ export class GraphETL {
           // For Dr. Michael Chen's patients (hcp 2): access barrier switches
           else if (hcp.id === 2) {
             switchReason = 'access_barrier';
-            deniedDrug = patient.currentDrug; // They were denied their preferred drug
+            deniedDrug = "Onco-Pro"; // Our drug they were denied (they switched to Onco-Rival)
           }
           // For other HCPs: mixed reasons
           else {
             switchReason = patient.id % 3 === 0 ? 'access_barrier' : 'clinical_reason';
-            deniedDrug = switchReason === 'access_barrier' ? patient.currentDrug : null;
+            deniedDrug = switchReason === 'access_barrier' ? "Onco-Pro" : null;
           }
         }
         
@@ -358,31 +359,38 @@ export class GraphETL {
       const patients = await storage.getPatientsByHcp(hcp.id);
       
       for (const patient of patients) {
-        if (patient.currentDrug && patient.switchedToDrug && patient.currentDrug !== patient.switchedToDrug) {
+        // If patient has a switchedDate and switchedToDrug, they switched drugs
+        if (patient.switchedDate && patient.switchedToDrug) {
+          // In our data model: currentDrug == switchedToDrug (both are the drug they're on now)
+          // We infer they switched FROM "Onco-Pro" (our company drug) TO competitor
+          const previousDrug = "Onco-Pro"; // Our company's drug they switched away from
+          const previousDrugId = `drug_${previousDrug.toLowerCase().replace(/\s+/g, '_')}`;
           const currentDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
-          const switchedDrugId = `drug_${patient.switchedToDrug.toLowerCase().replace(/\s+/g, '_')}`;
           
-          // SWITCHED_FROM relationship
-          await graphService.addRelationship(
-            `patient_${patient.id}`,
-            currentDrugId,
-            RELATIONSHIP_TYPES.SWITCHED_FROM,
-            {
-              switchDate: patient.switchedDate,
-            }
-          );
+          // Only create switching relationships if they actually changed drugs
+          if (previousDrug !== patient.currentDrug) {
+            // SWITCHED_FROM relationship
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              previousDrugId,
+              RELATIONSHIP_TYPES.SWITCHED_FROM,
+              {
+                switchDate: patient.switchedDate,
+              }
+            );
 
-          // SWITCHED_TO relationship
-          await graphService.addRelationship(
-            `patient_${patient.id}`,
-            switchedDrugId,
-            RELATIONSHIP_TYPES.SWITCHED_TO,
-            {
-              switchDate: patient.switchedDate,
-            }
-          );
-          
-          relationshipCount += 2;
+            // SWITCHED_TO relationship  
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              currentDrugId,
+              RELATIONSHIP_TYPES.SWITCHED_TO,
+              {
+                switchDate: patient.switchedDate,
+              }
+            );
+            
+            relationshipCount += 2;
+          }
         }
       }
     }
@@ -837,50 +845,74 @@ export class GraphETL {
       const patients = await storage.getPatientsByHcp(hcp.id);
       
       for (const patient of patients) {
-        // Create DENIED_BY edges for patients who had access barriers
+        // Create DENIED_BY and ACCESS_ISSUE edges for patients who had access barriers
         // These are patients whose switchReason was 'access_barrier'
         if (patient.switchedToDrug && patient.switchedDate) {
           // For Dr. Michael Chen's patients (hcp 2): all had access barriers
           if (hcp.id === 2 && patient.currentDrug) {
-            const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
+            const deniedDrug = "Onco-Pro"; // Our drug they were denied (they switched to competitor)
+            const deniedDrugId = `drug_${deniedDrug.toLowerCase().replace(/\s+/g, '_')}`;
             const payerIndex = patient.id % payers.length;
             const payer = payers[payerIndex];
-            const payerId = `payer_${payer.id}`;
+            const payerNodeId = `payer_${payer.id}`;
             
+            // Patient -[:ACCESS_ISSUE]-> Drug (our drug they were denied)
             await graphService.addRelationship(
               `patient_${patient.id}`,
               deniedDrugId,
-              RELATIONSHIP_TYPES.DENIED_BY,
+              RELATIONSHIP_TYPES.ACCESS_ISSUE,
               {
                 denialReason: 'prior_authorization_denied',
                 denialDate: patient.switchedDate,
-                payerId,
-                payerName: payer.name,
                 appealAttempts: patient.id % 2,
               }
             );
-            relationshipCount++;
+            
+            // Patient -[:DENIED_BY]-> Payer (who denied our drug)
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              payerNodeId,
+              RELATIONSHIP_TYPES.DENIED_BY,
+              {
+                deniedDrug: deniedDrug, // "Onco-Pro" (our drug)
+                denialReason: 'prior_authorization_denied',
+                denialDate: patient.switchedDate,
+              }
+            );
+            relationshipCount += 2;
           }
           // For other HCPs: 1/3 had access barriers
           else if (hcp.id !== 1 && patient.id % 3 === 0 && patient.currentDrug) {
-            const deniedDrugId = `drug_${patient.currentDrug.toLowerCase().replace(/\s+/g, '_')}`;
+            const deniedDrug = "Onco-Pro"; // Our drug they were denied
+            const deniedDrugId = `drug_${deniedDrug.toLowerCase().replace(/\s+/g, '_')}`;
             const payerIndex = patient.id % payers.length;
             const payer = payers[payerIndex];
-            const payerId = `payer_${payer.id}`;
+            const payerNodeId = `payer_${payer.id}`;
             
+            // Patient -[:ACCESS_ISSUE]-> Drug (our drug they were denied)
             await graphService.addRelationship(
               `patient_${patient.id}`,
               deniedDrugId,
-              RELATIONSHIP_TYPES.DENIED_BY,
+              RELATIONSHIP_TYPES.ACCESS_ISSUE,
               {
                 denialReason: 'formulary_tier_restriction',
                 denialDate: patient.switchedDate,
-                payerId,
-                payerName: payer.name,
                 appealAttempts: 1,
               }
             );
-            relationshipCount++;
+            
+            // Patient -[:DENIED_BY]-> Payer (who denied our drug)
+            await graphService.addRelationship(
+              `patient_${patient.id}`,
+              payerNodeId,
+              RELATIONSHIP_TYPES.DENIED_BY,
+              {
+                deniedDrug: deniedDrug, // "Onco-Pro" (our drug)
+                denialReason: 'formulary_tier_restriction',
+                denialDate: patient.switchedDate,
+              }
+            );
+            relationshipCount += 2;
           }
         }
       }
@@ -916,12 +948,20 @@ export class GraphETL {
       await this.loadProtocols();
       await this.loadGuidelines();
       
+      // Load field intelligence & AI nodes
+      await this.loadAccessEvents();
+      await this.loadCallNotes();
+      await this.loadDetectedSignals();
+      await this.loadPayerCommunications();
+      await this.loadNBAsAndInsights();
+      
       // Create core relationships
       await this.createPrescriptionRelationships();
       await this.createPatientRelationships();
       await this.createEventRelationships();
       await this.createSwitchingRelationships();
-      await this.createAccessEventRelationships();
+      // NOTE: createAccessEventRelationships() removed - it created incorrect ACCESS_ISSUE→Payer edges
+      // Access barriers are handled by createAccessDenialRelationships() below
       
       // Create enhanced commercial relationships
       await this.createReferralRelationships();
@@ -979,6 +1019,265 @@ export class GraphETL {
       relationships: graph.size,
       nodeTypes,
     };
+  }
+
+  /**
+   * Load access events as nodes with detailed barrier metadata
+   */
+  private async loadAccessEvents(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let totalEvents = 0;
+
+    for (const hcp of hcps) {
+      const accessEvents = await storage.getAccessEventsByHcp(hcp.id);
+      totalEvents += accessEvents.length;
+      
+      for (const event of accessEvents) {
+        const eventId = `access_event_${event.id}`;
+        
+        await graphService.addNode(eventId, NODE_TYPES.ACCESS_EVENT, {
+          id: event.id,
+          patientId: event.patientId,
+          hcpId: event.hcpId,
+          payerId: event.payerId,
+          eventType: event.eventType,
+          eventDate: event.eventDate?.toISOString() || new Date().toISOString(),
+          drugName: event.drugName,
+          denialReason: event.denialReason,
+          denialCode: event.denialCode,
+          copayAmount: event.copayAmount,
+          lagDays: event.lagDays,
+          switchedToDrug: event.switchedToDrug,
+          impact: event.impact,
+        });
+
+        // Create HAD_ACCESS_EVENT relationship from Patient
+        await graphService.addRelationship(
+          `patient_${event.patientId}`,
+          eventId,
+          RELATIONSHIP_TYPES.HAD_ACCESS_EVENT,
+          { date: event.eventDate }
+        );
+
+        // Create TRIGGERED_BY relationship from Payer if payer exists
+        if (event.payerId) {
+          const payers = await storage.getAllPayers();
+          const payer = payers.find(p => p.id === event.payerId);
+          if (payer) {
+            const payerId = `payer_${payer.id}`; // Match loadPayers() format
+            await graphService.addRelationship(
+              eventId,
+              payerId,
+              RELATIONSHIP_TYPES.TRIGGERED_BY,
+              { reason: event.denialReason }
+            );
+          }
+        }
+      }
+    }
+    
+    console.log(`[GraphETL] Loaded ${totalEvents} access events`);
+  }
+
+  /**
+   * Load call notes as nodes with field rep intelligence
+   */
+  private async loadCallNotes(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let totalNotes = 0;
+
+    for (const hcp of hcps) {
+      const callNotes = await storage.getCallNotesByHcp(hcp.id);
+      totalNotes += callNotes.length;
+      
+      for (const note of callNotes) {
+        const noteId = `call_note_${note.id}`;
+        
+        await graphService.addNode(noteId, NODE_TYPES.CALL_NOTE, {
+          id: note.id,
+          hcpId: note.hcpId,
+          repName: note.repName,
+          visitDate: note.visitDate?.toISOString() || new Date().toISOString(),
+          noteType: note.noteType,
+          noteText: note.noteText,
+          keyTopics: note.keyTopics,
+          sentiment: note.sentiment,
+        });
+
+        // Create DOCUMENTED_IN relationship from HCP
+        await graphService.addRelationship(
+          `hcp_${hcp.id}`,
+          noteId,
+          RELATIONSHIP_TYPES.DOCUMENTED_IN,
+          { 
+            date: note.visitDate,
+            sentiment: note.sentiment,
+            noteType: note.noteType 
+          }
+        );
+      }
+    }
+    
+    console.log(`[GraphETL] Loaded ${totalNotes} call notes`);
+  }
+
+  /**
+   * Load detected signals as nodes with AI agent observations
+   */
+  private async loadDetectedSignals(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let totalSignals = 0;
+
+    for (const hcp of hcps) {
+      const signals = await storage.getDetectedSignals(hcp.id);
+      totalSignals += signals.length;
+      
+      for (const signal of signals) {
+        const signalId = `signal_${signal.id}`;
+        
+        await graphService.addNode(signalId, NODE_TYPES.DETECTED_SIGNAL, {
+          id: signal.id,
+          hcpId: signal.hcpId,
+          signalType: signal.signalType,
+          signalStrength: signal.signalStrength,
+          signalSource: signal.signalSource,
+          signalDescription: signal.signalDescription,
+          detectedAt: signal.detectedAt?.toISOString() || new Date().toISOString(),
+          contextData: signal.contextData,
+        });
+
+        // Create DETECTED_FOR relationship from HCP
+        await graphService.addRelationship(
+          signalId,
+          `hcp_${hcp.id}`,
+          RELATIONSHIP_TYPES.DETECTED_FOR,
+          { 
+            strength: signal.signalStrength,
+            source: signal.signalSource,
+            date: signal.detectedAt 
+          }
+        );
+      }
+    }
+    
+    console.log(`[GraphETL] Loaded ${totalSignals} detected signals`);
+  }
+
+  /**
+   * Load payer communications as nodes with policy documents
+   */
+  private async loadPayerCommunications(): Promise<void> {
+    const payers = await storage.getAllPayers();
+    let totalComms = 0;
+
+    // Get all payer communications (they're not HCP-specific)
+    const allComms = await storage.getPayerCommunicationsByHcp(1); // Get sample to load
+    
+    for (const comm of allComms) {
+      const commId = `payer_comm_${comm.id}`;
+      
+      await graphService.addNode(commId, NODE_TYPES.PAYER_COMMUNICATION, {
+        id: comm.id,
+        payerName: comm.payerName,
+        documentType: comm.documentType,
+        documentTitle: comm.documentTitle,
+        receivedDate: comm.receivedDate?.toISOString() || new Date().toISOString(),
+        effectiveDate: comm.effectiveDate?.toISOString(),
+        products: comm.products,
+        keyChanges: comm.keyChanges,
+      });
+
+      // Link to relevant payer
+      const payer = payers.find(p => p.name === comm.payerName);
+      if (payer) {
+        const payerId = `payer_${payer.id}`; // Match loadPayers() format
+        await graphService.addRelationship(
+          payerId,
+          commId,
+          RELATIONSHIP_TYPES.TRIGGERED_BY,
+          { 
+            effectiveDate: comm.effectiveDate,
+            documentType: comm.documentType 
+          }
+        );
+      }
+      totalComms++;
+    }
+    
+    console.log(`[GraphETL] Loaded ${totalComms} payer communications`);
+  }
+
+  /**
+   * Load NBAs and AI Insights as nodes
+   */
+  private async loadNBAsAndInsights(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let totalNBAs = 0;
+    let totalInsights = 0;
+
+    for (const hcp of hcps) {
+      // Load NBAs
+      const nbas = await storage.getNbasByHcp(hcp.id);
+      for (const nba of nbas) {
+        const nbaId = `nba_${nba.id}`;
+        
+        await graphService.addNode(nbaId, NODE_TYPES.NBA, {
+          id: nba.id,
+          hcpId: nba.hcpId,
+          action: nba.action,
+          actionType: nba.actionType,
+          priority: nba.priority,
+          reason: nba.reason,
+          aiInsight: nba.aiInsight,
+          status: nba.status,
+          generatedAt: nba.generatedAt?.toISOString() || new Date().toISOString(),
+        });
+
+        // Create RECOMMENDED_FOR relationship
+        await graphService.addRelationship(
+          nbaId,
+          `hcp_${hcp.id}`,
+          RELATIONSHIP_TYPES.RECOMMENDED_FOR,
+          { 
+            priority: nba.priority,
+            status: nba.status,
+            date: nba.generatedAt 
+          }
+        );
+        totalNBAs++;
+      }
+
+      // Load AI Insights
+      const insights = await storage.getAiInsights(hcp.id);
+      for (const insight of insights) {
+        const insightId = `insight_${insight.id}`;
+        
+        await graphService.addNode(insightId, NODE_TYPES.AI_INSIGHT, {
+          id: insight.id,
+          hcpId: insight.hcpId,
+          insightType: insight.insightType,
+          confidenceScore: insight.confidenceScore,
+          narrative: insight.narrative,
+          keySignals: insight.keySignals,
+          generatedAt: insight.generatedAt?.toISOString() || new Date().toISOString(),
+        });
+
+        // Create HAS_INSIGHT relationship
+        await graphService.addRelationship(
+          `hcp_${hcp.id}`,
+          insightId,
+          RELATIONSHIP_TYPES.HAS_INSIGHT,
+          { 
+            confidence: insight.confidenceScore,
+            type: insight.insightType,
+            date: insight.generatedAt 
+          }
+        );
+        totalInsights++;
+      }
+    }
+    
+    console.log(`[GraphETL] Loaded ${totalNBAs} NBAs and ${totalInsights} AI insights`);
   }
 }
 

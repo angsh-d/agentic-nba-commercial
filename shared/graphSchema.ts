@@ -30,6 +30,18 @@ export const NODE_TYPES = {
   // Market access entities
   PAYER: 'Payer',
   COHORT: 'Cohort',
+  ACCESS_EVENT: 'AccessEvent',
+  PAYER_COMMUNICATION: 'PayerCommunication',
+  
+  // Field intelligence entities
+  CALL_NOTE: 'CallNote',
+  
+  // AI & Signals entities
+  DETECTED_SIGNAL: 'DetectedSignal',
+  SIGNAL_CORRELATION: 'SignalCorrelation',
+  AI_INSIGHT: 'AIInsight',
+  NBA: 'NBA',
+  AGENT_SESSION: 'AgentSession',
 } as const;
 
 export const RELATIONSHIP_TYPES = {
@@ -54,6 +66,8 @@ export const RELATIONSHIP_TYPES = {
   COVERED_BY: 'COVERED_BY',
   COVERS: 'COVERS',
   FORMULARY_TIER: 'FORMULARY_TIER',
+  HAD_ACCESS_EVENT: 'HAD_ACCESS_EVENT',
+  TRIGGERED_BY: 'TRIGGERED_BY',
   
   // Network & affiliation relationships
   REFERS_TO: 'REFERS_TO',
@@ -72,6 +86,17 @@ export const RELATIONSHIP_TYPES = {
   // Territory relationships
   IN_TERRITORY: 'IN_TERRITORY',
   CONTRACTED_WITH: 'CONTRACTED_WITH',
+  
+  // Field intelligence relationships
+  DOCUMENTED_IN: 'DOCUMENTED_IN',
+  VISITED_BY: 'VISITED_BY',
+  
+  // AI & Signal relationships
+  DETECTED_FOR: 'DETECTED_FOR',
+  CORRELATED_WITH: 'CORRELATED_WITH',
+  HAS_INSIGHT: 'HAS_INSIGHT',
+  RECOMMENDED_FOR: 'RECOMMENDED_FOR',
+  GENERATED_BY: 'GENERATED_BY',
 } as const;
 
 export interface GraphNode {
@@ -398,4 +423,86 @@ export interface CohortProperties {
   name: string;
   description?: string;
   patientCount?: number;
+}
+
+export interface AccessEventProperties {
+  id: string;
+  patientId: number;
+  hcpId: number;
+  payerId?: number;
+  eventType: string;
+  eventDate: string;
+  drugName: string;
+  denialReason?: string;
+  denialCode?: string;
+  copayAmount?: number;
+  lagDays?: number;
+  switchedToDrug?: string;
+  impact: string;
+}
+
+export interface CallNoteProperties {
+  id: string;
+  hcpId: number;
+  repName: string;
+  visitDate: string;
+  noteType: string;
+  noteText: string;
+  keyTopics?: string[];
+  sentiment?: string;
+}
+
+export interface DetectedSignalProperties {
+  id: string;
+  hcpId: number;
+  signalType: string;
+  signalStrength: number;
+  signalSource: string;
+  signalDescription: string;
+  detectedAt: string;
+  contextData?: Record<string, any>;
+}
+
+export interface PayerCommunicationProperties {
+  id: string;
+  payerName: string;
+  documentType: string;
+  documentTitle: string;
+  receivedDate: string;
+  effectiveDate?: string;
+  products?: string[];
+  keyChanges?: string[];
+}
+
+export interface AIInsightProperties {
+  id: string;
+  hcpId: number;
+  insightType: string;
+  confidenceScore: number;
+  narrative: string;
+  keySignals?: string[];
+  generatedAt: string;
+}
+
+export interface NBAProperties {
+  id: string;
+  hcpId: number;
+  action: string;
+  actionType: string;
+  priority: string;
+  reason: string;
+  aiInsight: string;
+  status: string;
+  generatedAt: string;
+}
+
+export interface AgentSessionProperties {
+  id: string;
+  goalDescription: string;
+  goalType: string;
+  status: string;
+  currentPhase?: string;
+  confidenceScore?: number;
+  startedAt: string;
+  completedAt?: string;
 }
