@@ -301,7 +301,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar onOpenGraph={() => setGraphModalOpen(true)} />
+      <Navbar />
       
       {/* Hero Section */}
       <section className="bg-white border-b border-gray-200">
