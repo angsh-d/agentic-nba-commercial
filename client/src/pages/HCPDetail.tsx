@@ -1356,8 +1356,9 @@ export default function HCPDetail() {
                             });
                             
                             if (response.ok) {
-                              // Invalidate and refetch the stage1 activity
-                              await queryClient.invalidateQueries({ queryKey: ["stage1-activity", hcpId] });
+                              const enhancedActivities = await response.json();
+                              // Update query cache with enhanced activities
+                              queryClient.setQueryData(["stage1-activity", hcpId], enhancedActivities);
                               // Reset activity display for animation
                               setStage1Activities([]);
                               setActivityStartTime(null);
