@@ -915,31 +915,13 @@ export default function HCPDetail() {
                               ))}
                             </div>
                           </div>
-
-                          {/* Publication Impact */}
-                          <div className="relative">
-                            <div className="flex items-center justify-between mb-3 px-1">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-6 bg-gray-300 rounded-full"></div>
-                                <span className="text-xs text-gray-600">Clinical Publication Impact</span>
-                              </div>
-                              <span className="text-xs text-gray-400">No relevant publications in timeframe</span>
-                            </div>
-                            <div className="flex items-center h-8 px-8">
-                              {[0, 0, 0, 0, 0, 0].map((_, idx) => (
-                                <div key={idx} className="flex-1 flex items-center justify-center">
-                                  <span className="text-xs text-gray-300">—</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
                         </div>
                       </div>
 
                       {/* Insight Summary */}
                       <div className="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-6">
                         <p className="text-sm leading-relaxed text-gray-700">
-                          <span className="font-semibold text-gray-900">Causal Evidence:</span> Investigation examined 8 independent data signals. Four signals (prescription volume, payer policies, access friction, patient abandonment) demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers implemented formulary restrictions. Four other signals (clinical safety, conferences, competitive activity, publications) show no temporal correlation, confirming the root cause is specifically reimbursement-driven, not clinical or competitive factors.
+                          <span className="font-semibold text-gray-900">Causal Evidence:</span> Investigation examined 7 independent data signals. Four signals (prescription volume, payer policies, access friction, patient abandonment) demonstrate synchronized inflection at August 1st, 2025 — the precise date when four major payers implemented formulary restrictions. Three other signals (clinical safety, conferences, competitive activity) show no temporal correlation, confirming the root cause is specifically reimbursement-driven, not clinical or competitive factors.
                         </p>
                       </div>
                     </div>
