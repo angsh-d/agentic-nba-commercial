@@ -99,6 +99,10 @@ export interface IStorage {
   createGeneratedArtifact(artifact: InsertGeneratedArtifact): Promise<GeneratedArtifact>;
   getArtifactsByHcp(hcpId: number): Promise<GeneratedArtifact[]>;
   getArtifactsByNba(nbaId: number): Promise<GeneratedArtifact[]>;
+  
+  // Database Explorer operations
+  getDatabaseTables(): Promise<Array<{ tableName: string; rowCount: number; columns: string[] }>>;
+  getTableData(tableName: string, limit: number, offset: number): Promise<{ columns: string[]; rows: any[] }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -494,6 +498,86 @@ export class DatabaseStorage implements IStorage {
   
   async getAccessEventsByPatient(patientId: number): Promise<AccessEvent[]> {
     return await db.select().from(accessEvents).where(eq(accessEvents.patientId, patientId));
+  }
+  
+  // Database Explorer operations
+  async getDatabaseTables(): Promise<Array<{ tableName: string; rowCount: number; columns: string[] }>> {
+    // Get all tables from information_schema
+    const tablesQuery = sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+      ORDER BY table_name
+    `;
+    
+    const tablesResult = await db.execute(tablesQuery);
+    const tables = tablesResult.rows as Array<{ table_name: string }>;
+    
+    // For each table, get row count and columns
+    const tableMetadata = await Promise.all(
+      tables.map(async ({ table_name }) => {
+        // Get row count
+        const countQuery = sql.raw(`SELECT COUNT(*) as count FROM "${table_name}"`);
+        const countResult = await db.execute(countQuery);
+        const rowCount = Number((countResult.rows[0] as any).count);
+        
+        // Get columns
+        const columnsQuery = sql`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = ${table_name}
+          ORDER BY ordinal_position
+        `;
+        const columnsResult = await db.execute(columnsQuery);
+        const columns = (columnsResult.rows as Array<{ column_name: string }>).map(c => c.column_name);
+        
+        return {
+          tableName: table_name,
+          rowCount,
+          columns
+        };
+      })
+    );
+    
+    return tableMetadata;
+  }
+  
+  async getTableData(tableName: string, limit: number, offset: number): Promise<{ columns: string[]; rows: any[] }> {
+    // Validate table name to prevent SQL injection
+    const validTableQuery = sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_type = 'BASE TABLE'
+      AND table_name = ${tableName}
+    `;
+    const validTableResult = await db.execute(validTableQuery);
+    
+    if (validTableResult.rows.length === 0) {
+      throw new Error(`Table "${tableName}" not found`);
+    }
+    
+    // Get columns
+    const columnsQuery = sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_schema = 'public' 
+      AND table_name = ${tableName}
+      ORDER BY ordinal_position
+    `;
+    const columnsResult = await db.execute(columnsQuery);
+    const columns = (columnsResult.rows as Array<{ column_name: string }>).map(c => c.column_name);
+    
+    // Get data
+    const dataQuery = sql.raw(`SELECT * FROM "${tableName}" LIMIT ${limit} OFFSET ${offset}`);
+    const dataResult = await db.execute(dataQuery);
+    
+    return {
+      columns,
+      rows: dataResult.rows as any[]
+    };
   }
 }
 

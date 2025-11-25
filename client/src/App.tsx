@@ -6,12 +6,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import HCPDetail from "@/pages/HCPDetail";
+import { DataExplorer } from "@/pages/DataExplorer";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/hcp/:id" component={HCPDetail} />
+      <Route path="/data-explorer" component={DataExplorer} />
       <Route component={NotFound} />
     </Switch>
   );

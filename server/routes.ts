@@ -1212,6 +1212,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ============================================================================
+  // DATABASE EXPLORER ROUTES
+  // ============================================================================
+
+  // Get all database tables with metadata
+  app.get("/api/database/tables", async (_req, res) => {
+    try {
+      const tables = await storage.getDatabaseTables();
+      res.json(tables);
+    } catch (error: any) {
+      console.error('[API] Failed to fetch database tables:', error);
+      res.status(500).json({ 
+        error: "Failed to fetch database tables",
+        details: error.message 
+      });
+    }
+  });
+
+  // Get data from a specific table
+  app.get("/api/database/tables/:tableName", async (req, res) => {
+    try {
+      const tableName = req.params.tableName;
+      const limit = parseInt(req.query.limit as string) || 100;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      const data = await storage.getTableData(tableName, limit, offset);
+      res.json(data);
+    } catch (error: any) {
+      console.error('[API] Failed to fetch table data:', error);
+      res.status(500).json({ 
+        error: "Failed to fetch table data",
+        details: error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
