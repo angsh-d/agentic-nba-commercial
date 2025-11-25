@@ -101,8 +101,8 @@ export function KnowledgeGraphViz({ hcpId, height = 400 }: KnowledgeGraphVizProp
       ctx.strokeStyle = '#94a3b8';
       ctx.lineWidth = 1;
       edges.forEach(edge => {
-        const from = positionedNodes.find(n => n.id === edge.from);
-        const to = positionedNodes.find(n => n.id === edge.to);
+        const from = positionedNodes.find(n => n.id?.toString() === edge.source?.toString());
+        const to = positionedNodes.find(n => n.id?.toString() === edge.target?.toString());
         if (from && to && from.x && from.y && to.x && to.y) {
           ctx.beginPath();
           ctx.moveTo(from.x, from.y);
