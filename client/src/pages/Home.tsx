@@ -308,11 +308,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-8 py-40">
           <div className="text-center max-w-5xl mx-auto">
             <h1 className="text-8xl font-semibold mb-10 tracking-tight leading-[1.05] -tracking-[0.02em]">
-              <span className="text-gray-900">Smart Territory </span>
-              <span className="text-gray-400">Intelligence</span>
+              <span className="text-gray-900">AI Agents for </span>
+              <span className="text-gray-400">Smarter NBAs</span>
             </h1>
             <p className="text-xl text-gray-500 mb-16 leading-relaxed font-normal max-w-3xl mx-auto">
-              Detect switching signals. Investigate root causes. Generate targeted actions.
+              Augment rules-based systems with agentic AI that investigates switching patterns, reasons through evidence, and generates context-aware actions.
             </p>
             
             {/* Agent Pipeline - Apple Minimalist Style */}
