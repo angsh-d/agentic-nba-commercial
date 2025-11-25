@@ -40,7 +40,7 @@ export class GraphETL {
   }
 
   /**
-   * Load HCPs as nodes
+   * Load HCPs as nodes with enhanced commercial properties
    */
   private async loadHCPs(): Promise<void> {
     const hcps = await storage.getAllHcps();
@@ -55,6 +55,12 @@ export class GraphETL {
         territory: hcp.territory,
         riskScore: hcp.switchRiskScore,
         riskTier: hcp.switchRiskTier,
+        // Enhanced properties for commercial intelligence
+        tier: hcp.id === 1 ? 'A' : 'B', // Demo: Dr. Smith is tier A (KOL)
+        isKOL: hcp.id === 1, // Demo: Dr. Smith is a KOL
+        referralVolume: hcp.id === 1 ? 45 : 18,
+        prescriptionVolume: hcp.id === 1 ? 120 : 85,
+        channelPreference: hcp.id === 1 ? 'inPerson' : 'virtual',
       });
     }
   }
@@ -124,7 +130,7 @@ export class GraphETL {
   }
 
   /**
-   * Load drugs as nodes from prescription history
+   * Load drugs as nodes with enhanced properties (manufacturer, competitors, indication)
    */
   private async loadDrugs(): Promise<void> {
     const hcps = await storage.getAllHcps();
@@ -137,9 +143,18 @@ export class GraphETL {
         if (!drugsSet.has(record.productName)) {
           drugsSet.add(record.productName);
           
+          // Enhanced drug properties for competitive intelligence
+          const isOurDrug = record.productName === 'Onco-Pro';
+          const manufacturer = isOurDrug ? 'Our Company' : 'BioPharma Rival';
+          const indication = record.productCategory === 'Immunotherapy' ? 'RCC' : 'Bladder Cancer';
+          
           await graphService.addNode(`drug_${record.productName.toLowerCase().replace(/\s+/g, '_')}`, NODE_TYPES.DRUG, {
             name: record.productName,
             category: record.productCategory,
+            manufacturer,
+            indication,
+            launchDate: isOurDrug ? '2023-05-15' : '2024-02-10',
+            competitorDrugs: isOurDrug ? ['Onco-Rival'] : ['Onco-Pro'],
           });
         }
       }
@@ -340,18 +355,26 @@ export class GraphETL {
   }
 
   /**
-   * Load payers as nodes
+   * Load payers as nodes with enhanced market access properties
    */
   private async loadPayers(): Promise<void> {
     const payers = await storage.getAllPayers();
     console.log(`[GraphETL] Loading ${payers.length} payers...`);
     
     for (const payer of payers) {
+      // Enhanced payer properties for market access intelligence
+      const payerTier = payer.id === 1 ? 'tier1' : (payer.id === 2 ? 'tier2' : 'tier3');
+      const livesUnderManagement = payer.id === 1 ? 5000000 : (payer.id === 2 ? 2500000 : 800000);
+      
       await graphService.addNode(`payer_${payer.id}`, NODE_TYPES.PAYER, {
         id: payer.id,
         name: payer.name,
+        type: payer.payerType === 'Government' ? 'medicare' : 'commercial',
         payerType: payer.payerType,
+        tier: payerTier,
         denialRate: payer.denialRate,
+        livesUnderManagement,
+        coverageRestrictions: payer.policies,
         policies: payer.policies,
       });
     }
@@ -394,6 +417,297 @@ export class GraphETL {
   }
 
   /**
+   * Load territories as nodes with enhanced commercial properties
+   */
+  private async loadTerritories(): Promise<void> {
+    // Demo data: Create 2 territories
+    const territories = [
+      { id: 'northeast', name: 'Northeast Territory', region: 'Northeast', accountCount: 15, hcpCount: 45 },
+      { id: 'southwest', name: 'Southwest Territory', region: 'Southwest', accountCount: 12, hcpCount: 38 },
+    ];
+
+    for (const territory of territories) {
+      await graphService.addNode(`territory_${territory.id}`, NODE_TYPES.TERRITORY, territory);
+    }
+    console.log(`[GraphETL] Loaded ${territories.length} territories`);
+  }
+
+  /**
+   * Load accounts (hospitals/clinics) as nodes
+   */
+  private async loadAccounts(): Promise<void> {
+    // Demo data: Create accounts from HCP data
+    const hcps = await storage.getAllHcps();
+    const accountsSet = new Set<string>();
+    const accounts: any[] = [];
+
+    for (const hcp of hcps) {
+      if (hcp.hospital && !accountsSet.has(hcp.hospital)) {
+        accountsSet.add(hcp.hospital);
+        accounts.push({
+          id: hcp.hospital.toLowerCase().replace(/\s+/g, '_'),
+          name: hcp.hospital,
+          type: 'hospital',
+          oncologyFocus: true,
+        });
+      }
+    }
+
+    for (const account of accounts) {
+      await graphService.addNode(`account_${account.id}`, NODE_TYPES.ACCOUNT, account);
+    }
+    console.log(`[GraphETL] Loaded ${accounts.length} accounts`);
+  }
+
+  /**
+   * Load sales representatives as nodes
+   */
+  private async loadRepresentatives(): Promise<void> {
+    const representatives = [
+      { id: 'rep1', name: 'Jennifer Martinez', yearsExperience: 5, quota: 850000 },
+      { id: 'rep2', name: 'Robert Johnson', yearsExperience: 8, quota: 920000 },
+    ];
+
+    for (const rep of representatives) {
+      await graphService.addNode(`rep_${rep.id}`, NODE_TYPES.REPRESENTATIVE, rep);
+    }
+    console.log(`[GraphETL] Loaded ${representatives.length} representatives`);
+  }
+
+  /**
+   * Load competitor companies as nodes
+   */
+  private async loadCompetitors(): Promise<void> {
+    const competitors = [
+      { id: 'biopharma_rival', name: 'BioPharma Rival', marketShare: 0.35, focusIndications: ['RCC', 'Bladder Cancer'] },
+      { id: 'oncology_solutions', name: 'Oncology Solutions Inc', marketShare: 0.22, focusIndications: ['Prostate Cancer', 'RCC'] },
+    ];
+
+    for (const competitor of competitors) {
+      await graphService.addNode(`competitor_${competitor.id}`, NODE_TYPES.COMPETITOR, competitor);
+    }
+    console.log(`[GraphETL] Loaded ${competitors.length} competitors`);
+  }
+
+  /**
+   * Load clinical protocols as nodes
+   */
+  private async loadProtocols(): Promise<void> {
+    const protocols = [
+      { id: 'nccn_rcc_2025', name: 'NCCN RCC Guidelines', version: '2.2025', publishedDate: '2025-03-01', drugRecommendations: ['Onco-Pro', 'Onco-Rival'] },
+      { id: 'esmo_bladder_2024', name: 'ESMO Bladder Cancer Protocol', version: '1.2024', publishedDate: '2024-11-15', drugRecommendations: ['Onco-Rival'] },
+    ];
+
+    for (const protocol of protocols) {
+      await graphService.addNode(`protocol_${protocol.id}`, NODE_TYPES.PROTOCOL, protocol);
+    }
+    console.log(`[GraphETL] Loaded ${protocols.length} protocols`);
+  }
+
+  /**
+   * Load clinical guidelines as nodes
+   */
+  private async loadGuidelines(): Promise<void> {
+    const guidelines = [
+      { id: 'nccn_kidney_2025', name: 'NCCN Kidney Cancer Guideline', organization: 'NCCN', version: '2.2025', publishedDate: '2025-02-01' },
+      { id: 'asco_io_combo_2024', name: 'ASCO IO Combination Therapy Guideline', organization: 'ASCO', version: '3.2024', publishedDate: '2024-12-01' },
+    ];
+
+    for (const guideline of guidelines) {
+      await graphService.addNode(`guideline_${guideline.id}`, NODE_TYPES.GUIDELINE, guideline);
+    }
+    console.log(`[GraphETL] Loaded ${guidelines.length} guidelines`);
+  }
+
+  /**
+   * Create HCP referral network relationships
+   */
+  private async createReferralRelationships(): Promise<void> {
+    // Demo: Dr. Smith refers to Dr. Chen (KOL influence pattern)
+    await graphService.addRelationship('hcp_1', 'hcp_2', RELATIONSHIP_TYPES.REFERS_TO, { referralVolume: 12, primaryIndication: 'RCC' });
+    console.log('[GraphETL] Created 1 referral relationship');
+  }
+
+  /**
+   * Create HCP-Account affiliation relationships
+   */
+  private async createAffiliationRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      if (hcp.hospital) {
+        const accountId = `account_${hcp.hospital.toLowerCase().replace(/\s+/g, '_')}`;
+        await graphService.addRelationship(`hcp_${hcp.id}`, accountId, RELATIONSHIP_TYPES.AFFILIATED_WITH, { isPrimary: true });
+        relationshipCount++;
+      }
+    }
+    console.log(`[GraphETL] Created ${relationshipCount} affiliation relationships`);
+  }
+
+  /**
+   * Create payer coverage relationships (formulary)
+   */
+  private async createCoverageRelationships(): Promise<void> {
+    // Demo: Create payer-drug coverage relationships
+    const coverages = [
+      { payerId: 'payer_1', drugId: 'drug_onco-pro', tier: 'tier2' },
+      { payerId: 'payer_1', drugId: 'drug_onco-rival', tier: 'tier1' },
+      { payerId: 'payer_2', drugId: 'drug_onco-pro', tier: 'tier3' },
+      { payerId: 'payer_3', drugId: 'drug_onco-rival', tier: 'tier2' },
+    ];
+
+    for (const coverage of coverages) {
+      await graphService.addRelationship(coverage.payerId, coverage.drugId, RELATIONSHIP_TYPES.COVERS, { tier: coverage.tier });
+    }
+    console.log(`[GraphETL] Created ${coverages.length} coverage relationships`);
+  }
+
+  /**
+   * Create competitive drug relationships
+   */
+  private async createCompetitorRelationships(): Promise<void> {
+    // Demo: Mark competitive relationships
+    await graphService.addRelationship('drug_onco-pro', 'drug_onco-rival', RELATIONSHIP_TYPES.COMPETES_WITH, { indication: 'RCC', marketSegment: 'Immunotherapy' });
+    await graphService.addRelationship('drug_onco-rival', 'competitor_biopharma_rival', RELATIONSHIP_TYPES.MANUFACTURED_BY);
+    console.log('[GraphETL] Created 2 competitor relationships');
+  }
+
+  /**
+   * Create event-drug feature relationships and protocol citations
+   */
+  private async createEducationRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      const events = await storage.getClinicalEventsByHcp(hcp.id);
+      
+      for (const event of events) {
+        // Link events to featured drugs if mentioned
+        if (event.relatedDrug) {
+          const drugId = `drug_${event.relatedDrug.toLowerCase().replace(/\s+/g, '_')}`;
+          await graphService.addRelationship(`event_${event.id}`, drugId, RELATIONSHIP_TYPES.FEATURED_DRUG, { prominenceLevel: 'high' });
+          relationshipCount++;
+        }
+      }
+    }
+    console.log(`[GraphETL] Created ${relationshipCount} education relationships`);
+  }
+
+  /**
+   * Create territory assignment relationships and account-payer contracts
+   */
+  private async createTerritoryRelationships(): Promise<void> {
+    // Demo: Assign reps to territories
+    await graphService.addRelationship('territory_northeast', 'rep_rep1', RELATIONSHIP_TYPES.ASSIGNED_TO);
+    await graphService.addRelationship('territory_southwest', 'rep_rep2', RELATIONSHIP_TYPES.ASSIGNED_TO);
+    
+    // Assign accounts to territories
+    await graphService.addRelationship('account_city_general_hospital', 'territory_northeast', RELATIONSHIP_TYPES.IN_TERRITORY);
+    await graphService.addRelationship('account_riverside_medical_center', 'territory_northeast', RELATIONSHIP_TYPES.IN_TERRITORY);
+    
+    // Assign HCPs to territories
+    await graphService.addRelationship('hcp_1', 'territory_northeast', RELATIONSHIP_TYPES.IN_TERRITORY);
+    await graphService.addRelationship('hcp_2', 'territory_northeast', RELATIONSHIP_TYPES.IN_TERRITORY);
+    await graphService.addRelationship('hcp_3', 'territory_southwest', RELATIONSHIP_TYPES.IN_TERRITORY);
+    
+    // Create account-payer contracts (CONTRACTED_WITH relationships)
+    await graphService.addRelationship('account_city_general_hospital', 'payer_1', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-01-01' });
+    await graphService.addRelationship('account_city_general_hospital', 'payer_2', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-06-01' });
+    await graphService.addRelationship('account_riverside_medical_center', 'payer_1', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'preferred', effectiveDate: '2024-03-01' });
+    await graphService.addRelationship('account_riverside_medical_center', 'payer_3', RELATIONSHIP_TYPES.CONTRACTED_WITH, { contractType: 'standard', effectiveDate: '2023-11-01' });
+    
+    console.log('[GraphETL] Created 11 territory and contract relationships');
+  }
+
+  /**
+   * Create patient-payer coverage relationships
+   */
+  private async createPatientPayerRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      const patients = await storage.getPatientsByHcp(hcp.id);
+      
+      for (const patient of patients) {
+        // Assign patients to payers (most to payer 1, some to others)
+        const payerId = patient.id % 3 === 0 ? 'payer_3' : (patient.id % 2 === 0 ? 'payer_2' : 'payer_1');
+        await graphService.addRelationship(`patient_${patient.id}`, payerId, RELATIONSHIP_TYPES.COVERED_BY, { enrollmentDate: '2023-01-01' });
+        relationshipCount++;
+      }
+    }
+    
+    console.log(`[GraphETL] Created ${relationshipCount} patient-payer coverage relationships`);
+  }
+
+  /**
+   * Create HCP-Hospital WORKS_AT relationships and create Hospital nodes
+   */
+  private async createHospitalRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    const hospitalsSet = new Set<string>();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      if (hcp.hospital) {
+        const hospitalId = `hospital_${hcp.hospital.toLowerCase().replace(/\s+/g, '_')}`;
+        
+        // Create hospital node if not exists
+        if (!hospitalsSet.has(hcp.hospital)) {
+          hospitalsSet.add(hcp.hospital);
+          await graphService.addNode(hospitalId, NODE_TYPES.HOSPITAL, {
+            id: hcp.hospital.toLowerCase().replace(/\s+/g, '_'),
+            name: hcp.hospital,
+            type: 'hospital',
+            bedCount: 450,
+            oncologyFocus: true,
+          });
+        }
+        
+        // Create WORKS_AT relationship
+        await graphService.addRelationship(`hcp_${hcp.id}`, hospitalId, RELATIONSHIP_TYPES.WORKS_AT, { isPrimary: true });
+        relationshipCount++;
+      }
+    }
+    
+    console.log(`[GraphETL] Created ${hospitalsSet.size} hospitals and ${relationshipCount} WORKS_AT relationships`);
+  }
+
+  /**
+   * Create guideline citation and protocol following relationships
+   */
+  private async createGuidelineProtocolRelationships(): Promise<void> {
+    // Link events to guidelines/protocols they cite
+    await graphService.addRelationship('event_1', 'guideline_nccn_kidney_2025', RELATIONSHIP_TYPES.CITES_GUIDELINE, { citationType: 'featured' });
+    await graphService.addRelationship('event_4', 'guideline_asco_io_combo_2024', RELATIONSHIP_TYPES.CITES_GUIDELINE, { citationType: 'referenced' });
+    
+    // Link HCPs to protocols they follow
+    await graphService.addRelationship('hcp_1', 'protocol_nccn_rcc_2025', RELATIONSHIP_TYPES.FOLLOWS_PROTOCOL, { adherenceLevel: 'high' });
+    await graphService.addRelationship('hcp_2', 'protocol_esmo_bladder_2024', RELATIONSHIP_TYPES.FOLLOWS_PROTOCOL, { adherenceLevel: 'moderate' });
+    
+    console.log('[GraphETL] Created 4 guideline/protocol relationships');
+  }
+
+  /**
+   * Create manufacturer relationships for all drugs
+   */
+  private async createDrugManufacturerRelationships(): Promise<void> {
+    // Link our drug to our company (create as competitor node for consistency)
+    await graphService.addNode('competitor_our_company', NODE_TYPES.COMPETITOR, {
+      id: 'our_company',
+      name: 'Our Company',
+      marketShare: 0.43,
+      focusIndications: ['RCC', 'Bladder Cancer', 'Prostate Cancer'],
+    });
+    
+    await graphService.addRelationship('drug_onco-pro', 'competitor_our_company', RELATIONSHIP_TYPES.MANUFACTURED_BY);
+    
+    console.log('[GraphETL] Created 1 additional manufacturer relationship');
+  }
+
+  /**
    * Run full ETL pipeline
    */
   async runFullETL(): Promise<any> {
@@ -405,19 +719,39 @@ export class GraphETL {
       await graphService.clearGraph();
       console.log('[GraphETL] Cleared existing graph');
       
-      // Load nodes
+      // Load core clinical nodes
       await this.loadHCPs();
       await this.loadPatients();
       await this.loadDrugs();
       await this.loadClinicalEvents();
       await this.loadPayers();
       
-      // Create relationships
+      // Load enhanced commercial nodes
+      await this.loadTerritories();
+      await this.loadAccounts();
+      await this.loadRepresentatives();
+      await this.loadCompetitors();
+      await this.loadProtocols();
+      await this.loadGuidelines();
+      
+      // Create core relationships
       await this.createPrescriptionRelationships();
       await this.createPatientRelationships();
       await this.createEventRelationships();
       await this.createSwitchingRelationships();
       await this.createAccessEventRelationships();
+      
+      // Create enhanced commercial relationships
+      await this.createReferralRelationships();
+      await this.createAffiliationRelationships();
+      await this.createCoverageRelationships();
+      await this.createCompetitorRelationships();
+      await this.createEducationRelationships();
+      await this.createTerritoryRelationships();
+      await this.createPatientPayerRelationships();
+      await this.createHospitalRelationships();
+      await this.createGuidelineProtocolRelationships();
+      await this.createDrugManufacturerRelationships();
       
       const duration = Date.now() - startTime;
       const stats = await this.getStats();
