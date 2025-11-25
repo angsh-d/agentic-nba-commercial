@@ -36,6 +36,45 @@ export async function seedDatabase() {
 
     console.log("✅ HCPs seeded");
 
+    // Seed Payers (for access barrier scenario)
+    const unitedHealthcare = await storage.createPayer({
+      name: "United Healthcare",
+      payerType: "commercial",
+      denialRate: 32,
+      policies: ["Tier 3 formulary for Onco-Pro (Aug 1, 2025)", "Step-edit PA requirement", "$450 copay"],
+      priorAuthRequired: 1,
+      formularyTier: "non-preferred"
+    });
+
+    const aetna = await storage.createPayer({
+      name: "Aetna",
+      payerType: "commercial",
+      denialRate: 28,
+      policies: ["Tier 2 formulary with step-edit", "Prior authorization required", "$350 copay"],
+      priorAuthRequired: 1,
+      formularyTier: "step_therapy"
+    });
+
+    const cigna = await storage.createPayer({
+      name: "Cigna",
+      payerType: "commercial",
+      denialRate: 25,
+      policies: ["Medical necessity review", "Alternative drug trial requirement", "$300 copay"],
+      priorAuthRequired: 1,
+      formularyTier: "non-preferred"
+    });
+
+    const humana = await storage.createPayer({
+      name: "Humana",
+      payerType: "medicare",
+      denialRate: 18,
+      policies: ["Specialty pharmacy network restriction", "Prior authorization for oncology", "$200 copay"],
+      priorAuthRequired: 1,
+      formularyTier: "preferred"
+    });
+
+    console.log("✅ Payers seeded");
+
     // === DR. SARAH SMITH: LAYERED TWO-COHORT SWITCHING SCENARIO ===
     
     // COHORT A: Young RCC Patients (<55) - Switched Post-ASCO
@@ -848,6 +887,146 @@ export async function seedDatabase() {
     });
 
     console.log("✅ HCP 2 patient cohorts created (12 patients: 4 copay shock, 3 PA denied, 2 fulfillment delay, 3 smooth access)");
+
+    // === ACCESS EVENTS: RTT Data for Graph Integration ===
+    
+    // COHORT 1: High Copay Shock - UHC Tier Change Aug 1
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p001.id,
+      payerId: unitedHealthcare.id,
+      eventType: "copay_issue",
+      eventDate: new Date("2025-08-01"),
+      drugName: "Onco-Pro",
+      expectedCopay: 35,
+      copayAmount: 450,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-05"),
+      resolutionNotes: "Tier 2 → Tier 3 formulary change effective Aug 1. Patient called office unable to afford $450/mo copay."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p002.id,
+      payerId: unitedHealthcare.id,
+      eventType: "copay_issue",
+      eventDate: new Date("2025-08-01"),
+      drugName: "Onco-Pro",
+      expectedCopay: 35,
+      copayAmount: 450,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-06"),
+      resolutionNotes: "Tier 2 → Tier 3 formulary change. Patient requested switch to preferred alternative with $50 copay."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p003.id,
+      payerId: unitedHealthcare.id,
+      eventType: "copay_issue",
+      eventDate: new Date("2025-08-01"),
+      drugName: "Onco-Pro",
+      expectedCopay: 35,
+      copayAmount: 450,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-08"),
+      resolutionNotes: "UHC tier change. Patient financial hardship documented, switched to competitor on Tier 2."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p004.id,
+      payerId: unitedHealthcare.id,
+      eventType: "copay_issue",
+      eventDate: new Date("2025-08-01"),
+      drugName: "Onco-Pro",
+      expectedCopay: 35,
+      copayAmount: 450,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-10"),
+      resolutionNotes: "Tier 3 copay barrier. Patient on fixed income, switched to Tier 2 alternative immediately."
+    });
+
+    // COHORT 2: PA Denials - Step-Edit Requirements
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p005.id,
+      payerId: aetna.id,
+      eventType: "pa_denial",
+      eventDate: new Date("2025-08-10"),
+      drugName: "Onco-Pro",
+      denialReason: "Step-edit requirement not met",
+      denialCode: "STEP_EDIT",
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-15"),
+      resolutionNotes: "PA denied - step-edit requirement. Must fail on competitor drug first. Dr. Chen appealed but denied. Patient switched to required alternative."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p006.id,
+      payerId: cigna.id,
+      eventType: "pa_denial",
+      eventDate: new Date("2025-08-15"),
+      drugName: "Onco-Pro",
+      denialReason: "Medical necessity not established",
+      denialCode: "MED_NECESSITY",
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-09-05"),
+      resolutionNotes: "PA denied - medical necessity not met per Cigna criteria. Appeal filed but took 21 days, patient already started competitor."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p007.id,
+      payerId: unitedHealthcare.id,
+      eventType: "pa_denial",
+      eventDate: new Date("2025-08-18"),
+      drugName: "Onco-Pro",
+      denialReason: "Step-edit policy effective Aug 1",
+      denialCode: "STEP_EDIT_NEW",
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-22"),
+      resolutionNotes: "PA denied - new step-edit PA policy effective Aug 1. UHC requires trial of Tier 2 alternative first."
+    });
+
+    // COHORT 3: Fulfillment Delays - Specialty Pharmacy Network Restrictions
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p008.id,
+      payerId: humana.id,
+      eventType: "fulfillment_delay",
+      eventDate: new Date("2025-08-20"),
+      drugName: "Onco-Pro",
+      lagDays: 14,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-25"),
+      resolutionNotes: "Specialty pharmacy network change caused 14-day delay. Patient needed immediate treatment start, switched to competitor with 3-day fill."
+    });
+
+    await storage.createAccessEvent({
+      hcpId: drMichaelChen.id,
+      patientId: hcp2_p009.id,
+      payerId: humana.id,
+      eventType: "fulfillment_delay",
+      eventDate: new Date("2025-08-25"),
+      drugName: "Onco-Pro",
+      lagDays: 14,
+      impact: "high",
+      switchedToDrug: "Onco-Rival",
+      switchDate: new Date("2025-08-30"),
+      resolutionNotes: "Humana specialty pharmacy restriction caused fulfillment delay. Patient frustrated, switched to competitor available at local pharmacy."
+    });
+
+    console.log("✅ Access events seeded (9 barrier events for Dr. Chen's access-impacted cohorts)");
 
     // === CALL NOTES: Temporal progression from normal → frustration → switching ===
     // Early notes (June-July): Normal engagement, no access issues mentioned

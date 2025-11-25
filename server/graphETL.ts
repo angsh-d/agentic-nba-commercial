@@ -23,12 +23,14 @@ export class GraphETL {
       await this.loadPatients();
       await this.loadDrugs();
       await this.loadClinicalEvents();
+      await this.loadPayers();
       
       // Create relationships
       await this.createPrescriptionRelationships();
       await this.createPatientRelationships();
       await this.createEventRelationships();
       await this.createSwitchingRelationships();
+      await this.createAccessEventRelationships();
       
       console.log('[GraphETL] Knowledge graph population completed');
     } catch (error) {
@@ -338,6 +340,60 @@ export class GraphETL {
   }
 
   /**
+   * Load payers as nodes
+   */
+  private async loadPayers(): Promise<void> {
+    const payers = await storage.getAllPayers();
+    console.log(`[GraphETL] Loading ${payers.length} payers...`);
+    
+    for (const payer of payers) {
+      await graphService.addNode(`payer_${payer.id}`, NODE_TYPES.PAYER, {
+        id: payer.id,
+        name: payer.name,
+        payerType: payer.payerType,
+        denialRate: payer.denialRate,
+        policies: payer.policies,
+      });
+    }
+  }
+
+  /**
+   * Create access event relationships (PA denials, copay increases, etc.)
+   */
+  private async createAccessEventRelationships(): Promise<void> {
+    const hcps = await storage.getAllHcps();
+    let relationshipCount = 0;
+
+    for (const hcp of hcps) {
+      const accessEvents = await storage.getAccessEventsByHcp(hcp.id);
+      
+      for (const event of accessEvents) {
+        // Create ACCESS_ISSUE relationship between Patient and Payer
+        await graphService.addRelationship(
+          `patient_${event.patientId}`,
+          `payer_${event.payerId}`,
+          RELATIONSHIP_TYPES.ACCESS_ISSUE,
+          {
+            eventType: event.eventType,
+            eventDate: event.eventDate,
+            impact: event.impact,
+            drugName: event.drugName,
+            denialReason: event.denialReason,
+            copayAmount: event.copayAmount,
+            expectedCopay: event.expectedCopay,
+            lagDays: event.lagDays,
+            switchedToDrug: event.switchedToDrug,
+            switchDate: event.switchDate,
+          }
+        );
+        relationshipCount++;
+      }
+    }
+    
+    console.log(`[GraphETL] Created ${relationshipCount} access event relationships`);
+  }
+
+  /**
    * Run full ETL pipeline
    */
   async runFullETL(): Promise<any> {
@@ -354,12 +410,14 @@ export class GraphETL {
       await this.loadPatients();
       await this.loadDrugs();
       await this.loadClinicalEvents();
+      await this.loadPayers();
       
       // Create relationships
       await this.createPrescriptionRelationships();
       await this.createPatientRelationships();
       await this.createEventRelationships();
       await this.createSwitchingRelationships();
+      await this.createAccessEventRelationships();
       
       const duration = Date.now() - startTime;
       const stats = await this.getStats();
