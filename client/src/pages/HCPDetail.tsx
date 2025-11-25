@@ -635,7 +635,7 @@ export default function HCPDetail() {
                       Observe & Correlate Signals
                     </h2>
                     <p className="text-base text-gray-600 font-light leading-relaxed max-w-3xl mb-8">
-                      AI agents analyze multiple data signals to detect switching patterns and anomalies impossible to find with traditional BI tools.
+                      AI agents analyze multiple data signals to detect switching patterns and anomalies.
                     </p>
                     
                     {/* Data Sources - Apple-inspired minimal display on new line */}
