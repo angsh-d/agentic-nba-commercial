@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Search, ChevronDown, Bell, Network, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import saamaLogo from "@assets/image_1763828618655.png";
+import { DataExplorerModal } from "./DataExplorerModal";
 
 export function Navbar() {
+  const [dataExplorerOpen, setDataExplorerOpen] = useState(false);
   return (
     <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-gray-200 h-16 flex items-center justify-between px-6 transition-all duration-300 support-[backdrop-filter]:bg-white/60">
       {/* Left Section - Logo & Brand */}
@@ -24,14 +27,14 @@ export function Navbar() {
               <Network className="h-3 w-3" />
               Graph
             </a>
-            <a
-              href="/data-explorer"
+            <button
+              onClick={() => setDataExplorerOpen(true)}
               className="px-2 py-1 text-xs font-medium text-gray-600 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 rounded-md transition-colors flex items-center gap-1.5"
               data-testid="badge-view-data"
             >
               <Database className="h-3 w-3" />
               Data
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -56,6 +59,8 @@ export function Navbar() {
           <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Angshuman Deb</span>
         </div>
       </div>
+
+      <DataExplorerModal open={dataExplorerOpen} onOpenChange={setDataExplorerOpen} />
     </nav>
   );
 }
