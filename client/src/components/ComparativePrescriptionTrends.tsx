@@ -97,24 +97,23 @@ export function ComparativePrescriptionTrends({ hcpName, prescriptionData }: Com
         <CardContent className="p-6">
           <ResponsiveContainer width="100%" height={350}>
             <LineChart data={prescriptionData}>
-              <CartesianGrid strokeDasharray="0" stroke="transparent" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis 
                 dataKey="month" 
-                stroke="#E5E5EA"
+                stroke="#666"
                 style={{ fontSize: '12px' }}
               />
               <YAxis 
-                stroke="#E5E5EA"
+                stroke="#666"
                 style={{ fontSize: '12px' }}
                 label={{ value: 'Prescriptions', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: '#666' } }}
               />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'white', 
-                  border: '1px solid rgba(0,0,0,0.08)',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '12px'
                 }}
               />
               <Legend 
@@ -145,18 +144,18 @@ export function ComparativePrescriptionTrends({ hcpName, prescriptionData }: Com
               <Line 
                 type="monotone" 
                 dataKey="ownDrug" 
-                stroke="#007AFF" 
+                stroke="#3b82f6" 
                 strokeWidth={3}
                 name={`${hcpName} - Onco-Pro`}
-                dot={{ fill: '#007AFF', r: 4 }}
+                dot={{ fill: '#3b82f6', r: 4 }}
               />
               <Line 
                 type="monotone" 
                 dataKey="competitorDrug" 
-                stroke="#111" 
+                stroke="#111827" 
                 strokeWidth={3}
                 name={`${hcpName} - Onco-Rival`}
-                dot={{ fill: '#111', r: 4 }}
+                dot={{ fill: '#111827', r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -174,31 +173,30 @@ export function ComparativePrescriptionTrends({ hcpName, prescriptionData }: Com
         <CardContent className="p-6">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={prescriptionData}>
-              <CartesianGrid strokeDasharray="0" stroke="transparent" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis 
                 dataKey="month" 
-                stroke="#E5E5EA"
+                stroke="#666"
                 style={{ fontSize: '12px' }}
               />
               <YAxis 
-                stroke="#E5E5EA"
+                stroke="#666"
                 style={{ fontSize: '12px' }}
                 label={{ value: 'Prescriptions', angle: -90, position: 'insideLeft', style: { fontSize: '12px', fill: '#666' } }}
               />
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'white', 
-                  border: '1px solid rgba(0,0,0,0.08)',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '12px'
                 }}
               />
               <Legend 
                 wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }}
               />
-              <Bar dataKey="ownDrug" stackId="a" fill="#007AFF" name="Onco-Pro (Our Drug)" />
-              <Bar dataKey="competitorDrug" stackId="a" fill="#111" name="Onco-Rival (Competitor)" />
+              <Bar dataKey="ownDrug" stackId="a" fill="#3b82f6" name="Onco-Pro (Our Drug)" />
+              <Bar dataKey="competitorDrug" stackId="a" fill="#111827" name="Onco-Rival (Competitor)" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

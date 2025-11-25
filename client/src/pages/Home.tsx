@@ -1,7 +1,22 @@
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronRight } from "lucide-react";
+import { 
+  AlertTriangle,
+  MapPin,
+  ChevronRight,
+  Target,
+  Search,
+  Sparkles,
+  CheckCircle2,
+  Zap,
+  Info,
+  Eye,
+  Activity,
+  FileText,
+  Brain
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -75,12 +90,12 @@ async function fetchSignalData(hcpId: number): Promise<SignalData> {
   return response.json();
 }
 
-function getRiskLabel(tier: string, score: number) {
+function getRiskBadge(tier: string, score: number) {
   if (tier === "high" || score >= 70) 
-    return <span className="text-xs font-semibold text-gray-900">High Risk</span>;
+    return <Badge className="bg-gray-900 text-white text-xs px-2.5 py-0.5">High Risk</Badge>;
   if (tier === "medium" || score >= 40) 
-    return <span className="text-xs font-medium text-gray-700">Medium Risk</span>;
-  return <span className="text-xs font-medium text-gray-500">Low Risk</span>;
+    return <Badge className="bg-gray-600 text-white text-xs px-2.5 py-0.5">Medium Risk</Badge>;
+  return <Badge className="bg-gray-300 text-gray-700 text-xs px-2.5 py-0.5">Low Risk</Badge>;
 }
 
 function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number }) {
@@ -114,10 +129,11 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
       <Dialog>
         <DialogTrigger asChild>
           <button
-            className="apple-focus px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-md transition-colors text-xs font-semibold border border-blue-200 hover:border-blue-300"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-colors text-xs font-medium border border-blue-200 hover:border-blue-300"
             data-testid={`ai-insight-badge-${hcpId}`}
           >
-            {totalSignals} Signal{totalSignals !== 1 ? 's' : ''}
+            <Zap className="w-3.5 h-3.5" />
+            <span>{totalSignals} Signal{totalSignals !== 1 ? 's' : ''}</span>
           </button>
         </DialogTrigger>
         <DialogContent className="max-w-xl border-0 shadow-2xl">
@@ -160,7 +176,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
             
             return (
               <div key={idx} className="flex items-start gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
                 <p className="text-sm text-gray-700 leading-relaxed">
                   <span className="font-semibold text-gray-900">{label}:</span> {signal.signalDescription}
                 </p>
@@ -174,7 +190,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
           onClick={() => {
             window.location.href = `/hcp/${hcpId}`;
           }}
-          className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl transition-all duration-200 group shadow-sm hover:shadow-md"
+          className="w-full flex items-center justify-center gap-3 px-6 py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl transition-all duration-200 group shadow-sm hover:shadow-md"
           data-testid="view-full-investigation"
         >
           <span className="text-base font-semibold">View Full Investigation</span>
@@ -188,6 +204,7 @@ function AIInsightBadge({ hcpId, riskScore }: { hcpId: number; riskScore: number
 
 type AgentInfo = {
   name: string;
+  icon: React.ReactNode;
   description: string;
   capabilities: string[];
 };
@@ -195,6 +212,7 @@ type AgentInfo = {
 const agentDetails: Record<string, AgentInfo> = {
   observer: {
     name: "Observer",
+    icon: <Eye className="w-6 h-6 text-blue-600" />,
     description: "Detects individual signals across disconnected data sources",
     capabilities: [
       "Monitors prescription volume changes across drug categories",
@@ -205,6 +223,7 @@ const agentDetails: Record<string, AgentInfo> = {
   },
   correlator: {
     name: "Correlator",
+    icon: <Activity className="w-6 h-6 text-blue-600" />,
     description: "Discovers temporal patterns and relationships between signals",
     capabilities: [
       "Correlates events across different time windows",
@@ -215,6 +234,7 @@ const agentDetails: Record<string, AgentInfo> = {
   },
   planner: {
     name: "Planner",
+    icon: <Target className="w-6 h-6 text-blue-600" />,
     description: "Creates strategic investigation plans with defined goals",
     capabilities: [
       "Defines investigation hypotheses and success criteria",
@@ -225,6 +245,7 @@ const agentDetails: Record<string, AgentInfo> = {
   },
   gatherer: {
     name: "Gatherer",
+    icon: <Search className="w-6 h-6 text-blue-600" />,
     description: "Collects and analyzes evidence from prescription history and clinical events",
     capabilities: [
       "Extracts prescription trend data across patient cohorts",
@@ -235,6 +256,7 @@ const agentDetails: Record<string, AgentInfo> = {
   },
   synthesizer: {
     name: "Synthesizer",
+    icon: <Sparkles className="w-6 h-6 text-blue-600" />,
     description: "Generates actionable Next Best Actions based on gathered evidence",
     capabilities: [
       "Synthesizes multi-signal findings into causal narratives",
@@ -245,6 +267,7 @@ const agentDetails: Record<string, AgentInfo> = {
   },
   reflector: {
     name: "Reflector",
+    icon: <CheckCircle2 className="w-6 h-6 text-blue-600" />,
     description: "Validates recommendations and assesses confidence levels",
     capabilities: [
       "Evaluates evidence quality and completeness",
@@ -278,50 +301,55 @@ export default function Home() {
       
       {/* Hero Section */}
       <section className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-8 py-64">
+        <div className="max-w-7xl mx-auto px-8 py-32">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-7xl font-semibold text-gray-900 mb-12 tracking-tight leading-[1.1]">
+            <h1 className="text-7xl font-semibold text-gray-900 mb-6 tracking-tight leading-[1.1]">
               Territory Intelligence
             </h1>
-            <p className="text-2xl text-gray-600 mb-24 leading-relaxed font-light">
+            <p className="text-2xl text-gray-600 mb-12 leading-relaxed font-light">
               Autonomous agents detect signals, investigate causal drivers, and generate contextual Next Best Actions
             </p>
             
             {/* Agent Pipeline - Sleek Horizontal Flow */}
-            <div className="relative max-w-6xl mx-auto mb-32">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-stretch">
+            <div className="relative max-w-6xl mx-auto mb-20">
+              <div className="grid grid-cols-3 gap-6">
                 {/* Stage 1: Detect */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1, duration: 0.5 }}
-                  className="relative group h-full"
+                  className="relative group"
                 >
-                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative">
-                      <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Detect</div>
-                      <div className="space-y-6">
+                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Detect</div>
+                      <div className="space-y-5">
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('observer')}
                           data-testid="agent-observer"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Observer</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Detects individual signals</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Eye className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Observer</div>
                         </div>
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('correlator')}
                           data-testid="agent-correlator"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Correlator</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Discovers patterns</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Activity className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Correlator</div>
                         </div>
                       </div>
                     </div>
                   </div>
                   {/* Sleek Connector */}
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
+                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
                     <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
                       <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
                     </div>
@@ -333,33 +361,38 @@ export default function Home() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  className="relative group h-full"
+                  className="relative group"
                 >
-                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative">
-                      <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Investigate</div>
-                      <div className="space-y-6">
+                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Investigate</div>
+                      <div className="space-y-5">
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('planner')}
                           data-testid="agent-planner"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Planner</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Creates investigation plans</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Target className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Planner</div>
                         </div>
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('gatherer')}
                           data-testid="agent-gatherer"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Gatherer</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Collects evidence</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Search className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Gatherer</div>
                         </div>
                       </div>
                     </div>
                   </div>
                   {/* Sleek Connector */}
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-10">
+                  <div className="absolute top-1/2 -right-3 -translate-y-1/2 z-10">
                     <div className="w-6 h-6 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center">
                       <ChevronRight className="w-3.5 h-3.5 text-blue-500" />
                     </div>
@@ -371,27 +404,32 @@ export default function Home() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
-                  className="group h-full"
+                  className="group"
                 >
-                  <div className="h-full flex flex-col justify-between min-h-[360px] relative bg-white rounded-[28px] p-12 shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all duration-300 group-hover:scale-[1.01]">
+                  <div className="relative bg-gradient-to-br from-white to-gray-50/50 rounded-[28px] p-9 shadow-sm border border-gray-200/60 hover:shadow-xl hover:border-gray-300/80 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative">
-                      <div className="text-2xl font-bold text-gray-900 mb-10 tracking-tight">Act</div>
-                      <div className="space-y-6">
+                      <div className="text-lg font-bold text-gray-900 mb-7 tracking-tight">Act</div>
+                      <div className="space-y-5">
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('synthesizer')}
                           data-testid="agent-synthesizer"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Synthesizer</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Generates actions</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <Sparkles className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Synthesizer</div>
                         </div>
                         <div 
-                          className="group/item cursor-pointer rounded-2xl p-4 -m-4 hover:bg-gray-50 transition-all duration-300"
+                          className="flex items-center gap-4 group/item cursor-pointer rounded-2xl p-3 -m-3 hover:bg-blue-50/50 transition-all duration-300"
                           onClick={() => setSelectedAgent('reflector')}
                           data-testid="agent-reflector"
                         >
-                          <div className="text-lg text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Reflector</div>
-                          <div className="text-sm text-gray-500 mt-2 font-light">Validates recommendations</div>
+                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 group-hover/item:shadow-lg group-hover/item:scale-110 transition-all duration-300 group-hover/item:from-blue-200 group-hover/item:to-blue-100">
+                            <CheckCircle2 className="w-5.5 h-5.5 text-blue-600" />
+                          </div>
+                          <div className="text-[15px] text-gray-700 font-semibold group-hover/item:text-gray-900 transition-colors tracking-tight">Reflector</div>
                         </div>
                       </div>
                     </div>
@@ -431,7 +469,7 @@ export default function Home() {
       </section>
       
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-32">
+      <main className="max-w-5xl mx-auto px-6 py-12">
         {/* HCP List */}
         {isLoading ? (
           <div className="flex items-center justify-center h-96">
@@ -443,8 +481,9 @@ export default function Home() {
         ) : displayedHcps.length === 0 ? (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
-              <p className="text-3xl font-semibold text-gray-900 mb-2">No providers found</p>
-              <p className="text-base text-gray-500">
+              <AlertTriangle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-lg font-medium text-gray-900 mb-1">No providers found</p>
+              <p className="text-sm text-gray-500">
                 {viewMode === "switch_risk" 
                   ? "All prescription patterns are stable" 
                   : "No healthcare providers in database"}
@@ -452,7 +491,7 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {displayedHcps.map((hcp, index) => (
               <motion.div
                 key={hcp.id}
@@ -482,7 +521,10 @@ export default function Home() {
                             <div className="flex items-center gap-3 text-sm text-gray-500">
                               <span>{hcp.specialty}</span>
                               <span className="w-1 h-1 rounded-full bg-gray-300" />
-                              <span>{hcp.hospital}</span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5" />
+                                {hcp.hospital}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -494,11 +536,11 @@ export default function Home() {
                               {hcp.switchRiskScore}
                             </div>
                             <div className="text-xs text-gray-500 mb-1.5">risk score</div>
-                            <div className="flex items-center gap-3 justify-end">
+                            <div className="flex items-center gap-2 justify-end">
                               {hcp.switchRiskScore === 0 ? (
-                                <span className="text-xs font-medium text-gray-500">Stable</span>
+                                <Badge className="bg-gray-200 text-gray-700 text-xs px-2.5 py-0.5">Stable</Badge>
                               ) : (
-                                getRiskLabel(hcp.switchRiskTier, hcp.switchRiskScore)
+                                getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)
                               )}
                               <AIInsightBadge hcpId={hcp.id} riskScore={hcp.switchRiskScore} />
                             </div>
@@ -521,9 +563,14 @@ export default function Home() {
           {selectedAgent && agentDetails[selectedAgent] && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-3xl font-semibold text-gray-900 mb-4">
-                  {agentDetails[selectedAgent].name}
-                </DialogTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-[14px] bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    {agentDetails[selectedAgent].icon}
+                  </div>
+                  <DialogTitle className="text-xl font-semibold">
+                    {agentDetails[selectedAgent].name}
+                  </DialogTitle>
+                </div>
                 <DialogDescription className="text-base text-gray-700 leading-relaxed">
                   {agentDetails[selectedAgent].description}
                 </DialogDescription>
@@ -534,7 +581,7 @@ export default function Home() {
                 <ul className="space-y-2.5">
                   {agentDetails[selectedAgent].capabilities.map((capability, index) => (
                     <li key={index} className="flex items-start gap-2.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-2 flex-shrink-0" />
                       <span className="text-sm text-gray-700 leading-relaxed">{capability}</span>
                     </li>
                   ))}

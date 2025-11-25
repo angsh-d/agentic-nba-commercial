@@ -143,7 +143,7 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
             {event.type === "call_note" && (
               <div className="flex gap-4" data-testid={`call-note-${event.data.id}`}>
                 <div className="shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-blue-500" />
+                  <FileText className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1 bg-white border border-neutral-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -154,7 +154,7 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
                       </span>
                       <span className="text-sm text-neutral-500">• {event.data.repName}</span>
                     </div>
-                    <span className="text-xs bg-blue-100 text-blue-500 px-2 py-1 rounded-full">Call Note</span>
+                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Call Note</span>
                   </div>
                   <p className="text-sm text-neutral-700 leading-relaxed mb-2">{event.data.noteText}</p>
                   {event.data.keyTopics.length > 0 && (
@@ -172,8 +172,8 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
 
             {event.type === "payer_doc" && (
               <div className="flex gap-4" data-testid={`payer-doc-${event.data.id}`}>
-                <div className="shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-gray-600" />
+                <div className="shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-amber-600" />
                 </div>
                 <div className="flex-1 bg-white border border-neutral-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -187,9 +187,9 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
                     <span
                       className={`text-xs px-2 py-1 rounded-full ${
                         event.data.impactSeverity === "high"
-                          ? "bg-gray-100 text-gray-700"
+                          ? "bg-red-100 text-red-700"
                           : event.data.impactSeverity === "medium"
-                            ? "bg-gray-100 text-gray-700"
+                            ? "bg-amber-100 text-amber-700"
                             : "bg-neutral-100 text-neutral-600"
                       }`}
                     >
@@ -203,8 +203,8 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
 
             {event.type === "patient_switch" && (
               <div className="flex gap-4" data-testid={`patient-switch-${event.data.id}`}>
-                <div className="shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-gray-600" />
+                <div className="shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-red-600" />
                 </div>
                 <div className="flex-1 bg-white border border-neutral-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -215,7 +215,7 @@ export function MultiSignalEvidencePanel({ callNotes, payerCommunications, patie
                       </span>
                       <span className="text-sm text-neutral-500">• Patient Switch</span>
                     </div>
-                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                    <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
                       {event.data.patientCohort}
                     </span>
                   </div>

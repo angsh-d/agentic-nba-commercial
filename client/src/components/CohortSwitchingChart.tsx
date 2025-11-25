@@ -240,7 +240,7 @@ export function CohortSwitchingChart({
           {youngRccPatients.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-4 mb-3">
-                <Badge className="bg-blue-50 text-blue-500 border-blue-200 text-xs px-2.5 py-1">
+                <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2.5 py-1">
                   Young RCC Cohort
                 </Badge>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -253,7 +253,7 @@ export function CohortSwitchingChart({
                 <div className="absolute left-0 top-0 h-full flex items-center px-4">
                   <div className="flex gap-1">
                     {youngRccPatients.map((_, i) => (
-                      <div key={i} className="w-5 h-10 bg-gray-700 rounded" title={`Patient ${i+1}`} />
+                      <div key={i} className="w-5 h-10 bg-blue-600 rounded" title={`Patient ${i+1}`} />
                     ))}
                   </div>
                 </div>
@@ -261,10 +261,10 @@ export function CohortSwitchingChart({
                 {/* ASCO Event Marker */}
                 {ascoPosition !== null && (
                   <div 
-                    className="absolute top-0 h-full border-l-2 border-dashed border-gray-600" 
+                    className="absolute top-0 h-full border-l-2 border-dashed border-purple-600" 
                     style={{ left: `${ascoPosition}%` }}
                   >
-                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-gray-700 whitespace-nowrap bg-white px-1 rounded">
+                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-purple-700 whitespace-nowrap bg-white px-1 rounded">
                       ASCO<br/>Jun 15
                     </div>
                   </div>
@@ -277,8 +277,8 @@ export function CohortSwitchingChart({
                     style={{ left: `${youngRccSwitchPosition}%` }}
                   >
                     <div className="flex items-center gap-1 -ml-2">
-                      <ArrowDown className="w-4 h-4 text-blue-500" />
-                      <div className="px-2 py-1 bg-gray-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                      <ArrowDown className="w-4 h-4 text-blue-900" />
+                      <div className="px-2 py-1 bg-blue-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
                         {youngRccSwitched.length} switched {youngRccSwitchPeriod}
                       </div>
                     </div>
@@ -292,7 +292,7 @@ export function CohortSwitchingChart({
           {cvRiskPatients.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-4 mb-3">
-                <Badge className="bg-gray-200 text-gray-900 border-gray-300 text-xs px-2.5 py-1">
+                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2.5 py-1">
                   CV-Risk Cohort
                 </Badge>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -305,7 +305,7 @@ export function CohortSwitchingChart({
                 <div className="absolute left-0 top-0 h-full flex items-center px-4">
                   <div className="flex gap-1">
                     {cvRiskPatients.map((_, i) => (
-                      <div key={i} className="w-5 h-10 bg-gray-700 rounded" title={`Patient ${i+1}`} />
+                      <div key={i} className="w-5 h-10 bg-red-600 rounded" title={`Patient ${i+1}`} />
                     ))}
                   </div>
                 </div>
@@ -313,10 +313,10 @@ export function CohortSwitchingChart({
                 {/* Cardiac AE Event Marker */}
                 {cardiacPosition !== null && (
                   <div 
-                    className="absolute top-0 h-full border-l-2 border-dashed border-gray-600" 
+                    className="absolute top-0 h-full border-l-2 border-dashed border-orange-600" 
                     style={{ left: `${cardiacPosition}%` }}
                   >
-                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-gray-700 whitespace-nowrap bg-white px-1 rounded">
+                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-orange-700 whitespace-nowrap bg-white px-1 rounded">
                       Cardiac AEs<br/>Aug
                     </div>
                   </div>
@@ -329,8 +329,8 @@ export function CohortSwitchingChart({
                     style={{ left: `${cvRiskSwitchPosition}%` }}
                   >
                     <div className="flex items-center gap-1 -ml-2">
-                      <ArrowDown className="w-4 h-4 text-gray-900" />
-                      <div className="px-2 py-1 bg-gray-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                      <ArrowDown className="w-4 h-4 text-red-900" />
+                      <div className="px-2 py-1 bg-red-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
                         {cvRiskSwitched.length} switched {cvRiskSwitchPeriod}
                       </div>
                     </div>
@@ -376,7 +376,7 @@ export function CohortSwitchingChart({
           {highCopayPatients.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-4 mb-3">
-                <Badge className="bg-gray-200 text-gray-900 border-gray-300 text-xs px-2.5 py-1">
+                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2.5 py-1">
                   High Copay Cohort
                 </Badge>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -388,16 +388,16 @@ export function CohortSwitchingChart({
                 <div className="absolute left-0 top-0 h-full flex items-center px-4">
                   <div className="flex gap-1">
                     {highCopayPatients.map((_, i) => (
-                      <div key={i} className="w-5 h-10 bg-gray-700 rounded" title={`Patient ${i+1}`} />
+                      <div key={i} className="w-5 h-10 bg-red-600 rounded" title={`Patient ${i+1}`} />
                     ))}
                   </div>
                 </div>
                 {payerPolicyPosition !== null && (
                   <div 
-                    className="absolute top-0 h-full border-l-2 border-dashed border-gray-600" 
+                    className="absolute top-0 h-full border-l-2 border-dashed border-amber-600" 
                     style={{ left: `${payerPolicyPosition}%` }}
                   >
-                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-gray-700 whitespace-nowrap bg-white px-1 rounded">
+                    <div className="absolute -top-8 left-1 text-[10px] font-semibold text-amber-700 whitespace-nowrap bg-white px-1 rounded">
                       Payer Policy<br/>Aug 1
                     </div>
                   </div>
@@ -408,8 +408,8 @@ export function CohortSwitchingChart({
                     style={{ left: `${highCopaySwitchPosition}%` }}
                   >
                     <div className="flex items-center gap-1 -ml-2">
-                      <ArrowDown className="w-4 h-4 text-gray-900" />
-                      <div className="px-2 py-1 bg-gray-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                      <ArrowDown className="w-4 h-4 text-red-900" />
+                      <div className="px-2 py-1 bg-red-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
                         {highCopaySwitched.length} switched {highCopaySwitchPeriod}
                       </div>
                     </div>
@@ -423,7 +423,7 @@ export function CohortSwitchingChart({
           {paDeniedPatients.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-4 mb-3">
-                <Badge className="bg-gray-200 text-gray-900 border-gray-300 text-xs px-2.5 py-1">
+                <Badge className="bg-amber-100 text-amber-900 border-amber-200 text-xs px-2.5 py-1">
                   PA Denied Cohort
                 </Badge>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -435,7 +435,7 @@ export function CohortSwitchingChart({
                 <div className="absolute left-0 top-0 h-full flex items-center px-4">
                   <div className="flex gap-1">
                     {paDeniedPatients.map((_, i) => (
-                      <div key={i} className="w-5 h-10 bg-gray-700 rounded" title={`Patient ${i+1}`} />
+                      <div key={i} className="w-5 h-10 bg-amber-600 rounded" title={`Patient ${i+1}`} />
                     ))}
                   </div>
                 </div>
@@ -445,8 +445,8 @@ export function CohortSwitchingChart({
                     style={{ left: `${paDeniedSwitchPosition}%` }}
                   >
                     <div className="flex items-center gap-1 -ml-2">
-                      <ArrowDown className="w-4 h-4 text-gray-900" />
-                      <div className="px-2 py-1 bg-gray-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                      <ArrowDown className="w-4 h-4 text-amber-900" />
+                      <div className="px-2 py-1 bg-amber-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
                         {paDeniedSwitched.length} switched {paDeniedSwitchPeriod}
                       </div>
                     </div>
@@ -460,7 +460,7 @@ export function CohortSwitchingChart({
           {fulfillmentDelayPatients.length > 0 && (
             <div className="relative">
               <div className="flex items-center gap-4 mb-3">
-                <Badge className="bg-gray-200 text-gray-900 border-gray-300 text-xs px-2.5 py-1">
+                <Badge className="bg-orange-100 text-orange-900 border-orange-200 text-xs px-2.5 py-1">
                   Fulfillment Delay Cohort
                 </Badge>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -472,7 +472,7 @@ export function CohortSwitchingChart({
                 <div className="absolute left-0 top-0 h-full flex items-center px-4">
                   <div className="flex gap-1">
                     {fulfillmentDelayPatients.map((_, i) => (
-                      <div key={i} className="w-5 h-10 bg-gray-700 rounded" title={`Patient ${i+1}`} />
+                      <div key={i} className="w-5 h-10 bg-orange-600 rounded" title={`Patient ${i+1}`} />
                     ))}
                   </div>
                 </div>
@@ -482,8 +482,8 @@ export function CohortSwitchingChart({
                     style={{ left: `${fulfillmentDelaySwitchPosition}%` }}
                   >
                     <div className="flex items-center gap-1 -ml-2">
-                      <ArrowDown className="w-4 h-4 text-gray-900" />
-                      <div className="px-2 py-1 bg-gray-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
+                      <ArrowDown className="w-4 h-4 text-orange-900" />
+                      <div className="px-2 py-1 bg-orange-900 text-white rounded text-[10px] font-semibold whitespace-nowrap">
                         {fulfillmentDelaySwitched.length} switched {fulfillmentDelaySwitchPeriod}
                       </div>
                     </div>
@@ -529,19 +529,19 @@ export function CohortSwitchingChart({
             <div className="p-5 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-3 h-3 rounded-full bg-blue-600" />
-                <h4 className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
+                <h4 className="text-xs font-semibold text-blue-900 uppercase tracking-wide">
                   Young RCC
                 </h4>
               </div>
               <div className="space-y-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-blue-500">{youngRccSwitched.length}</span>
-                  <span className="text-sm text-blue-500">/ {youngRccPatients.length} switched</span>
+                  <span className="text-3xl font-bold text-blue-900">{youngRccSwitched.length}</span>
+                  <span className="text-sm text-blue-700">/ {youngRccPatients.length} switched</span>
                 </div>
-                <div className="text-xs text-gray-700 leading-relaxed">
+                <div className="text-xs text-blue-800 leading-relaxed">
                   {youngRccSwitchPeriod} following ASCO presentation (Jun 15) of Nephro-X trial showing superior efficacy vs Onco-Pro in young RCC patients
                 </div>
-                <Badge className="bg-blue-50 text-blue-500 text-[10px] px-2 py-0.5">
+                <Badge className="bg-blue-200 text-blue-900 text-[10px] px-2 py-0.5">
                   Efficacy-Driven
                 </Badge>
               </div>
@@ -549,22 +549,22 @@ export function CohortSwitchingChart({
           )}
 
           {cvRiskPatients.length > 0 && (
-            <div className="p-5 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="p-5 bg-red-50 rounded-lg border border-red-200">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-3 h-3 rounded-full bg-gray-600" />
-                <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">
+                <div className="w-3 h-3 rounded-full bg-red-600" />
+                <h4 className="text-xs font-semibold text-red-900 uppercase tracking-wide">
                   CV-Risk
                 </h4>
               </div>
               <div className="space-y-2">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-gray-900">{cvRiskSwitched.length}</span>
-                  <span className="text-sm text-gray-700">/ {cvRiskPatients.length} switched</span>
+                  <span className="text-3xl font-bold text-red-900">{cvRiskSwitched.length}</span>
+                  <span className="text-sm text-red-700">/ {cvRiskPatients.length} switched</span>
                 </div>
-                <div className="text-xs text-gray-800 leading-relaxed">
+                <div className="text-xs text-red-800 leading-relaxed">
                   {cvRiskSwitchPeriod} after cardiac AE cluster (Aug) amplified by Onco-Rival safety webinar (Aug 30)
                 </div>
-                <Badge className="bg-gray-200 text-gray-900 text-[10px] px-2 py-0.5">
+                <Badge className="bg-red-200 text-red-900 text-[10px] px-2 py-0.5">
                   Safety-Driven
                 </Badge>
               </div>

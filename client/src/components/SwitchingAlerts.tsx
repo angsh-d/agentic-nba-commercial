@@ -34,11 +34,11 @@ export function SwitchingAlerts() {
   return (
     <div className="mb-8">
       <div className="flex items-center gap-2 mb-4 px-1">
-        <AlertTriangle className="h-5 w-5 text-gray-900" />
-        <h2 className="text-[19px] font-semibold text-gray-900 tracking-tight">
+        <AlertTriangle className="h-5 w-5 text-red-500" />
+        <h2 className="text-[19px] font-semibold text-[#1d1d1f] tracking-tight">
           Switching Alerts
         </h2>
-        <Badge className="ml-2 rounded-full px-3 py-1 text-[11px] font-semibold bg-gray-900 text-white">
+        <Badge variant="destructive" className="ml-2 rounded-full px-3 py-1 text-[11px] font-semibold">
           {events.length} ACTIVE
         </Badge>
       </div>
@@ -48,12 +48,12 @@ export function SwitchingAlerts() {
           {events.map((event) => {
             const impactColor =
               event.impactLevel === "critical"
-                ? "bg-gray-900"
+                ? "bg-red-500"
                 : event.impactLevel === "high"
-                ? "bg-gray-700"
+                ? "bg-orange-500"
                 : event.impactLevel === "medium"
-                ? "bg-gray-500"
-                : "bg-blue-600";
+                ? "bg-yellow-500"
+                : "bg-blue-500";
 
             return (
               <motion.div
@@ -65,7 +65,7 @@ export function SwitchingAlerts() {
                 layout
               >
                 <Card
-                  className="border-l-4 border-l-gray-900 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl bg-white"
+                  className="border-l-4 border-l-red-500 shadow-[0_4px_20px_rgb(239,68,68,0.15)] hover:shadow-[0_8px_30px_rgb(239,68,68,0.25)] transition-all duration-300 rounded-[20px] bg-white"
                   data-testid={`alert-switching-${event.id}`}
                 >
                   <CardContent className="p-6">
@@ -91,7 +91,7 @@ export function SwitchingAlerts() {
                           </Badge>
                         </div>
 
-                        <div className="bg-gray-50 rounded-2xl p-5 mb-4">
+                        <div className="bg-red-50 rounded-2xl p-5 mb-4">
                           <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
                               <p className="text-[12px] text-[#86868b] font-medium mb-1">FROM</p>
@@ -99,7 +99,7 @@ export function SwitchingAlerts() {
                             </div>
                             <div>
                               <p className="text-[12px] text-[#86868b] font-medium mb-1">TO</p>
-                              <p className="text-[15px] font-semibold text-gray-900">{event.toProduct}</p>
+                              <p className="text-[15px] font-semibold text-red-600">{event.toProduct}</p>
                             </div>
                           </div>
 
@@ -136,7 +136,7 @@ export function SwitchingAlerts() {
                         <div className="flex items-center gap-3">
                           <Button
                             size="sm"
-                            className="rounded-full bg-gray-900 hover:bg-blue-600 text-white h-10 px-6 font-medium"
+                            className="rounded-full bg-[#1d1d1f] hover:bg-black text-white h-10 px-6 font-medium"
                             data-testid={`button-address-${event.id}`}
                             onClick={() => updateStatusMutation.mutate({ id: event.id, status: "addressed" })}
                           >

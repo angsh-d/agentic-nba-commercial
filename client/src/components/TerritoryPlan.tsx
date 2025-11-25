@@ -102,7 +102,7 @@ export function TerritoryPlan({ open, onOpenChange }: TerritoryPlanProps) {
                         <span className="text-[13px] text-[#86868b] font-medium capitalize">{step.type}</span>
                       </div>
                       {step.priority === 'High' && (
-                        <Badge className="bg-gray-50 text-gray-600 hover:bg-gray-100 border-none rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                        <Badge className="bg-red-50 text-red-600 hover:bg-red-100 border-none rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
                           High Priority
                         </Badge>
                       )}

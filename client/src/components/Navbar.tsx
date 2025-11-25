@@ -6,34 +6,34 @@ import saamaLogo from "@assets/image_1763828618655.png";
 
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 h-18 flex items-center justify-between px-8 transition-all duration-300 support-[backdrop-filter]:bg-white/60">
+    <nav className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-gray-200 h-16 flex items-center justify-between px-6 transition-all duration-300 support-[backdrop-filter]:bg-white/60">
       {/* Left Section - Logo & Brand */}
-      <div className="flex items-center gap-10">
-        <div className="flex items-center gap-4">
-          <img src={saamaLogo} alt="Saama" className="h-7 w-auto object-contain" />
-          <div className="h-6 w-px bg-gray-300" />
-          <span className="text-lg font-semibold text-gray-900 tracking-tight">Agentic NBA Platform</span>
+      <div className="flex items-center gap-8">
+        <div className="flex items-center gap-3">
+          <img src={saamaLogo} alt="Saama" className="h-6 w-auto object-contain opacity-90" />
+          <div className="h-5 w-px bg-gray-300" />
+          <span className="text-[17px] font-semibold text-gray-900 tracking-tight">Agentic NBA Platform</span>
         </div>
       </div>
 
       {/* Center Section - Search */}
-      <div className="flex-1 max-w-2xl mx-12">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+      <div className="flex-1 max-w-xl mx-8">
+        <div className="relative group">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[15px] w-[15px] text-gray-400 transition-colors" />
           <Input 
-            className="w-full rounded-lg border-gray-300 bg-gray-50 pl-11 pr-4 h-10 text-sm placeholder:text-gray-400 apple-focus focus-visible:bg-white transition-all"
+            className="w-full rounded-lg border-gray-300 bg-gray-50 pl-10 pr-4 h-9 text-[14px] placeholder:text-gray-400 focus-visible:ring-1 focus-visible:ring-gray-400 focus-visible:border-gray-400 focus-visible:bg-white transition-all"
             placeholder="Search HCPs..." 
           />
         </div>
       </div>
 
       {/* Right Section - User */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3 cursor-pointer group">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-gray-900 text-white text-xs font-medium">AD</AvatarFallback>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 cursor-pointer group">
+          <Avatar className="h-7 w-7">
+            <AvatarFallback className="bg-gray-900 text-white text-[11px] font-medium">AD</AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Angshuman Deb</span>
+          <span className="text-[13px] font-medium text-gray-600 group-hover:text-gray-900 transition-colors">Angshuman Deb</span>
         </div>
       </div>
     </nav>

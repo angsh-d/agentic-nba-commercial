@@ -594,7 +594,7 @@ export default function InvestigationHub() {
                           {youngRccPatients.length > 0 && (
                             <div className="bg-white rounded-lg p-6 border border-gray-200">
                               <div className="flex items-center gap-2 mb-3">
-                                <Badge className="bg-blue-50 text-blue-500 border-blue-200 text-xs px-2 py-0.5">
+                                <Badge className="bg-blue-100 text-blue-900 border-blue-200 text-xs px-2 py-0.5">
                                   Young RCC Cohort
                                 </Badge>
                               </div>
@@ -611,7 +611,7 @@ export default function InvestigationHub() {
                           {cvRiskPatients.length > 0 && (
                             <div className="bg-white rounded-lg p-6 border border-gray-200">
                               <div className="flex items-center gap-2 mb-3">
-                                <Badge className="bg-gray-100 text-gray-900 border-gray-200 text-xs px-2 py-0.5">
+                                <Badge className="bg-red-100 text-red-900 border-red-200 text-xs px-2 py-0.5">
                                   CV-Risk Cohort
                                 </Badge>
                               </div>

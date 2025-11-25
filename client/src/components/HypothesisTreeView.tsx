@@ -40,11 +40,11 @@ export function HypothesisTreeView({ hypotheses }: HypothesisTreeViewProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "proven":
-        return <CheckCircle2 className="w-5 h-5 text-gray-600" />;
+        return <CheckCircle2 className="w-5 h-5 text-emerald-600" />;
       case "rejected":
         return <XCircle className="w-5 h-5 text-neutral-400" />;
       case "gathering":
-        return <Target className="w-5 h-5 text-blue-500 animate-pulse" />;
+        return <Target className="w-5 h-5 text-blue-600 animate-pulse" />;
       default:
         return <AlertCircle className="w-5 h-5 text-neutral-400" />;
     }
@@ -53,7 +53,7 @@ export function HypothesisTreeView({ hypotheses }: HypothesisTreeViewProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "proven":
-        return "bg-gray-50 border-gray-200";
+        return "bg-emerald-50 border-emerald-200";
       case "rejected":
         return "bg-neutral-50 border-neutral-200 opacity-60";
       case "gathering":
@@ -64,9 +64,9 @@ export function HypothesisTreeView({ hypotheses }: HypothesisTreeViewProps) {
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "text-gray-900 bg-gray-100";
-    if (confidence >= 60) return "text-blue-500 bg-blue-100";
-    if (confidence >= 40) return "text-gray-600 bg-gray-100";
+    if (confidence >= 80) return "text-emerald-700 bg-emerald-100";
+    if (confidence >= 60) return "text-blue-700 bg-blue-100";
+    if (confidence >= 40) return "text-amber-700 bg-amber-100";
     return "text-neutral-600 bg-neutral-100";
   };
 
