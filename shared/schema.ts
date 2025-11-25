@@ -3,6 +3,15 @@ import { pgTable, text, varchar, serial, integer, timestamp, jsonb } from "drizz
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Risk Score Factor - for explainability
+export type RiskScoreFactor = {
+  factorKey: string; // e.g., "declining_prescriptions"
+  label: string; // e.g., "Declining Prescriptions"
+  points: number; // Points awarded for this factor
+  evidence: string; // Description/evidence (e.g., "Severe decline -64%")
+  maxPoints: number; // Maximum possible points for this factor
+};
+
 // Healthcare Providers (HCPs)
 export const hcps = pgTable("hcps", {
   id: serial("id").primaryKey(),
@@ -15,6 +24,7 @@ export const hcps = pgTable("hcps", {
   switchRiskScore: integer("switch_risk_score").default(0), // 0-100 risk score
   switchRiskTier: text("switch_risk_tier").default("low"), // low, medium, high, critical
   switchRiskReasons: jsonb("switch_risk_reasons").$type<string[]>().default([]), // Array of risk factors
+  riskScoreBreakdown: jsonb("risk_score_breakdown").$type<RiskScoreFactor[]>(), // Detailed factor breakdown
   lastRiskUpdate: timestamp("last_risk_update"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

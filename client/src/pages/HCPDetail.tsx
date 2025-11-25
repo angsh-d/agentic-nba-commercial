@@ -2,6 +2,12 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CohortSwitchingChart } from "@/components/CohortSwitchingChart";
@@ -34,6 +40,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import { useState, useEffect } from "react";
 
+interface RiskScoreFactor {
+  factorKey: string;
+  label: string;
+  points: number;
+  evidence: string;
+  maxPoints: number;
+}
+
 interface HCP {
   id: number;
   name: string;
@@ -43,6 +57,7 @@ interface HCP {
   switchRiskScore: number;
   switchRiskTier: string;
   switchRiskReasons?: string[];
+  riskScoreBreakdown?: RiskScoreFactor[];
   engagementLevel: string;
   lastVisitDate: string;
   createdAt: string;
@@ -512,9 +527,43 @@ export default function HCPDetail() {
                 </div>
 
                 <div className="text-right">
-                  <div className="text-6xl font-semibold text-gray-900 mb-3 tracking-tight">
-                    {hcp.switchRiskScore}
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-6xl font-semibold text-gray-900 mb-3 tracking-tight cursor-help">
+                          {hcp.switchRiskScore}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-sm p-4">
+                        <div className="space-y-3">
+                          <div className="font-semibold text-sm mb-2">Risk Score Breakdown</div>
+                          {hcp.riskScoreBreakdown && hcp.riskScoreBreakdown.length > 0 ? (
+                            hcp.riskScoreBreakdown.map((factor) => (
+                              <div key={factor.factorKey} className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="font-medium">{factor.label}</span>
+                                  <span className="text-gray-600">
+                                    {factor.points} / {factor.maxPoints} pts
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-500 leading-relaxed">
+                                  {factor.evidence}
+                                </div>
+                                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gray-900 transition-all"
+                                    style={{ width: `${(factor.points / factor.maxPoints) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-xs text-gray-500">No breakdown available</div>
+                          )}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   {getRiskBadge(hcp.switchRiskTier, hcp.switchRiskScore)}
                   <div className="mt-4 text-sm text-gray-600 font-light">
                     Multi-agent analysis

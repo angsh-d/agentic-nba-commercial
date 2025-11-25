@@ -16,6 +16,27 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### November 25, 2025 - Risk Score Explainability Feature
+**Objective:** Provide transparent, factor-level breakdown of HCP risk scores with interactive tooltip visualization.
+
+**Backend Implementation:**
+- Extended `hcps` table with `riskScoreBreakdown` JSONB column storing factor-level analysis
+- Modified switching detection algorithm to capture 3 risk factors with evidence:
+  - Declining Onco-Pro prescriptions (0-40 points): Tracks prescription volume decline with percentage evidence
+  - Rising competitor prescriptions (0-35 points): Monitors competitor adoption trends with growth rates
+  - Market share position (0-25 points): Evaluates competitive positioning relative to alternatives
+- Added comprehensive division-by-zero guards for edge cases (zero baseline prescriptions, new adoption, no activity)
+- Implemented type-safe imports using `import type` for runtime compatibility
+
+**Frontend UX:**
+- Interactive tooltip on risk score display with hover interaction (`cursor-help`)
+- Visual breakdown showing points earned vs. max points for each factor
+- Inline evidence text explaining the scoring rationale
+- Progress bar visualization for each factor's contribution
+- Apple-inspired minimalist design (greyscale, clean typography)
+
+**Status:** Feature complete with successful API integration, no runtime errors, all edge cases handled.
+
 ### November 25, 2025 - Comprehensive Neo4j ETL Enhancement
 **Objective:** Extended knowledge graph from 5 to 18 node types to support all 10 COMMON_PATTERNS for multi-agent commercial intelligence queries.
 
